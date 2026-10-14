@@ -1,0 +1,17 @@
+{
+  "total_original": 2321,
+  "duplicatas_brutas_identificadas": 660,
+  "linhas_removidas_mesma_classe": 337,
+  "linhas_removidas_conflito": 22,
+  "total_removido": 359,
+  "total_apos_dedup": 1962,
+  "distribuicao_classes_apos_dedup": {
+    "Normal": 707,
+    "T3": 435,
+    "D1": 273,
+    "D2": 221,
+    "PD": 111,
+    "T2": 108,
+    "T1": 107
+  }
+}

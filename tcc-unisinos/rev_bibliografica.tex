@@ -1,0 +1,288 @@
+\section{REVISÃO BIBLIOGRÁFICA}
+Este TCC investiga um modelo híbrido para
+diagnóstico preditivo de falhas incipientes em transformadores de
+potência a partir de Análise de Gases Dissolvidos (DGA).
+O pipeline proposto possui dois estágios:
+(i) um módulo de previsão temporal baseado em LSTM para estimar as
+concentrações futuras dos gases; e
+(ii) um módulo de classificação baseado em XGBoost, com seleção de atributos e otimização de hiperparâmetros via Algoritmo Genético Melhorado (IGA).
+A fundamentação e nomenclatura de DGA e falhas seguem recomendações normativas e guias técnicos
+\cite{iec60599_2022,ieee_c57_104_2019,cigre_tb771_2019}.
+Aspectos de monitoramento online e confiabilidade de medições são
+contextualizados por recomendações sobre monitores e verificação de acurácia \cite{cigre_tb783_2019}.
+A motivação para o uso de ML e híbridos apoia-se em resultados
+recentes com IGA+XGBoost \cite{wu2021_iga_xgboost} e em abordagens
+dinâmicas com LSTM para previsão de falhas \cite{wang2023_lstm_dga}.
+\textbf{Sugestão de figura:} inserir na Figura~\ref{fig:pipeline} um
+diagrama do fluxo completo (DGA $\rightarrow$ pré-processamento $
+\rightarrow$ LSTM $\rightarrow$ atributos derivados $\rightarrow$ IGA $
+\rightarrow$ XGBoost $\rightarrow$ avaliação).
+
+\section{Bases de dados e definição do problema}
+\subsection{Origem e descrição dos dados}
+Os dados consistem em séries temporais de medições de DGA
+(concentrações de gases dissolvidos no óleo isolante), associadas a
+rótulos de condição operacional e/ou classes de falha.
+Nesta etapa de escrita, os seguintes itens estão \textbf{não
+especificados} (devem ser preenchidos quando o dataset final for definido):
+número de transformadores, intervalo temporal total coberto, periodicidade
+de amostragem (regular vs.\ irregular), lista final de gases disponíveis,
+unidade de medida (ppm ou $\mu$L/L), origem dos rótulos (inspeção,
+equipe de manutenção, regra normatizada etc.), e proporção de
+classes.
+
+\subsection{Classes e rotulagem}
+As classes podem seguir a taxonomia tradicional utilizada em DGA (por
+exemplo, classes associadas a descargas e falhas térmicas) conforme guias
+normativos \cite{iec60599_2022,ieee_c57_104_2019} e práticas discutidas em
+revisões \cite{nanfak2024_traditional_dga_review,duval2002_review}.
+Caso o dataset utilize classes diferentes (mais agregadas ou mais finas), o
+mapeamento será documentado (\textbf{não especificado}).
+
+\subsection{Estrutura do problema}
+O problema é formulado como:
+\begin{itemize}
+\item \textbf{Previsão (regressão temporal):} prever concentrações futuras de gases (multi-saída) a partir de sequências históricas
+\cite{wang2023_lstm_dga}.
+\item \textbf{Classificação (multi-classe ou binária):} inferir
+classe de falha/condição utilizando medições atuais, atributos
+derivados e previsões \cite{wu2021_iga_xgboost}.
+\end{itemize}
+
+\section{Pré-processamento de dados}
+\subsection{Limpeza, consistência e outliers}
+Serão aplicados procedimentos para:
+(i) eliminar valores impossíveis (negativos); (ii) ordenar por tempo; (iii) uniformizar unidade e escala (\textbf{não especificado}); e
+(iv) tratar outliers por critérios robustos (IQR, z-score robusto) e/ou
+regras de engenharia (\textbf{não especificado}).
+A decisão final será reportada e justificada.
+
+\subsection{Dados faltantes e imputação}
+Dados faltantes são comuns em DGA (coleta laboratorial, falhas de
+aquisição, integração de fontes).
+Serão avaliadas estratégias de imputação:
+interpolação temporal para lacunas curtas; \textit{forward fill} com
+limite de tempo; e imputação multivariada (ex.: KNN/MICE).
+Como linha de base orientada por literatura, pode-se considerar regressão
+por Random Forest para preenchimento, como utilizado em diagnóstico com
+XGBoost em cenários de dados incompletos
+\cite{wang2023_tpe_xgboost_incomplete}.
+A escolha final e hiperparâmetros permanecem \textbf{não especificados}.
+
+\subsection{Normalização e transformações}
+Embora XGBoost seja pouco sensível à escala, transformações podem
+estabilizar variância e reduzir assimetria em gases.
+Serão comparados:
+$\log(1+x)$ por gás (quando aplicável) e normalização Min--Max ou z-score.
+A configuração final será reportada (\textbf{não especificado}).
+
+\subsection{Janelamento temporal (windowing)}
+Para treinamento do LSTM, as séries temporais serão convertidas em
+amostras supervisionadas via janela deslizante:
+\begin{itemize}
+\item comprimento da janela $L \in [4,48]$ passos (\textbf{não
+especificado});
+\item horizonte de previsão $H \in [1,12]$ passos (\textbf{não
+especificado});
+\item entrada $\mathbf{X}\in\mathbb{R}^{L\times m}$, com $m$
+variáveis (gases e derivados);
+\item saída $\mathbf{y}$ multi-saída (gases em $t+H$).
+\end{itemize}
+Para evitar vazamento temporal, splits e validação seguirão
+cronologia (Seção~\ref{sec:protocolo}).
+A literatura recente explicita que estratégias inadequadas podem
+introduzir \textit{data leakage} em pipelines de previsão e decomposição, sugerindo amostragem passo-a-passo para maior realismo
+\cite{chen2024_sds_vmd_lstm_dga}.
+
+\section{Módulo de previsão: LSTM}
+\subsection{Arquitetura candidata}
+A rede LSTM será treinada para prever concentrações futuras de gases
+a partir do histórico.
+Arquiteturas candidatas (faixas):
+\begin{itemize}
+\item 1 a 2 camadas LSTM empilhadas;
+\item unidades por camada $\in\{16,32,64,128\}$;
+\item \textit{dropout} $\in[0.0,0.5]$ (incluindo \textit{recurrent
+dropout} quando disponível);
+\item camada densa final com saída multi-gás.
+\end{itemize}
+O desenho segue evidência de previsão dinâmica com LSTM aplicada à
+DGA \cite{wang2023_lstm_dga}.
+
+\subsection{Treinamento e função de perda}
+Configurações iniciais e ranges:
+\begin{itemize}
+\item perdas: MSE, MAE e Huber;
+\item otimizador: Adam;
+\item taxa de aprendizado $\eta \in [10^{-5},10^{-2}]$;
+\item \textit{batch size} $\in[16,256]$;
+\item \'{e}pocas: até 500 com \textit{early stopping} (paciência
+10--30).
+\end{itemize}
+Rotinas como redução de LR em platô e regularização L2 podem
+ser testadas (\textbf{não especificado}).
+A calibração final será documentada.
+
+\subsection{Métricas do módulo de previsão}
+Serão reportadas MAE e RMSE por gás e agregadas.
+MAPE será usado apenas quando a escala permitir (tratando zeros).
+
+\section{Engenharia de atributos para diagnóstico}
+\subsection{Atributos derivados (razões e Duval)}
+A partir de gases observados e previstos, serão extraídos:
+\begin{itemize}
+\item razões clássicas (incluindo Rogers/IEC quando aplicável) e
+variáveis agregadas para caracterizar padrões de falha
+\cite{iec60599_2022,ieee_c57_104_2019,nanfak2024_traditional_dga_review};
+\item \textit{features} do
+Triângulo de Duval: percentuais normalizados de CH$_4$, C$_2$H$_4$,
+C$_2$H$_2$ e/ou codificação de zona como atributo categórico
+\cite{duval2002_review,cigre_tb771_2019}.
+\end{itemize}
+
+\subsection{Uso de previsões como entradas do classificador}
+O classificador receberá como entrada:
+gases em $t$, previsões $\hat{\mathbf{g}}(t+H)$ e atributos derivados
+calculados sobre $\hat{\mathbf{g}}$.
+Esse desenho operacionaliza diagnóstico preditivo (antecipado) e segue a
+motivação de previsão dinâmica proposta na literatura
+\cite{wang2023_lstm_dga}.
+
+10\section{IGA: seleção de atributos e ajuste de hiperparâmetros}
+\subsection{Codificação do cromossomo}
+O cromossomo do IGA será composto por:
+(i) uma parte binária (máscara) para selecionar atributos; e
+(ii) genes inteiros/reais para hiperparâmetros do XGBoost.
+Esse tipo de otimização conjunta foi utilizado com sucesso em
+diagnóstico por DGA com XGBoost \cite{wu2021_iga_xgboost}.
+
+\subsection{Função de aptidão (fitness) e restrições}
+Como métrica principal recomenda-se Macro-F1 (robusta a desbalanceamento),
+com penalização proporcional ao número de atributos selecionados:
+$$
+F = \alpha\,(1-\text{MacroF1}) + (1-\alpha)\,\frac{k}{d},
+$$
+onde $k$ é o número de atributos selecionados, $d$ é o total de
+atributos e $\alpha \in [0.7,0.95]$ (\textbf{não especificado}).
+Restrições sugeridas:
+\begin{itemize}
+\item $k \ge k_{\min}$ para evitar modelos degenerados (\textbf{não
+especificado});
+\item limites de hiperparâmetros do XGBoost (Seção seguinte).
+\end{itemize}
+
+\subsection{Operadores e parâmetros do IGA}
+Ranges iniciais:
+população 50--200; gerações 50--200; seleção por torneio +
+elitismo (1--5\%);
+cruzamento 0.6--0.9; mutação 0.01--0.2.
+A configuração final será reportada (\textbf{não especificado}) e
+pode ser calibrada com base em desempenho e tempo computacional
+\cite{wu2021_iga_xgboost}.
+
+\section{Classificador XGBoost}
+\subsection{Justificativa e objetivo}
+O XGBoost é um sistema de \textit{gradient boosting} em árvores
+amplamente consolidado para dados tabulares, conhecido por escalabilidade e
+desempenho \cite{chen2016_xgboost}.
+No presente TCC, ele será empregado como classificador de classes de falha
+(multi-classe) ou condição (binária), conforme o dataset final
+(\textbf{não especificado}).
+
+\subsection{Configuração}
+Configuração sugerida:
+\begin{itemize}
+\item multi-classe: \texttt{objective=multi:softprob} e
+\texttt{eval\_metric=mlogloss};
+\item binária: \texttt{objective=binary:logistic} e
+\texttt{eval\_metric=logloss}.
+\end{itemize}
+11Quando possível, utilizar \textit{early stopping} com validação
+temporal.
+
+\subsection{Ranges de hiperparâmetros (para busca via IGA)}
+Faixas recomendadas:
+\begin{itemize}
+\item \texttt{n\_estimators} $\in[200,3000]$
+\item \texttt{max\_depth} $\in[2,12]$
+\item \texttt{learning\_rate} $\in[0.005,0.3]$
+\item \texttt{subsample} $\in[0.5,1.0]$
+\item \texttt{colsample\_bytree} $\in[0.5,1.0]$
+\item \texttt{min\_child\_weight} $\in[1,20]$
+\item \texttt{gamma} $\in[0,10]$
+\item \texttt{reg\_alpha} $\in[0,10]$
+\item \texttt{reg\_lambda} $\in[0.1,50]$
+\end{itemize}
+
+\section{Protocolo experimental e avaliação}\label{sec:protocolo}
+\subsection{Split treino/validação/teste}
+Por se tratar de série temporal, o split seguirá ordem cronológica:
+treino (período antigo), validação (intermediário) e teste (final).
+Opcionalmente, usar \textit{time-series cross-validation} do tipo
+\textit{rolling-origin} (expanding window) quando houver dados suficientes
+(\textbf{não especificado}).
+A necessidade de evitar vazamento temporal é coerente com preocupações recentes em previsão de gases \cite{chen2024_sds_vmd_lstm_dga}.
+
+\subsection{Métricas de classificação}
+Serão reportadas:
+acurácia; precisão, revocação e F1 (macro e ponderada);
+AUC One-vs-Rest (quando aplicável);
+e matriz de confusão.
+
+\subsection{Baselines para comparação}
+Baselines:
+\begin{itemize}
+\item métodos tradicionais: Duval e razões (incluindo Rogers/IEC
+quando aplicável), conforme guias e revisões
+\cite{iec60599_2022,ieee_c57_104_2019,cigre_tb771_2019,nanfak2024_traditional_dga_review,duval2002_review}
+\item ML estático: SVM e Random Forest (\textbf{configurações:
+não especificado});
+\item XGBoost sem previsão e sem IGA (baseline de boosting).
+\end{itemize}
+
+\subsection{Plano de ablação}
+Para quantificar a contribuição de cada componente:
+\begin{itemize}
+\item (A) XGBoost apenas com gases atuais;
+\item (B) LSTM + XGBoost (sem IGA);
+\item (C) IGA + XGBoost (sem previsão);
+\item (D) LSTM + IGA + XGBoost (completo);
+12\item (E) remoção seletiva de \textit{features} (razões vs.\
+Duval vs.\ taxas).
+\end{itemize}
+
+\section{Implementação, recursos computacionais e reprodutibilidade}
+\subsection{Ferramentas}
+Sugere-se Python com \texttt{numpy}, \texttt{pandas}, \texttt{scikit-learn},
+\texttt{xgboost} e um framework DL (\texttt{TensorFlow/Keras} ou
+\texttt{PyTorch}).
+Versões exatas: \textbf{não especificado}.
+
+\subsection{Hardware e controle de aleatoriedade}
+Reportar CPU/GPU, RAM e tempo de treinamento (\textbf{não especificado}).
+Fixar sementes (Python/NumPy/DL), versionar código (Git) e registrar
+experimentos (ex.: MLflow) (\textbf{não especificado}).
+
+\section{Limitações e extensões (tendências)}
+\subsection{Monitoramento online/IoT}
+A disponibilidade crescente de monitores online e a necessidade de requisitos
+de acurácia em contratos e aquisições são discutidas por
+relatórios técnicos \cite{cigre_tb783_2019}.
+Como exemplo de tendência de integração com IoT e métodos
+inteligentes, trabalhos propõem classificação de falhas com
+sensoriamento online e modelos neuro-fuzzy \cite{equbal2022_iot_anfis_enose}.
+
+\subsection{Mudança de distribuição e adaptação de domínio}
+Modelos treinados em uma base podem degradar sob condições operacionais diferentes (\textit{domain shift}).
+Como extensão, recomenda-se avaliar adaptação de domínio com
+ponderação de atributos e alinhamento de distribuição
+\cite{mahmoodiyan2025_domain_adaptation_thesis}.
+
+\subsection{Aprendizado federado/transferência federada}
+Em cenários multi-organização com restrições de privacidade e
+\textit{data islands}, abordagens de transferência federada são
+relevantes para lidar com discrepância de distribuição e custo de
+rotulagem \cite{qian2025_ftl_review}.
+(C) Tabela comparativa e lacunas
+\subsection{Energia}
+revisão bibliográfica sobre energia...

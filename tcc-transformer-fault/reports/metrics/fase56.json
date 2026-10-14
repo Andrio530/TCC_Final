@@ -1,0 +1,449 @@
+{
+  "n_boot": 5000,
+  "n_splits": 5,
+  "n_repeats": 5,
+  "katser_dataset_nota": "O dataset Katser (2022) possui 1 rótulo por série (FDD = serie-level), inclui RUL (Remaining Useful Life) e séries de 420 pontos a 12h/ponto. Os valores de gás estão em escala muito pequena (ordem 1e-3), consistentes com dados simulados ou de um sistema de monitoramento online de usina nuclear, não de medições laboratoriais mensais. Isso implica que o argumento físico sobre a lentidão de falhas térmicas não pode ser assumido sem verificação no artigo original.",
+  "baseline_bruto": {
+    "f1_seeds": [
+      0.7227649135577645,
+      0.7031640377573808,
+      0.7458093527929208,
+      0.7303367863907935,
+      0.7231446185393553
+    ],
+    "f1_media": 0.7250439418076431,
+    "f1_std": 0.013760436744949386,
+    "ic95": [
+      0.6586736132978679,
+      0.7850753401130595
+    ],
+    "features": [
+      "H2",
+      "CH4",
+      "C2H6",
+      "C2H4",
+      "C2H2"
+    ],
+    "interpretacao": "F1 próximo de 0,80 confirma o teto informacional: a engenharia de features não quebra o teto dos 5 gases."
+  },
+  "tabela_rotulo_norma": {
+    "IEC60599": {
+      "D1": {
+        "n": 273,
+        "concordancia_pct": 24.2,
+        "nao_classificado_pct": 71.4,
+        "distribuicao_predita": {
+          "ND": 195,
+          "D1": 66,
+          "PD": 5,
+          "D2": 4,
+          "T2": 2,
+          "T3": 1
+        }
+      },
+      "D2": {
+        "n": 221,
+        "concordancia_pct": 15.8,
+        "nao_classificado_pct": 40.7,
+        "distribuicao_predita": {
+          "ND": 90,
+          "D1": 85,
+          "D2": 35,
+          "PD": 5,
+          "T1": 4,
+          "T3": 1,
+          "T2": 1
+        }
+      },
+      "Normal": {
+        "n": 707,
+        "concordancia_pct": 0.0,
+        "nao_classificado_pct": 14.0,
+        "distribuicao_predita": {
+          "T1": 591,
+          "ND": 99,
+          "T2": 13,
+          "T3": 3,
+          "PD": 1
+        }
+      },
+      "PD": {
+        "n": 111,
+        "concordancia_pct": 14.4,
+        "nao_classificado_pct": 80.2,
+        "distribuicao_predita": {
+          "ND": 89,
+          "PD": 16,
+          "D1": 3,
+          "T1": 2,
+          "D2": 1
+        }
+      },
+      "T1": {
+        "n": 107,
+        "concordancia_pct": 48.6,
+        "nao_classificado_pct": 36.4,
+        "distribuicao_predita": {
+          "T1": 52,
+          "ND": 39,
+          "T3": 7,
+          "T2": 5,
+          "PD": 3,
+          "D2": 1
+        }
+      },
+      "T2": {
+        "n": 108,
+        "concordancia_pct": 64.8,
+        "nao_classificado_pct": 17.6,
+        "distribuicao_predita": {
+          "T2": 70,
+          "ND": 19,
+          "T1": 15,
+          "T3": 4
+        }
+      },
+      "T3": {
+        "n": 435,
+        "concordancia_pct": 31.3,
+        "nao_classificado_pct": 14.0,
+        "distribuicao_predita": {
+          "T1": 205,
+          "T3": 136,
+          "ND": 61,
+          "T2": 32,
+          "D2": 1
+        }
+      }
+    },
+    "Duval": {
+      "D1": {
+        "n": 273,
+        "concordancia_pct": 76.2,
+        "nao_classificado_pct": 4.8,
+        "distribuicao_predita": {
+          "D1": 208,
+          "D2": 40,
+          "DT": 13,
+          "T2": 7,
+          "T3": 5
+        }
+      },
+      "D2": {
+        "n": 221,
+        "concordancia_pct": 58.4,
+        "nao_classificado_pct": 10.0,
+        "distribuicao_predita": {
+          "D2": 129,
+          "D1": 54,
+          "DT": 22,
+          "T3": 13,
+          "T2": 2,
+          "T1": 1
+        }
+      },
+      "Normal": {
+        "n": 707,
+        "concordancia_pct": 0.0,
+        "nao_classificado_pct": 1.0,
+        "distribuicao_predita": {
+          "T1": 629,
+          "T2": 41,
+          "T3": 16,
+          "D2": 7,
+          "PD": 5,
+          "DT": 5,
+          "ND": 2,
+          "D1": 2
+        }
+      },
+      "PD": {
+        "n": 111,
+        "concordancia_pct": 14.4,
+        "nao_classificado_pct": 4.5,
+        "distribuicao_predita": {
+          "T1": 58,
+          "PD": 16,
+          "T2": 15,
+          "D2": 7,
+          "D1": 7,
+          "DT": 5,
+          "T3": 3
+        }
+      },
+      "T1": {
+        "n": 107,
+        "concordancia_pct": 31.8,
+        "nao_classificado_pct": 2.8,
+        "distribuicao_predita": {
+          "T2": 44,
+          "T1": 34,
+          "T3": 10,
+          "D2": 9,
+          "PD": 6,
+          "DT": 3,
+          "D1": 1
+        }
+      },
+      "T2": {
+        "n": 108,
+        "concordancia_pct": 38.9,
+        "nao_classificado_pct": 10.2,
+        "distribuicao_predita": {
+          "T3": 43,
+          "T2": 42,
+          "DT": 11,
+          "T1": 7,
+          "D2": 5
+        }
+      },
+      "T3": {
+        "n": 435,
+        "concordancia_pct": 38.4,
+        "nao_classificado_pct": 8.5,
+        "distribuicao_predita": {
+          "T2": 170,
+          "T3": 167,
+          "T1": 50,
+          "DT": 37,
+          "D1": 7,
+          "D2": 3,
+          "PD": 1
+        }
+      }
+    }
+  },
+  "testes_unitarios": {
+    "duval": {
+      "casos": [
+        {
+          "descricao": "PD: centro",
+          "esperado": "PD",
+          "obtido": "PD",
+          "ok": true,
+          "pct_CH4": 98.0,
+          "pct_C2H4": 1.0,
+          "pct_C2H2": 1.0
+        },
+        {
+          "descricao": "PD: quase puro CH4",
+          "esperado": "PD",
+          "obtido": "PD",
+          "ok": true,
+          "pct_CH4": 99.0,
+          "pct_C2H4": 0.5,
+          "pct_C2H2": 0.5
+        },
+        {
+          "descricao": "T1: baixo C2H4, C2H2 quase zero",
+          "esperado": "T1",
+          "obtido": "T1",
+          "ok": true,
+          "pct_CH4": 81.6,
+          "pct_C2H4": 15.3,
+          "pct_C2H2": 3.1
+        },
+        {
+          "descricao": "T1: limite superior C2H4",
+          "esperado": "T1",
+          "obtido": "T2",
+          "ok": false,
+          "pct_CH4": 76.9,
+          "pct_C2H4": 20.9,
+          "pct_C2H2": 2.2
+        },
+        {
+          "descricao": "T2: centro",
+          "esperado": "T2",
+          "obtido": "T2",
+          "ok": true,
+          "pct_CH4": 61.9,
+          "pct_C2H4": 36.1,
+          "pct_C2H2": 2.1
+        },
+        {
+          "descricao": "T2: limite superior C2H4",
+          "esperado": "T2",
+          "obtido": "T2",
+          "ok": true,
+          "pct_CH4": 50.0,
+          "pct_C2H4": 48.0,
+          "pct_C2H2": 2.0
+        },
+        {
+          "descricao": "T3: centro",
+          "esperado": "T3",
+          "obtido": "T3",
+          "ok": true,
+          "pct_CH4": 31.6,
+          "pct_C2H4": 63.2,
+          "pct_C2H2": 5.3
+        },
+        {
+          "descricao": "T3: alto C2H4",
+          "esperado": "T3",
+          "obtido": "T3",
+          "ok": true,
+          "pct_CH4": 21.1,
+          "pct_C2H4": 75.8,
+          "pct_C2H2": 3.2
+        },
+        {
+          "descricao": "D1: alto C2H2, baixo C2H4",
+          "esperado": "D1",
+          "obtido": "D1",
+          "ok": true,
+          "pct_CH4": 36.4,
+          "pct_C2H4": 18.2,
+          "pct_C2H2": 45.5
+        },
+        {
+          "descricao": "D1: centro",
+          "esperado": "D1",
+          "obtido": "D1",
+          "ok": true,
+          "pct_CH4": 47.6,
+          "pct_C2H4": 14.3,
+          "pct_C2H2": 38.1
+        },
+        {
+          "descricao": "D2: alto C2H4 e C2H2",
+          "esperado": "D2",
+          "obtido": "D2",
+          "ok": true,
+          "pct_CH4": 23.5,
+          "pct_C2H4": 47.1,
+          "pct_C2H2": 29.4
+        },
+        {
+          "descricao": "D2: centro",
+          "esperado": "D2",
+          "obtido": "D2",
+          "ok": true,
+          "pct_CH4": 10.5,
+          "pct_C2H4": 52.6,
+          "pct_C2H2": 36.8
+        },
+        {
+          "descricao": "DT: zona mista alta C2H2 e C2H4",
+          "esperado": "DT",
+          "obtido": "D2",
+          "ok": false,
+          "pct_CH4": 31.6,
+          "pct_C2H4": 26.3,
+          "pct_C2H2": 42.1
+        }
+      ],
+      "erros": 2,
+      "total": 13
+    },
+    "iec": {
+      "casos": [
+        {
+          "descricao": "PD: all ratios match",
+          "esperado": "PD",
+          "obtido": "PD",
+          "ok": true,
+          "r1_C2H2_C2H4": 0.1,
+          "r2_CH4_H2": 0.05,
+          "r3_C2H4_C2H6": 0.1
+        },
+        {
+          "descricao": "D1: ratios match",
+          "esperado": "D1",
+          "obtido": "D1",
+          "ok": true,
+          "r1_C2H2_C2H4": 1.5,
+          "r2_CH4_H2": 0.3,
+          "r3_C2H4_C2H6": 2.0
+        },
+        {
+          "descricao": "D2: ratios match",
+          "esperado": "D2",
+          "obtido": "D2",
+          "ok": true,
+          "r1_C2H2_C2H4": 0.6,
+          "r2_CH4_H2": 0.6,
+          "r3_C2H4_C2H6": 3.333
+        },
+        {
+          "descricao": "T1: ratios match",
+          "esperado": "T1",
+          "obtido": "T1",
+          "ok": true,
+          "r1_C2H2_C2H4": 0.05,
+          "r2_CH4_H2": 5.0,
+          "r3_C2H4_C2H6": 0.5
+        },
+        {
+          "descricao": "T2: ratios match",
+          "esperado": "T2",
+          "obtido": "T2",
+          "ok": true,
+          "r1_C2H2_C2H4": 0.017,
+          "r2_CH4_H2": 6.0,
+          "r3_C2H4_C2H6": 3.0
+        },
+        {
+          "descricao": "T3: ratios match",
+          "esperado": "T3",
+          "obtido": "T3",
+          "ok": true,
+          "r1_C2H2_C2H4": 0.017,
+          "r2_CH4_H2": 6.0,
+          "r3_C2H4_C2H6": 6.0
+        },
+        {
+          "descricao": "ND: nenhum caso da tabela",
+          "esperado": "ND",
+          "obtido": "D2",
+          "ok": false,
+          "r1_C2H2_C2H4": 2.0,
+          "r2_CH4_H2": 0.8,
+          "r3_C2H4_C2H6": 3.0
+        }
+      ],
+      "erros": 1,
+      "total": 7
+    },
+    "status": "FAIL"
+  },
+  "cv_5x5": {
+    "C3_IGA": {
+      "f1_media": 0.7515740246703786,
+      "f1_std": 0.028067323430251534,
+      "ic95_normal": [
+        0.74057163388572,
+        0.7625764154550372
+      ],
+      "n_folds": 25
+    },
+    "C4_default": {
+      "f1_media": 0.7615856695785247,
+      "f1_std": 0.022618976982974152,
+      "ic95_normal": [
+        0.7527190306011988,
+        0.7704523085558506
+      ],
+      "n_folds": 25
+    },
+    "T3_Wu2021": {
+      "f1_media": 0.7653551926094403,
+      "f1_std": 0.025150897278335707,
+      "ic95_normal": [
+        0.7554960408763327,
+        0.7752143443425479
+      ],
+      "n_folds": 25
+    },
+    "bruto_5gases": {
+      "f1_media": 0.7082346234596345,
+      "f1_std": 0.03002978349066966,
+      "ic95_normal": [
+        0.696462948331292,
+        0.720006298587977
+      ],
+      "n_folds": 25
+    }
+  }
+}

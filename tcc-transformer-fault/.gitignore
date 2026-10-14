@@ -1,0 +1,31 @@
+.venv/
+__pycache__/
+*.pyc
+data/raw/*
+!data/raw/.gitkeep
+.ipynb_checkpoints/
+*.h5
+# Modelos Keras e scalers em data/processed/ sao versionados (necessarios para reproducao)
+# Demais .keras fora de data/processed/ sao ignorados
+*.keras
+!data/processed/*.keras
+*.pkl
+!data/processed/*.pkl
+*.joblib
+.DS_Store
+.vscode/
+*.swp
+
+# Arquivos de planejamento e logs da IA
+*implementation_plan*.md
+execution_guide*.md
+walkthrough*.md
+HANDOFF_PROMPT.md
+analise_resultados*.md
+analysis*.md
+reports/resumo_reuniao_orientadora.md
+wu_*.txt
+plano_*.md
+auditoria_fase5_plano.md
+analise_fase5_resultados.md
+analise_critica_features.md

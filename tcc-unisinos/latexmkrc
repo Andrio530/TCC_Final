@@ -1,0 +1,4 @@
+# Compila com pdflatex + bibtex (abntex2cite usa BibTeX, não biber)
+$pdf_mode = 1;
+$bibtex_use = 2;
+$pdflatex = 'pdflatex -interaction=nonstopmode -file-line-error -synctex=1 %O %S';

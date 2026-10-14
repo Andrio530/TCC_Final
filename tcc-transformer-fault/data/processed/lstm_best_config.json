@@ -1,0 +1,18 @@
+{
+  "w_star": 50,
+  "normalizar": false,
+  "seeds_avaliacao": [
+    42,
+    123,
+    456,
+    789,
+    2024
+  ],
+  "gases": [
+    "H2",
+    "CO",
+    "C2H4",
+    "C2H2"
+  ],
+  "horizonte": 1
+}

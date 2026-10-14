@@ -1,0 +1,370 @@
+\chapter{Fundamentação Teórica}\label{Fundamentacao}\label{cap:fundamentacao}
+
+Este capítulo estabelece a fundamentação teórica necessária para o desenvolvimento e a interpretação dos modelos analisados neste trabalho. Inicialmente, descrevem-se os transformadores de potência, abordando a constituição do sistema de isolamento e os mecanismos físico-químicos que regem a decomposição do óleo mineral e a formação de gases dissolvidos. Em seguida, formulam-se matematicamente os métodos normativos de diagnóstico clássico, com ênfase no Triângulo 1 de Duval e no Método das Razões da IEC 60599. Na sequência, detalham-se os algoritmos de aprendizado de máquina aplicados à identificação de padrões em dados de cromatografia gasosa, abrangendo classificadores baseados em árvores com aumento de gradiente, redes neurais recorrentes para séries temporais e técnicas de otimização evolutiva. Apresenta-se também o arcabouço conceitual de explicabilidade pós-hoc fundamentado na teoria dos jogos cooperativos e no algoritmo TreeSHAP. Por fim, analisam-se os trabalhos relacionados presentes na literatura recente, identificando lacunas metodológicas e posicionando o escopo deste estudo.
+
+\section{Transformadores de Potência e Degradação do Isolamento}\label{sec:transformadores_isolamento}
+
+Os transformadores de potência são equipamentos eletromagnéticos estáticos empregados na conversão de níveis de tensão e corrente elétrica em sistemas de transmissão e distribuição de energia \cite{ali2023}. O princípio de operação baseia-se na Lei de Faraday, segundo a qual variações no fluxo magnético induzem forças eletromotrizes entre enrolamentos acoplados através de um núcleo ferromagnético laminado \cite{tightiz2020}. A operação contínua sob regimes de carregamento variáveis impõe esforços severos à estrutura física do equipamento, demandando sistemas de isolamento capazes de suportar simultaneamente gradientes térmicos elevados e campos dielétricos intensos.
+
+\subsection{Sistema de Isolamento e Mecanismos de Degradação}
+
+O sistema de isolamento dos transformadores de potência imersos em óleo é de natureza híbrida, combinando materiais sólidos e fluidos dielétricos \cite{ali2023}. A fase sólida é constituída por papéis celulósicos Kraft e barreiras de papelão prensado (\textit{pressboard}), responsáveis pelo isolamento entre espiras adjacentes e entre enrolamentos de diferentes fases. A fase fluida consiste em óleo mineral isolante, que preenche os interstícios mecânicos do tanque, proporcionando rigidez dielétrica ao conjunto e atuando como fluido refrigerante na dissipação do calor gerado por perdas no núcleo e nos condutores.
+
+Durante o ciclo de operação, o sistema de isolamento sofre degradação progressiva decorrente da ação combinada de estresses térmicos, elétricos e químicos. A oxidação do óleo mineral na presença de oxigênio dissolvido e contaminantes particulados resulta na acidificação do meio e na formação de borras polares que aceleram a perda de propriedades dielétricas. Paralelamente, o papel isolante sofre despolimerização celulósica por hidrólise e pirólise, reduzindo sua resistência mecânica e tornando o isolamento sólido vulnerável a esforços de curto-circuito.
+
+\subsection{Geração de Gases Dissolvidos}
+
+A decomposição térmica e elétrica dos hidrocarbonetos do óleo mineral e das cadeias celulósicas induz reações de quebra molecular que liberam gases combustíveis e não combustíveis, os quais se dissolvem no fluido dielétrico \cite{ali2023}. Os principais gases gerados incluem hidrogênio ($\text{H}_2$), metano ($\text{CH}_4$), etano ($\text{C}_2\text{H}_6$), etileno ($\text{C}_2\text{H}_4$) e acetileno ($\text{C}_2\text{H}_2$), além de monóxido de carbono ($\text{CO}$) e dióxido de carbono ($\text{CO}_2$), associados primariamente à quebra da celulose sólida.
+
+A concentração e as proporções relativas desses gases dependem diretamente da quantidade de energia concentrada no ponto de ocorrência da falha e da temperatura local associada. Descargas parciais de baixa energia geram predominantemente hidrogênio e traços de metano através de bombardeamento iônico local. Sobreaquecimentos térmicos de baixa temperatura induzem a clivagem preferencial de ligações carbono-hidrogênio simples, liberando metano e etano. Em temperaturas intermediárias e elevadas, intensifica-se a produção de etileno através da quebra de cadeias parafínicas. Em regime de descargas elétricas disruptivas de alta energia e arcos elétricos, onde temperaturas locais superam $1.000~^\circ\text{C}$, ocorre a fragmentação direta de anéis e cadeias carbônicas com rápida formação de acetileno. A quantificação laboratorial periódica dessas substâncias via cromatografia em fase gasosa constitui a técnica denominada Análise de Gases Dissolvidos (\textit{Dissolved Gas Analysis}, DGA), que subsidia programas de manutenção preditiva em ativos de potência.
+
+\subsection{Taxonomia e Severidade de Falhas Internas}
+
+A literatura e as normas internacionais categorizam os defeitos internos em transformadores em três classes fundamentais, compreendendo falhas elétricas, falhas térmicas e defeitos combinados \cite{alsakini2025}. As falhas elétricas englobam as descargas parciais (PD), que ocorrem em cavidades com falhas de impregnação no papel ou bolhas de gás; as descargas de baixa energia (D1), caracterizadas por centelhamentos intermitentes de baixa corrente; e as descargas de alta energia (D2), representadas por arcos elétricos intensos com queima perceptível de óleo e papel.
+
+As falhas térmicas são subdivididas de acordo com faixas de temperatura atingidas no ponto crítico. A classe T1 abrange sobreaquecimentos térmicos com temperaturas inferiores a 300~$^\circ\text{C}$, associados tipicamente a fluxos restritos de óleo ou correntes parasitas em tanques. A classe T2 corresponde a sobreaquecimentos térmicos com temperaturas situadas entre 300~$^\circ\text{C}$ e 700~$^\circ\text{C}$, comuns em contatos frouxos de conexões aparafusadas e derivações. A classe T3 define falhas térmicas severas com temperaturas superiores a 700~$^\circ\text{C}$, geradas por correntes circulantes anormais em estruturas de fixação e curtos-circuitos entre espiras. Falhas combinadas envolvem a sobreposição de solicitações dielétricas e térmicas concentradas no mesmo volume de isolamento. A distribuição dessas anomalias em bancos de dados operacionais reais exibe assimetria severa, visto que falhas de arco e descargas parciais apresentam frequência de registro substancialmente inferior à dos regimes de operação normal e sobreaquecimentos leves.
+
+\section{Métodos Normativos de Diagnóstico em DGA}\label{sec:metodos_normativos}
+
+A interpretação técnica dos ensaios de DGA baseia-se tradicionalmente em métodos gráficos e tabelas padronizadas que correlacionam frações de gases e razões estequiométricas com regimes de falha específicos.
+
+\subsection{Triângulo 1 de Duval}\label{sec:triangulo_duval}
+
+O Triângulo 1 de Duval, consolidado no Anexo B da norma IEC 60599 \cite{iec60599_2022} e em diretrizes técnicas correlatas \cite{duval2002_review}, constitui um método gráfico fundamentado em coordenadas baricêntricas triangulares. A formulação emprega a concentração em partes por milhão (ppm) de três espécies gasosas com diferentes energias de formação, compreendendo o metano ($\text{CH}_4$), o etileno ($\text{C}_2\text{H}_4$) e o acetileno ($\text{C}_2\text{H}_2$). A soma percentual dessas três espécies define o espaço amostral total:
+
+\begin{equation}\label{eq:duval_th}
+\text{TH}_{\text{Duval}} = [\text{CH}_4] + [\text{C}_2\text{H}_4] + [\text{C}_2\text{H}_2]
+\end{equation}
+
+As coordenadas triangulares normalizadas de cada ponto são obtidas por:
+
+\begin{equation}\label{eq:duval_coords}
+\% \text{CH}_4 = 100 \cdot \frac{[\text{CH}_4]}{\text{TH}_{\text{Duval}}}, \quad
+\% \text{C}_2\text{H}_4 = 100 \cdot \frac{[\text{C}_2\text{H}_4]}{\text{TH}_{\text{Duval}}}, \quad
+\% \text{C}_2\text{H}_2 = 100 \cdot \frac{[\text{C}_2\text{H}_2]}{\text{TH}_{\text{Duval}}}
+\end{equation}
+
+A soma dessas coordenadas resulta identicamente em 100\%, definindo um plano bidimensional no interior de um triângulo equilátero, conforme ilustrado na Figura~\ref{fig:Triangulo_Duval}.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.7\textwidth]{figuras/Triangulo Duval.png}
+\caption{Triângulo 1 de Duval para interpretação de gases dissolvidos em óleo mineral.}
+\label{fig:Triangulo_Duval}
+\fonte{Adaptado de \citeonline{ali2023}.}
+\end{figure}
+
+O espaço do triângulo é particionado em sete polígonos fechados associados a diferentes mecanismos de degradação:
+descargas parciais (PD), delimitadas pela região com $\% \text{CH}_4 \ge 98\%$;
+descargas de baixa energia (D1), definidas por $\% \text{C}_2\text{H}_2 > 13\%$ e $\% \text{C}_2\text{H}_4 < 23\%$;
+descargas de alta energia (D2), delimitadas por $\% \text{C}_2\text{H}_2 \ge 29\%$ e $\% \text{C}_2\text{H}_4 \ge 23\%$, e pela sub-região com $\% \text{C}_2\text{H}_2$ entre 13\% e 29\% com $\% \text{C}_2\text{H}_4 \ge 23\%$;
+falhas térmicas inferiores a 300~$^\circ\text{C}$ (T1), condicionadas a $\% \text{CH}_4 < 98\%$, $\% \text{C}_2\text{H}_2 < 4\%$ e $\% \text{C}_2\text{H}_4 < 20\%$;
+falhas térmicas entre 300~$^\circ\text{C}$ e 700~$^\circ\text{C}$ (T2), delimitadas por $\% \text{C}_2\text{H}_2 < 4\%$ e $20\% \le \% \text{C}_2\text{H}_4 < 50\%$;
+falhas térmicas superiores a 700~$^\circ\text{C}$ (T3), caracterizadas por $\% \text{C}_2\text{H}_2 < 15\%$ e $\% \text{C}_2\text{H}_4 \ge 50\%$;
+e a zona de transição térmica e elétrica combinada (DT), delimitada por $\% \text{C}_2\text{H}_2$ entre 4\% e 13\% com $\% \text{C}_2\text{H}_4 \ge 20\%$ e $\% \text{C}_2\text{H}_4 < 50\%$.
+
+A principal restrição estrutural do Triângulo 1 de Duval reside na inexistência de uma zona correspondente ao estado operacional normal. Todas as amostras projetadas sobre o triângulo são compulsoriamente alocadas em alguma categoria de falha, induzindo diagnósticos falsos positivos quando aplicadas a transformadores saudáveis com taxas residuais de gaseificação basal. Adicionalmente, amostras posicionadas nas imediações das linhas divisórias sofrem com sensibilidade paramétrica elevada, onde variações analíticas mínimas na cromatografia deslocam a classificação entre categorias de severidade distintas.
+
+\subsection{Método das Razões da IEC 60599}\label{sec:razoes_iec}
+
+O método analítico estabelecido pela norma IEC 60599 \cite{iec60599_2022} fundamenta-se no cálculo de três razões adimensionais entre concentrações de gases dissolvidos:
+
+\begin{equation}\label{eq:razoes_iec}
+r_1 = \frac{[\text{C}_2\text{H}_2]}{[\text{C}_2\text{H}_4]}, \quad
+r_2 = \frac{[\text{CH}_4]}{[\text{H}_2]}, \quad
+r_3 = \frac{[\text{C}_2\text{H}_4]}{[\text{C}_2\text{H}_6]}
+\end{equation}
+
+A relação $r_1$ avalia a presença de acetileno frente ao etileno, permitindo discriminar entre fenômenos de centelhamento elétrico e degradações térmicas puras. A relação $r_2$ confronta o metano contra o hidrogênio, indicando o regime de temperatura de descargas ou sobreaquecimentos iniciais. A relação $r_3$ compara hidrocarbonetos insaturados contra saturados, fornecendo sensibilidade térmica direta sobre a temperatura de degradação do óleo.
+
+A norma estabelece intervalos discretos de codificação para cada razão, associando conjuntos de intervalos aos estados de falha clássicos:
+descargas parciais (PD) requerem $r_1$ não significativo com magnitude inferior a 0,1, $r_2 < 0,1$ e $r_3 < 0,2$;
+descargas de baixa energia (D1) exigem $r_1 > 1$, $0,1 \le r_2 \le 0,5$ e $r_3 > 1$;
+descargas de alta energia (D2) são identificadas por $0,6 \le r_1 \le 2,5$, $0,1 \le r_2 \le 1$ e $r_3 > 2$;
+falhas térmicas inferiores a 300~$^\circ\text{C}$ (T1) demandam $r_1 < 0,1$, $r_2 > 1$ e $r_3 < 1$;
+falhas térmicas entre 300~$^\circ\text{C}$ e 700~$^\circ\text{C}$ (T2) requerem $r_1 < 0,1$, $r_2 > 1$ e $1 \le r_3 \le 4$;
+falhas térmicas superiores a 700~$^\circ\text{C}$ (T3) exigem $r_1 < 0,2$, $r_2 > 1$ e $r_3 > 4$.
+
+Caso uma tupla amostral $(r_1, r_2, r_3)$ assuma valores que não coincidam simultaneamente com nenhuma das combinações lógicas fixadas na norma, o diagnóstico é formalmente catalogado como Não Determinado (ND). Em bancos de dados de campo, a proporção de laudos não determinados atinge patamares elevados devido à superposição de fenômenos múltiplos e ruídos de medição, comprometendo a resolutividade do método quando aplicado de forma autônoma. Assim como o Triângulo de Duval, a norma IEC 60599 não estabelece códigos de razão para o estado de operação normal, condicionando a aplicação do método à prévia ultrapassagem de limiares estatísticos absolutos de concentração baseados no 90º percentil histórico da frota.
+
+\section{Algoritmos de Aprendizado de Máquina Aplicados à DGA}\label{sec:algoritmos_ml}
+
+Diante das limitações das técnicas normativas rígidas, os algoritmos de aprendizado de máquina têm sido aplicados para capturar fronteiras não lineares complexas e correlacionar concentrações multivariadas com diagnósticos confirmados em serviço.
+
+\subsection{Panorama e Classificadores Clássicos}\label{sec:panorama_classificadores}
+
+A Tabela~\ref{tab:algoritmos} apresenta um comparativo entre as principais famílias de algoritmos exploradas na literatura de diagnóstico em transformadores, indicando referências representativas, méritos operacionais e limitações técnicas observadas no domínio de DGA.
+
+\renewcommand{\arraystretch}{1.4}
+
+\begin{longtable}{
+>{\RaggedRight\arraybackslash}p{2.6cm}
+>{\RaggedRight\arraybackslash}p{2.2cm}
+>{\RaggedRight\arraybackslash}p{3.6cm}
+>{\RaggedRight\arraybackslash}p{3.8cm}
+}
+
+\caption{Comparação entre algoritmos de aprendizado de máquina aplicados à DGA}
+\label{tab:algoritmos} \\
+
+\hline
+\textbf{Algoritmo} & \textbf{Referência em DGA} & \textbf{Vantagem principal} & \textbf{Limitação para este problema} \\
+\hline
+\endfirsthead
+
+\multicolumn{4}{c}{\tablename\ \thetable{} -- continuação} \\
+\hline
+\textbf{Algoritmo} & \textbf{Referência em DGA} & \textbf{Vantagem principal} & \textbf{Limitação para este problema} \\
+\hline
+\endhead
+
+\hline
+\multicolumn{4}{r}{\textit{Continua na próxima página}} \\
+\endfoot
+
+\hline
+\multicolumn{4}{p{\dimexpr\textwidth-2\tabcolsep\relax}}{\footnotesize Fonte: elaborado pelo autor com base em \citeonline{ali2023}, \citeonline{alsakini2025}, \citeonline{wu2021}, \citeonline{zhu2023} e \citeonline{lecun1998gradient}.} \\
+\multicolumn{4}{p{\dimexpr\textwidth-2\tabcolsep\relax}}{\footnotesize Nota: $\checkmark$ indica as técnicas adotadas na formulação experimental deste estudo.} \\
+\endlastfoot
+
+\multicolumn{4}{l}{\textit{Classificadores clássicos}} \\
+\hline
+SVM & Al-Sakini et al. (2025) & Maximização de margem de separação em alta dimensão & Dificuldade em classes sobrepostas e expansão multiclasse não nativa \\
+
+KNN & Ali et al. (2023) & Ausência de hipóteses distributivas prévias & Sensibilidade a ruídos locais e custo computacional linear na predição \\
+
+Árvore de Decisão & Ali et al. (2023) & Interpretabilidade na extração de regras & Instabilidade a perturbações e tendência a sobreajuste sem poda \\
+
+Random Forest & Al-Sakini et al. (2025) & Robustez por agregação e cálculo de importância & Dificuldade de sintonia simultânea em espaços mistos de busca \\
+
+Naive Bayes & Ali et al. (2023) & Simplicidade analítica e velocidade de ajuste & Violação da hipótese de independência condicional entre gases \\
+\hline
+
+\multicolumn{4}{l}{\textit{Ensembles e boosting}} \\
+\hline
+\textbf{XGBoost} $\checkmark$ & Wu et al. (2021) & Regularização explícita e ponderação diferencial de instâncias & Sensibilidade hiperparamétrica e incapacidade de inferência temporal \\
+
+LightGBM & -- & Eficiência em bases volumosas por expansão foliar & Risco de sobreajuste em conjuntos tabulares com menos de mil instâncias \\
+\hline
+
+\multicolumn{4}{l}{\textit{Redes neurais}} \\
+\hline
+MLP & Ali et al. (2023) & Aproximação universal de funções não lineares & Ausência de memória sequencial para dados ordenados longitudinalmente \\
+
+CNN & LeCun et al. (1998) & Identificação hierárquica de correlações espaciais & Inadequação conceitual para matrizes tabulares puras de gases \\
+\hline
+
+\multicolumn{4}{l}{\textit{Modelos de séries temporais}} \\
+\hline
+ARIMA & Ali et al. (2023) & Formulação estatística parcimoniosa univariada & Premissa de linearidade e incapacidade de modelagem multivariada conjunta \\
+
+\textbf{LSTM} $\checkmark$ & Katser et al. (2022) & Modelagem de dependências temporais longas por portões & Custo de treinamento superior e necessidade de dados sequenciais regulares \\
+
+Transformer & Zhu et al. (2023) & Mecanismos de atenção global em horizontes extensos & Demanda volumosa de instâncias inexistente em repositórios abertos de DGA \\
+\hline
+
+\multicolumn{4}{l}{\textit{Otimização evolutiva}} \\
+\hline
+AG padrão & Ali et al. (2023) & Exploração estocástica global sem exigência de derivadas & Convergência prematura e ineficiência em inicializações aleatórias \\
+
+\textbf{IGA} $\checkmark$ & Wu et al. (2021) & Cruzamento adaptativo, operadores mistos e elitismo direto & Custo computacional ditado pela avaliação reiterada de modelos em validação cruzada \\
+
+Otimização Bayesiana & -- & Amostragem parcimoniosa baseada em processos gaussianos & Dificuldade de modelagem de espaços cromossômicos híbridos binário-contínuos \\
+
+\end{longtable}
+
+Entre os classificadores clássicos, as Máquinas de Vetores de Suporte (SVM) exibem bom desempenho na separação de classes lineares em espaços transformados por núcleos (\textit{kernels}), porém sofrem com a sobreposição de densidades entre categorias vizinhas, como as falhas T2 e T3 \cite{alsakini2025}. Os algoritmos baseados em vizinhos mais próximos (KNN) e árvores de decisão simples apresentam instabilidade na presença de ruído e alta variância. O Random Forest ameniza a variância agregando árvores independentes por amostragem com reposição (\textit{bagging}), contudo não dispõe de otimização coordenada para espaços conjuntos de atributos e parâmetros estruturais. Já o classificador Naive Bayes, embora útil como referência estatística basal, baseia-se na suposição de independência condicional entre as variáveis preditoras, premissa que contradiz os princípios físicos da DGA, onde múltiplos gases coexistem e se formam a partir de reações termodinâmicas colineares \cite{ali2023}.
+
+\subsection{Ensembles de Árvores e o Algoritmo XGBoost}\label{sec:xgboost}
+
+Os métodos de \textit{gradient boosting} constroem modelos preditivos robustos através da combinação sequencial aditiva de estimadores fracos, tipicamente árvores de decisão com profundidade restrita \cite{friedman2001}. A cada iteração $k$, uma nova árvore $f_k(x)$ é ajustada sobre o gradiente negativo da função de perda em relação à predição atual do conjunto, reduzindo de forma iterativa os resíduos remanescentes, conforme esquematizado na Figura~\ref{fig:xgboost}.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.8\textwidth]{figuras/xgboost.png}
+\caption{Processo iterativo de minimização de resíduos em ensembles de gradient boosting.}
+\label{fig:xgboost}
+\fonte{Elaborado pelo autor.}
+\end{figure}
+
+Formalmente, a predição consolidada de uma amostra $x$ após a adição de $K$ árvores é definida por:
+
+\begin{equation}\label{eq:xgboost_pred}
+\hat{y}(x) = \sum_{k=1}^{K} f_k(x), \quad f_k \in \mathcal{F}
+\end{equation}
+
+O algoritmo XGBoost (\textit{Extreme Gradient Boosting}) introduz formulações analíticas que aprimoram a estabilidade e a convergência do boosting clássico \cite{chen2016_xgboost}. A função objetivo regularizada a ser minimizada na iteração $t$ incorpora termos explícitos de penalização complexa sobre a estrutura das árvores:
+
+\begin{equation}\label{eq:xgboost_obj}
+\mathcal{L}^{(t)} = \sum_{i=1}^{N} l\left(y_i, \hat{y}_i^{(t-1)} + f_t(x_i)\right) + \sum_{k=1}^{t} \Omega(f_k)
+\end{equation}
+
+Em que $l$ denota uma função de perda diferenciável convexa e $\Omega(f)$ representa o termo de penalização da árvore, expresso por:
+
+\begin{equation}\label{eq:xgboost_omega}
+\Omega(f) = \gamma T_L + \frac{1}{2} \lambda_{\text{reg}} \sum_{j=1}^{T_L} w_j^2 + \alpha_{\text{reg}} \sum_{j=1}^{T_L} |w_j|
+\end{equation}
+
+Nessa formulação, $T_L$ representa o número total de folhas da árvore, $w_j$ indica o peso contínuo associado à folha $j$, $\gamma$ configura a penalização para divisão de nós, enquanto $\lambda_{\text{reg}}$ e $\alpha_{\text{reg}}$ correspondem aos termos de regularização $L_2$ e $L_1$, respectivamente. A expansão de Taylor em segunda ordem da função de perda permite obter expressões em forma fechada para o ganho ideal de divisão e para os pesos foliares, garantindo velocidade de ajuste e contenção de sobreajuste.
+
+Para contornar o desbalanceamento amostral severo em tarefas multiclasse, o algoritmo suporta a atribuição de pesos diferenciados por instância (\texttt{sample\_weight}), escalonando a contribuição de cada amostra na matriz hessiana da função de perda de acordo com o inverso da densidade de sua classe de origem.
+
+\subsection{Redes Neurais Recorrentes e Modelagem Temporal}\label{sec:redes_lstm}
+
+Redes neurais artificiais convencionais operam sob a premissa de independência amostral, sendo incapazes de processar dependências sequenciais com ordenamento no tempo. As Redes Neurais Recorrentes (RNN) introduzem conexões de realimentação que mantêm um vetor de estado oculto $h_t$ atualizado a cada instante temporal $t$ a partir da entrada $x_t$ e do estado precedente $h_{t-1}$:
+
+\begin{equation}\label{eq:rnn_basica}
+h_t = \tanh\left(W_x x_t + W_h h_{t-1} + b\right)
+\end{equation}
+
+Durante a retropropagação do erro através do tempo (\textit{Backpropagation Through Time}, BPTT), a aplicação reiterada da regra da cadeia propaga multiplicações sucessivas da matriz de pesos recorrentes $W_h$. Essa dinâmica induz o problema do gradiente evanescente (\textit{vanishing gradient}), no qual a magnitude dos gradientes decresce exponencialmente com a distância temporal, impedindo o aprendizado de correlações distantes \cite{hochreiter1997long}.
+
+A arquitetura \textit{Long Short-Term Memory} (LSTM) soluciona essa restrição introduzindo uma célula de memória dedicada governada por mecanismos de portas (\textit{gates}) com conexões lineares diretas, permitindo a preservação constante do gradiente \cite{hochreiter1997long}. A dinâmica matemática da célula LSTM, apresentada na Figura~\ref{fig:celula_lstm}, é governada pelas equações fundamentais:
+
+\begin{equation}\label{eq:lstm_forget}
+f_t = \sigma\left(W_f [h_{t-1}, x_t] + b_f\right)
+\end{equation}
+
+\begin{equation}\label{eq:lstm_input}
+i_t = \sigma\left(W_i [h_{t-1}, x_t] + b_i\right)
+\end{equation}
+
+\begin{equation}\label{eq:lstm_candidate}
+\tilde{C}_t = \tanh\left(W_c [h_{t-1}, x_t] + b_c\right)
+\end{equation}
+
+\begin{equation}\label{eq:lstm_cell}
+C_t = f_t \odot C_{t-1} + i_t \odot \tilde{C}_t
+\end{equation}
+
+\begin{equation}\label{eq:lstm_output}
+o_t = \sigma\left(W_o [h_{t-1}, x_t] + b_o\right)
+\end{equation}
+
+\begin{equation}\label{eq:lstm_hidden}
+h_t = o_t \odot \tanh(C_t)
+\end{equation}
+
+Nas Equações~(\ref{eq:lstm_forget}) a (\ref{eq:lstm_hidden}), $\sigma$ denota a função de ativação sigmoide, $\odot$ representa o produto de Hadamard elemento a elemento, $f_t$ indica a porta de esquecimento que modula o descarte de informações em $C_{t-1}$, $i_t$ é a porta de entrada que regula a absorção do novo candidato $\tilde{C}_t$, $C_t$ configura o estado da célula interna e $o_t$ representa a porta de saída que filtra a exposição do estado oculto $h_t$.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{figuras/celula_lstm.png}
+\caption{Arquitetura estrutural da célula de memória recorrente LSTM.}
+\label{fig:celula_lstm}
+\fonte{Elaborado pelo autor com base em \citeonline{hochreiter1997long}.}
+\end{figure}
+
+Para modelar dinâmicas de degradação com diferentes horizontes de abstração temporal, emprega-se a LSTM empilhada (\textit{Stacked LSTM}), cuja topologia conecta múltiplas camadas recorrentes em série, conforme ilustrado na Figura~\ref{fig:lstm_stacked}. Nesse arranjo, as sequências de saídas ocultas da camada inferior servem como vetores de entrada direta para a camada subsequente, facultando a extração progressiva de trajetórias de gaseificação de longo prazo.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{figuras/LSTM_stacked.png}
+\caption{Topologia de rede neural recorrente LSTM empilhada para modelagem temporal.}
+\label{fig:lstm_stacked}
+\fonte{Elaborado pelo autor.}
+\end{figure}
+
+\subsection{Otimização Evolutiva por Algoritmo Genético Melhorado (IGA)}\label{sec:iga}
+
+A configuração de modelos baseados em gradiente conjugado sobre árvores envolve uma decisão dependente entre o subconjunto de variáveis diagnósticas admitidas e a parametrização dos hiperparâmetros de regularização e profundidade. Os Algoritmos Genéticos (AG) oferecem uma estrutura estocástica de exploração global inspirada nos mecanismos de recombinação genética e sobrevivência do mais apto \cite{ali2023}. O ciclo clássico opera mantendo uma população finita de indivíduos ao longo de gerações sucessivas, aplicando seleção por aptidão, recombinação por cruzamento (\textit{crossover}) e mutações aleatórias.
+
+Em matrizes de dados de DGA, o AG convencional exibe risco de convergência prematura em ótimos locais estagnados. O Algoritmo Genético Melhorado (IGA) mitiga esse comportamento incorporando operadores estruturados de diversidade e conservação, conforme ilustrado na Figura~\ref{fig:IGA} \cite{wu2021}.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.55\textwidth]{figuras/IGA.png}
+\caption{Fluxo operacional do Algoritmo Genético Melhorado para busca conjunta.}
+\label{fig:IGA}
+\fonte{Adaptado de \citeonline{wu2021}.}
+\end{figure}
+
+A implementação do IGA estrutura cada indivíduo com representação cromossômica heterogênea bipartida, segregando uma máscara booleana de seleção dimensional e genes contínuos reais representativos dos parâmetros contínuos do XGBoost. O processo reprodutivo associa o cruzamento binário simulado (\textit{Simulated Binary Crossover}, SBX) nos parâmetros contínuos ao cruzamento uniforme na máscara discreta, associando mutações polinomiais e inversões probabilísticas de bits. O elitismo direto assegura a preservação incondicional dos indivíduos com melhor aptidão harmônica, enquanto mecanismos de penalização dimensional na função objetivo coíbem a seleção de variáveis colineares desprovidas de ganho informacional marginal.
+
+\section{Interpretabilidade em Aprendizado de Máquina (XAI)}\label{sec:xai_shap}
+
+A transição de algoritmos de aprendizado de máquina para sistemas de apoio à decisão em ativos críticos de alta tensão requer a abertura das chamadas caixas-pretas analíticas. A disciplina de inteligência artificial explicável (\textit{Explainable Artificial Intelligence}, XAI) fornece fundamentos matemáticos para quantificar a contribuição isolada de cada medição de DGA nas predições formuladas.
+
+\subsection{Teoria dos Jogos Cooperativos e Valores de Shapley}\label{sec:valores_shapley}
+
+A formulação matemática dos valores de Shapley origina-se na teoria dos jogos cooperativos com utilidade transferível \cite{shapley1953}. Define-se um jogo cooperativo pelo par $(F, v)$, no qual $F = \{1, 2, \dots, M\}$ representa o conjunto finito de jogadores (atributos explicativos) e $v: 2^F \to \mathbb{R}$ indica a função característica que associa um ganho real a cada subcoalizão possível $S \subseteq F$, assumindo-se convencionalmente $v(\emptyset) = 0$.
+
+O valor de Shapley $\phi_i(v)$ atribui a cada jogador $i$ uma parcela única e justa do retorno global gerado pela coalizão completa $v(F)$, ponderando a contribuição marginal gerada pelo jogador sobre todas as ordens possíveis de formação de subgrupos:
+
+\begin{equation}\label{eq:shapley_formula}
+\phi_i(v) = \sum_{S \subseteq F \setminus \{i\}} \frac{|S|! \, (|F| - |S| - 1)!}{|F|!} \left[ v(S \cup \{i\}) - v(S) \right]
+\end{equation}
+
+A formulação descrita na Equação~(\ref{eq:shapley_formula}) é a única partição de crédito que satisfaz simultaneamente quatro propriedades axiomáticas fundamentais \cite{lundberg2017}:
+a eficiência assegura que a soma dos valores marginais distribuídos a todos os atributos reproduz a diferença entre o resultado da coalizão total e o valor esperado basal, expressa por $\sum_{i \in F} \phi_i(v) = v(F) - v(\emptyset)$;
+a simetria determina que se dois atributos distintos exercem contribuições marginais idênticas para qualquer coalizão intermediária, de modo que $v(S \cup \{i\}) = v(S \cup \{j\})$ para todo $S \subseteq F \setminus \{i, j\}$, então seus respectivos valores de Shapley são iguais, satisfazendo $\phi_i(v) = \phi_j(v)$;
+o atributo nulo garante que se uma variável não altera o ganho informacional de nenhuma subcoalizão, satisfazendo $v(S \cup \{i\}) = v(S)$ para qualquer $S \subseteq F \setminus \{i\}$, seu valor de Shapley associado é nulo, de forma que $\phi_i(v) = 0$;
+e a aditividade local estabelece que para dois jogos independentes $u$ e $v$ combinados linearmente, a atribuição de crédito satisfaz $\phi_i(u + v) = \phi_i(u) + \phi_i(v)$.
+
+\subsection{O Algoritmo TreeSHAP e Decomposição de Contribuições}\label{sec:treeshap}
+
+O cálculo analítico exato da Equação~(\ref{eq:shapley_formula}) possui complexidade temporal exponencial $O(M 2^M)$, tornando-se computacionalmente inviável para modelos com espaços vetoriais moderados ou extensos. Para transpor essa restrição em conjuntos de árvores de decisão, \citeonline{lundberg2020} formularam o algoritmo TreeSHAP, que calcula os valores de Shapley exatos em complexidade polinomial $O(T L D^2)$, onde $T$ representa o número de estimadores fracos, $L$ denota a contagem máxima de folhas e $D$ corresponde à profundidade máxima das árvores.
+
+Em classificadores XGBoost multiclasse, o TreeSHAP opera avaliando a função de valor marginal no espaço linear das margens de decisão (\textit{log-odds}) antes da aplicação da transformação softmax (\texttt{pred\_contribs}). Para cada classe diagnóstica $c$, o escore contínuo $f_c(x)$ da instância $x$ é decomposto exatamente como:
+
+\begin{equation}\label{eq:treeshap_add}
+f_c(x) = \phi_{0,c} + \sum_{i=1}^{M} \phi_{i,c}(x)
+\end{equation}
+
+Em que $\phi_{0,c} = \mathbb{E}[f_c(X)]$ denota o viés escalar basal, representativo do log-odds médio da classe $c$ sobre a distribuição de treinamento, e $\phi_{i,c}(x)$ corresponde à contribuição aditiva local da variável $i$. Cumpre assinalar que o valor de Shapley $\phi_{i,c}(x)$ quantifica a magnitude com que a variável atua como força promotora ($\phi > 0$) ou inibidora ($\phi < 0$) daquela classe específica, não se confundindo com a fronteira de classificação terminal, a qual decorre da competição conjunta entre as margens projetadas via $\arg\max_c f_c(x)$.
+
+Para isolar dependências mútuas entre espécies químicas colineares, o algoritmo estende-se para a decomposição em matrizes de interação de Lundberg (\texttt{pred\_interactions}) baseada no índice de interação de Shapley \cite{lundberg2020}:
+
+\begin{equation}\label{eq:shapley_interaction}
+\phi_{i,j}(x) = \sum_{S \subseteq F \setminus \{i, j\}} \frac{|S|! \, (|F| - |S| - 2)!}{2 \, (|F| - 1)!} \left[ v(S \cup \{i, j\}) - v(S \cup \{i\}) - v(S \cup \{j\}) + v(S) \right]
+\end{equation}
+
+Para $i \ne j$, $\phi_{i,j}(x)$ quantifica a interação pura de segunda ordem entre os atributos $i$ e $j$. A diagonal principal da matriz permite extrair o efeito principal univariado purificado $\phi_{i,i}(x)$:
+
+\begin{equation}\label{eq:main_effect}
+\phi_{i,i}(x) = \phi_i(x) - \sum_{j \neq i} \phi_{i,j}(x)
+\end{equation}
+
+Ao traçar o efeito principal $\phi_{i,i}(x)$ contra o valor físico real desnormalizado da grandeza em partes por milhão ou percentual relativo, identifica-se analiticamente o ponto exato de inflexão em que a variável cruza a nulidade ($\phi_{i,i} = 0$), permitindo correlacionar as decisões empíricas do ensemble de aprendizado de máquina com os limiares termodinâmicos postulados nas normas técnicas da IEC e no Triângulo de Duval.
+
+\section{Trabalhos Relacionados}\label{sec:trabalhos_relacionados}
+
+O diagnóstico preditivo de falhas em transformadores por meio de DGA tem migrado de procedimentos heurísticos estáticos para abordagens amparadas em modelos matemáticos computacionais avançados. A Tabela~\ref{tab:comparacao_trabalhos} sintetiza os principais estudos representativos da literatura recente, confrontando suas abordagens, configurações experimentais, vantagens operacionais e limitações observadas.
+
+\begin{table}[htbp]
+\centering
+\caption{Comparação entre trabalhos relacionados e o escopo investigado neste estudo.}
+\label{tab:comparacao_trabalhos}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|p{3.0cm}|p{3.2cm}|p{2.5cm}|p{4.0cm}|p{4.2cm}|}
+\hline
+\textbf{Trabalho} & \textbf{Abordagem} & \textbf{Tipo} & \textbf{Vantagens} & \textbf{Limitações} \\
+\hline
+Wu et al. (2021) & IGA + XGBoost & Classificação & Otimização simultânea de atributos e hiperparâmetros com acurácia elevada & Diagnóstico puramente estático, ausência de avaliação em séries temporais reais e métricas globais sem detalhamento por classe \\
+\hline
+Wang et al. (2023) & LSTM + Classificadores & Previsão + Classificação & Modelagem da evolução temporal de gases e antecipação de falhas incipientes & Classificação desacoplada da etapa preditiva e uso de base proprietária restrita \\
+\hline
+Ali et al. (2023) & Métodos Tradicionais e Revisão de ML & Revisão & Levantamento abrangente de normas de DGA e métodos inteligentes & Ausência de validação experimental direta e sem modelo computacional proposto \\
+\hline
+Al-Sakini et al. (2025) & Aprendizado de Máquina Supervisionado & Classificação & Validação empírica sobre registros laboratoriais reais de transformadores & Abordagem exclusivamente estática e sensibilidade a sobreposição de classes \\
+\hline
+Tightiz et al. (2020) & ANFIS + Regras de Associação & Classificação & Integração de inferência neuro-fuzzy com regras de diagnóstico & Ajuste hiperparamétrico intensivo de regras e ausência de componente temporal \\
+\hline
+Zhu et al. (2023) & Transformers em Séries Temporais & Previsão & Atenção em dependências extensas em sistemas de potência & Custo computacional elevado e demanda volumosa de dados inacessível em DGA pública \\
+\hline
+\textbf{Abordagem deste Trabalho} & LSTM Empilhada + IGA-XGBoost + TreeSHAP & Híbrido em Dois Eixos & Investigação ablativa formal da hipótese temporal, redução dimensional parcimoniosa e validação físico-química via XAI & Necessidade de tratamento em eixos bifurcados devido à assimetria de bases industriais públicas \\
+\hline
+\end{tabular}
+}
+\fonte{Elaborado pelo autor.}
+\end{table}
+
+A análise crítica dos estudos reportados revela que a literatura frequentemente aborda o diagnóstico sob premissas restritas ou isoladas. O modelo proposto por \citeonline{wu2021} demonstra a relevância de integrar a seleção cromossômica de atributos aos hiperparâmetros de árvores de boosting, reportando acurácias superiores a 99\% sobre conjuntos de dados da IEC 60599. Contudo, a pesquisa opera exclusivamente em regime estático pontual, abstendo-se de avaliar séries temporais contínuas e reportando métricas globais sem controle rigoroso de sobreajuste por vazamento ou ponderação de classes minoritárias.
+
+Por outro lado, o trabalho de \citeonline{wang2023} concentra esforços na modelagem temporal através de redes LSTM para previsão de concentrações futuras, argumentando que a extrapolação dinâmica subsidia o diagnóstico precoce. Não obstante, o acoplamento entre a etapa de previsão e os classificadores terminais é tratado de maneira sequencial desarticulada, sem análise ablativa controlada para verificar se as concentrações simuladas agregam separabilidade informacional efetiva em relação aos gases já observados no presente. Adicionalmente, a base empregada pelos autores encontra-se sob sigilo industrial, impedindo a reprodutibilidade independente dos achados.
+
+O trabalho de \citeonline{alsakini2025} avalia algoritmos supervisionados clássicos frente a medições cromatográficas industriais, comprovando a superioridade de estruturas de ensemble sobre classificadores individuais em cenários com dados ruidosos, mas mantendo a restrição de análise exclusivamente estática. As revisões técnicas conduzidas por \citeonline{ali2023} apontam que as principais lacunas da área residem na ausência de protocolos estatísticos que tratem o desbalanceamento real das classes, na escassez de modelos que combinem dinâmicas longitudinais com classificadores otimizados e na falta de mecanismos que interpretem as regras aprendidas pelos modelos sob a luz das normas de engenharia química e elétrica.
+
+Por fim, o emprego de arquiteturas Transformer em séries temporais de engenharia de potência reportado por \citeonline{zhu2023} confirma a capacidade dos mecanismos de autoatenção em dependências longas, porém esbarra na escassez de conjuntos públicos abertos de DGA com densidade temporal contínua suficiente para evitar o sobreajuste severo dessas estruturas hiperparametrizadas.
+
+Essa conjuntura fundamenta o desenho metodológico investigado neste trabalho. Estrutura-se uma abordagem experimental dividida em dois eixos complementares, amparada na auditoria e deduplicação de bases reais, no teste formal de ablação pareada da hipótese preditiva temporal da LSTM sobre o XGBoost, na redução dimensional orientada por IGA e na validação físico-química das fronteiras estocásticas através da teoria axiomática dos valores de Shapley.

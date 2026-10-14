@@ -1,0 +1,58 @@
+{
+  "total_series": 3000,
+  "treino": {
+    "n_series": 1785,
+    "shape": [
+      1785,
+      420,
+      4
+    ],
+    "distribuicao_classes": {
+      "Normal": 1449,
+      "PD": 76,
+      "D1": 96,
+      "T1": 164
+    }
+  },
+  "validacao": {
+    "n_series": 315,
+    "shape": [
+      315,
+      420,
+      4
+    ],
+    "distribuicao_classes": {
+      "Normal": 256,
+      "PD": 13,
+      "D1": 17,
+      "T1": 29
+    }
+  },
+  "teste": {
+    "n_series": 900,
+    "shape": [
+      900,
+      420,
+      4
+    ],
+    "distribuicao_classes": {
+      "Normal": 731,
+      "PD": 38,
+      "D1": 49,
+      "T1": 82
+    },
+    "nota": "Conjunto de teste oficial do Katser — intocado"
+  },
+  "metadados": {
+    "split_val_katser": 0.15,
+    "random_seed": 42,
+    "estrategia_split": "aleatório estratificado por category",
+    "n_timesteps_por_serie": 420,
+    "gases": [
+      "H2",
+      "CO",
+      "C2H4",
+      "C2H2"
+    ]
+  }
+}

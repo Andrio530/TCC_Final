@@ -1,0 +1,62 @@
+{
+  "vazamento_treino_teste": {
+    "ids_em_comum_treino_teste": 0
+  },
+  "consistencia_labels": {
+    "fdd_rul_train_mesmos_ids": true,
+    "fdd_rul_test_mesmos_ids": true
+  },
+  "arquivos_vs_labels": {
+    "treino_arquivos_sem_label": 0,
+    "treino_labels_sem_arquivo": 0,
+    "teste_arquivos_sem_label": 0,
+    "teste_labels_sem_arquivo": 0
+  },
+  "duplicatas_exatas": {
+    "duplicatas_exatas": 0,
+    "total_arquivos": 3000
+  },
+  "quase_duplicatas": {
+    "pares_checados": 8265,
+    "pares_alta_correlacao": 57,
+    "limiar": 0.999
+  },
+  "separacao_classes_delta_gases": {
+    "H2_delta": {
+      "1": 0.0008961332210270605,
+      "2": 0.000945907221291001,
+      "3": 0.0010269499684294639,
+      "4": 0.0010627715356609263
+    },
+    "CO_delta": {
+      "1": 0.010512249996025845,
+      "2": 0.00015484920160967373,
+      "3": 0.0040420376688616476,
+      "4": 0.006413042867300797
+    },
+    "C2H4_delta": {
+      "1": 0.0028785555007713147,
+      "2": 0.00022559051210814713,
+      "3": 0.003496946777335844,
+      "4": 0.0015422343945518749
+    },
+    "C2H2_delta": {
+      "1": 0.00011371859009282874,
+      "2": 7.748905611885762e-06,
+      "3": 0.00011836409949230684,
+      "4": 8.547538890512604e-05
+    }
+  },
+  "distribuicao_classes_treino": {
+    "1": 1705,
+    "4": 193,
+    "3": 113,
+    "2": 89
+  },
+  "distribuicao_classes_teste": {
+    "1": 731,
+    "4": 82,
+    "3": 49,
+    "2": 38
+  }
+}

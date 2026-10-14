@@ -1,0 +1,317 @@
+\chapter{Resultados e Discussão}\label{cap:resultados}
+
+Este capítulo apresenta e discute os resultados experimentais obtidos a partir dos dois eixos de investigação estabelecidos no trabalho. Inicialmente, avalia-se o comportamento do módulo de previsão temporal baseado em redes neurais recorrentes, examinando a precisão das estimativas pontuais e a respectiva degradação com o avanço do horizonte preditivo. Em seguida, analisam-se os experimentos do Track A, conduzidos sobre séries temporais com quatro classes operacionais, com foco na ablação pareada da hipótese de integração temporal e na quantificação do papel exercido pela otimização evolutiva. Na sequência, abordam-se os resultados do Track B, direcionados ao diagnóstico multiclasse de sete estados de operação sobre base estática, confrontando os classificadores otimizados com os limites informacionais intrínsecos aos gases e com os métodos tradicionais de diagnóstico. Por fim, detalha-se a auditoria de concordância normativa e aprofunda-se a interpretabilidade físico-química dos modelos por meio de valores de Shapley aplicados a árvores de decisão.
+
+\section{Desempenho do Módulo de Previsão Temporal}\label{sec:res_lstm}
+
+O primeiro estágio da arquitetura proposta compreende uma rede neural do tipo \textit{Long Short-Term Memory} (LSTM) empilhada em duas camadas recorrentes com 64 unidades cada, associada a mecanismo de regularização por \textit{dropout} com taxa de 0,2 e otimizador Adam. O treinamento foi executado com taxa de aprendizado inicial de 0,001, critério de perda baseado no erro quadrático médio e mecanismo de parada antecipada com tolerância de 15 épocas. Para mitigar o risco de vazamento de dados, o ajuste das escalas de normalização foi realizado exclusivamente sobre o conjunto de treinamento, sendo a transformação linear subsequente aplicada aos conjuntos de validação e teste.
+
+A avaliação do modelo foi conduzida sobre a partição oficial de teste da base disponibilizada por \citeonline{katser2022}, constituída por 900 séries temporais industriais independentes, com 420 observações registradas em intervalos regulares de 12 horas. Sob janela deslizante de 50 passos históricos ($w = 50$, equivalente a 25 dias de operação), o particionamento gerou 333.000 janelas de teste para a estimativa de um passo à frente ($h = 1$, correspondente a 12 horas). A Tabela~\ref{tab:lstm_h1} consolida as métricas de erro absoluto médio (MAE), raiz do erro quadrático médio (RMSE) e coeficiente de determinação ($R^2$), reportadas a partir da média e do desvio padrão obtidos em cinco sementes aleatórias distintas.
+
+\begin{table}[htbp]
+\centering
+\caption{Desempenho do módulo LSTM no conjunto de teste oficial para previsão de um passo ($h = 1$, escala normalizada).}
+\label{tab:lstm_h1}
+\begin{tabular}{lccc}
+\hline
+\textbf{Gás Analisado} & \textbf{MAE ($\times 10^{-5}$)} & \textbf{RMSE ($\times 10^{-4}$)} & \textbf{$R^2$} \\ \hline
+Hidrogênio ($\text{H}_2$) & $1,44 \pm 0,13$ & $0,18 \pm 0,02$ & $0,9995 \pm 0,0001$ \\
+Monóxido de Carbono ($\text{CO}$) & $16,15 \pm 2,72$ & $2,06 \pm 0,31$ & $0,9997 \pm 0,0001$ \\
+Etileno ($\text{C}_2\text{H}_4$) & $4,58 \pm 0,59$ & $0,58 \pm 0,07$ & $0,9996 \pm 0,0001$ \\
+Acetileno ($\text{C}_2\text{H}_2$) & $0,19 \pm 0,01$ & $0,02 \pm 0,01$ & $0,9996 \pm 0,0001$ \\ \hline
+\textbf{Média Agregada} & $5,59 \pm 0,74$ & $1,07 \pm 0,15$ & $0,9996 \pm 0,0001$ \\ \hline
+\end{tabular}
+\fonte{Elaborado pelo autor.}
+\end{table}
+
+Os resultados demonstram que o erro de regressão agregado manteve-se na ordem de $10^{-5}$ para o MAE e $10^{-4}$ para o RMSE na escala normalizada dos dados. A proximidade entre os valores de MAE e RMSE indica distribuição homogênea dos resíduos, sem a ocorrência de erros esparsos de magnitude elevada. O monóxido de carbono apresentou a maior dispersão absoluta de resíduos em virtude da amplitude dinâmica naturalmente superior dessa espécie química no conjunto de dados, ao passo que o acetileno exibiu os menores valores absolutos de erro em função de sua reduzida concentração basal nas séries em regime operacional estável. Em todos os gases, o coeficiente de determinação superou 0,999, evidenciando que a arquitetura assimilou a trajetória de curto prazo dos sinais temporais.
+
+Para investigar a estabilidade preditiva ao longo de períodos operacionais estendidos, avaliou-se a propagação recursiva das estimativas em 11 horizontes preditivos pré-definidos, variando de 12 horas ($h = 1$) até 7 semanas ($h = 98$, equivalente a 1.176 horas de operação contínua). Cada modelo foi retreinado de maneira independente por semente e horizonte, calculando-se o coeficiente de determinação e o erro percentual médio relativo (MAE\%). A Tabela~\ref{tab:lstm_multi} resume a evolução das métricas ao longo dos principais intervalos de tempo, e a Figura~\ref{fig:lstm_degradacao} ilustra a trajetória comparativa de degradação do coeficiente de determinação frente ao limiar mínimo de confiabilidade de $R^2 \ge 0,80$.
+
+\begin{table}[htbp]
+\centering
+\caption{Degradação do desempenho preditivo da LSTM em função do horizonte temporal.}
+\label{tab:lstm_multi}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{ccccc}
+\hline
+\textbf{Passos ($h$)} & \textbf{Intervalo Temporal} & \textbf{$R^2$ Médio} & \textbf{MAE\% Médio} & \textbf{Condição ($R^2 \ge 0,80$)} \\ \hline
+1 & 12 horas (0,07 semana) & 0,9996 & 0,90\% & Conforme \\
+2 & 24 horas (0,14 semana) & 0,9996 & 1,00\% & Conforme \\
+4 & 48 horas (0,29 semana) & 0,9995 & 1,03\% & Conforme \\
+7 & 84 horas (0,50 semana) & 0,9993 & 1,22\% & Conforme \\
+14 & 168 horas (1,00 semana) & 0,9987 & 1,74\% & Conforme \\
+28 & 336 horas (2,00 semanas) & 0,9963 & 2,33\% & Conforme \\
+42 & 504 horas (3,00 semanas) & 0,9837 & 5,68\% & Conforme \\
+56 & 672 horas (4,00 semanas) & 0,9691 & 7,81\% & Conforme \\
+70 & 840 horas (5,00 semanas) & 0,9485 & 10,02\% & Conforme \\
+84 & 1.008 horas (6,00 semanas) & 0,9207 & 12,41\% & Conforme \\
+98 & 1.176 horas (7,00 semanas) & 0,8846 & 14,89\% & Conforme \\ \hline
+\end{tabular}%
+}
+\fonte{Elaborado pelo autor.}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\textwidth]{figuras/lstm_multi_horizon_r2_norm.png}
+\caption{Degradação do coeficiente de determinação ($R^2$) da LSTM em múltiplos horizontes temporais no conjunto de teste oficial.}
+\label{fig:lstm_degradacao}
+\fonte{Elaborado pelo autor.}
+\end{figure}
+
+A análise da evolução multi-horizonte revela decaimento suave e monotônico da precisão preditiva, padrão esperado para processos estocásticos modelados por realimentação recursiva. Até o horizonte de duas semanas ($h = 28$), o modelo mantém $R^2 \ge 0,9963$ com erro percentual médio contido em 2,33\%, configurando precisão adequada para suporte à decisão operacional. Mesmo no horizonte de sete semanas ($h = 98$), o índice médio de 0,8846 permaneceu satisfatório em relação ao limite estipulado, indicando que a dinâmica geral de tendência não sofreu divergência numérica severa. Com base nesses resultados, definiram-se os horizontes de uma semana ($h = 14$) e duas semanas ($h = 28$) como fornecedores das características preditivas a serem injetadas no estágio subsequente de classificação.
+
+\section{Resultados do Track A: Desempenho e Ablação da Hipótese Temporal}\label{sec:res_track_a}
+
+O Track A investiga a capacidade de diagnóstico em quatro classes operacionais (Normal, Descarga Parcial -- PD, Descarga de Baixa Energia -- D1 e Falha Térmica de Baixa Temperatura -- T1) a partir do vetor de atributos da base de séries temporais de \citeonline{katser2022}. O conjunto de teste contém 900 amostras rotuladas, distribuídas de forma desbalanceada entre 731 amostras normais, 38 amostras de PD, 49 de D1 e 82 de T1. A hipótese central subjacente a esse desenho experimental estabelecia que o fornecimento de concentrações futuras estimadas pela rede LSTM enriqueceria o espaço de decisão do classificador estático XGBoost, elevando a acurácia diagnóstica do sistema.
+
+Para submeter essa hipótese a teste formal de falseabilidade, estruturou-se um protocolo experimental de ablação pareada composto por cinco configurações principais, avaliadas por meio de procedimento de \textit{bootstrap} pareado com 5.000 iterações sobre o conjunto de teste. A configuração C2 adota os hiperparâmetros padrão do XGBoost sobre a totalidade de 17 atributos disponíveis, compreendendo quatro gases observados, cinco razões químicas adaptadas e oito previsões derivadas da LSTM para $h=14$ e $h=28$. A configuração C1 aplica o Algoritmo Genético Melhorado (IGA) para executar simultaneamente a seleção de atributos e a otimização de nove hiperparâmetros contínuos do XGBoost sobre o mesmo espaço de 17 variáveis candidatas. As configurações C5a e C5b representam os cenários ablativos sem qualquer projeção temporal (composto unicamente pelos 9 atributos estáticos observados), sob parametrização padrão e otimizada por IGA, respectivamente. Por fim, a configuração C6 avalia o classificador alimentado exclusivamente pelas 8 variáveis preditivas da LSTM. A Tabela~\ref{tab:track_a_ablacao} consolida os índices de $F_1$-macro obtidos nas configurações avaliadas.
+
+\begin{table}[htbp]
+\centering
+\caption{Desempenho comparativo e estudo de ablação da hipótese temporal no Track A (900 amostras de teste, 5 sementes).}
+\label{tab:track_a_ablacao}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccc}
+\hline
+\textbf{Configuração Avaliada} & \textbf{Atributos ($p$)} & \textbf{$F_1$-macro Teste} & \textbf{Desvio ($\sigma$)} & \textbf{IC 95\% Bootstrap} \\ \hline
+C2: Padrão com LSTM & 17 & 0,8911 & 0,0034 & $[0,8574; 0,9229]$ \\
+C1: IGA com LSTM & 8 & 0,8909 & 0,0011 & $[0,8549; 0,9230]$ \\
+C6: Padrão apenas LSTM & 8 & 0,8888 & 0,0011 & $[0,8547; 0,9212]$ \\
+C5a: Padrão sem LSTM & 9 & 0,8855 & 0,0029 & $[0,8507; 0,9177]$ \\
+C5b: IGA sem LSTM & 8 & 0,8796 & 0,0051 & $[0,8469; 0,9110]$ \\
+C1 sem LSTM (pós-hoc) & 4 & 0,8280 & 0,0030 & $[0,7876; 0,8656]$ \\ \hline
+\end{tabular}%
+}
+\fonte{Elaborado pelo autor.}
+\end{table}
+
+A comparação entre as configurações C2 e C5a isola o efeito estrito provocado pela adição dos atributos preditivos da LSTM sobre o classificador com hiperparâmetros fixos. Conforme apresentado na Tabela~\ref{tab:track_a_pareada}, a diferença pontual observada entre os modelos situou-se em $\Delta F_1 = +0,0056$ ($+0,56\%$), acompanhada por intervalo de confiança de 95\% compreendido entre $-0,0037$ e $+0,0150$, com valor de $p \approx 0,2384$. Uma vez que o intervalo de confiança calculado por \textit{bootstrap} cruza a linha de nulidade e a probabilidade de significância excede amplamente o limiar usual de 0,05, rejeita-se a hipótese de ganho estatístico decorrente da incorporação das estimativas temporais da LSTM para o diagnóstico pontual de falhas.
+
+\begin{table}[htbp]
+\centering
+\caption{Comparações pareadas via bootstrap (5.000 iterações) no Track A.}
+\label{tab:track_a_pareada}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccc}
+\hline
+\textbf{Contraste Pareado} & \textbf{$\Delta F_1$ Pontual} & \textbf{IC 95\% Bootstrap} & \textbf{Valor $p$} & \textbf{Significância} \\ \hline
+C2 vs. C5a (efeito LSTM no Padrão) & $+0,0056$ & $[-0,0037; +0,0150]$ & 0,2384 & Não significativa \\
+C2 vs. C6 (todos vs. apenas LSTM) & $+0,0023$ & $[-0,0081; +0,0131]$ & 0,6604 & Não significativa \\
+C1 vs. C2 (IGA vs. Padrão completo) & $-0,0003$ & $[-0,0137; +0,0124]$ & 0,9956 & Não significativa \\
+C1 vs. C5b (efeito LSTM sob IGA) & $+0,0112$ & $[-0,0103; +0,0339]$ & 0,3308 & Não significativa \\
+C5b vs. C5a (IGA vs. Padrão sem LSTM) & $-0,0059$ & $[-0,0247; +0,0118]$ & 0,5412 & Não significativa \\ \hline
+\end{tabular}%
+}
+\fonte{Elaborado pelo autor.}
+\end{table}
+
+A fundamentação física e estatística para a ausência de ganho incremental reside na acentuada colinearidade estabelecida entre as variáveis observadas no instante presente e as projeções geradas pela rede neural. No conjunto de treinamento, o coeficiente de correlação linear de Pearson ($r$) entre a concentração observada e a projeção temporal futura alcançou 0,9993 e 0,9974 para o $\text{H}_2$ nos horizontes de 14 e 28 passos, 0,9997 e 0,9990 para o $\text{CO}$, 0,9994 e 0,9981 para o $\text{C}_2\text{H}_4$, e 0,9995 e 0,9985 para o $\text{C}_2\text{H}_2$. Em todas as séries analisadas, o coeficiente determinístico linear $r^2$ superou 0,994. Esse resultado comprova que, em regime de operação contínua com taxas de degradação gradativas, as concentrações instantâneas já transportam quase a totalidade da informação necessária para a separação diagnóstica, atuando as previsões da LSTM como réplicas estocasticamente redundantes do vetor observacional.
+
+Por outro lado, os contrastes envolvendo o Algoritmo Genético evidenciam a contribuição do método evolutivo sob o princípio da parcimônia. Ao confrontar C1 e C2, constata-se diferença de $\Delta F_1 = -0,0003$ com valor de $p \approx 0,9956$, demonstrando desempenho rigorosamente equivalente. Contudo, enquanto o modelo C2 requisita 17 atributos para operar, o algoritmo genético selecionou um subconjunto compacto de 8 variáveis (composto por $\text{CO}_{\text{obs}}$, $\text{H}_2/\text{C}_2\text{H}_2$, $\text{C}_2\text{H}_2/\text{TH}_{\text{katser}}$, $\text{C}_2\text{H}_4/\text{TH}_{\text{katser}}$, $\text{H}_{2,\text{h14}}$, $\text{H}_{2,\text{h28}}$, $\text{C}_2\text{H}_{4,\text{h28}}$ e $\text{C}_2\text{H}_{2,\text{h28}}$). Conforme ilustrado na Figura~\ref{fig:tradeoff_complexidade}, o método atinge redução dimensional de 53\% sem qualquer degradação no índice de macro-precisão, o que simplifica o pipeline computacional e reduz o custo operacional associado à manutenção de sensores e canais de telemetria em ambiente industrial.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\textwidth]{figuras/xgb_tradeoff_complexity.png}
+\caption{Compromisso entre complexidade dimensional e desempenho diagnóstico no Track A.}
+\label{fig:tradeoff_complexidade}
+\fonte{Elaborado pelo autor.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\textwidth]{figuras/xgb_confusion_track_a.png}
+\caption{Matriz de confusão das predições diagnósticas para o Track A no conjunto de teste oficial.}
+\label{fig:matriz_track_a}
+\fonte{Elaborado pelo autor.}
+\end{figure}
+
+A análise da matriz de confusão apresentada na Figura~\ref{fig:matriz_track_a} atesta eficácia elevada nas classes críticas, alcançando $F_1 = 0,973$ na condição Normal, $F_1 = 0,886$ em Descargas Parciais (PD) e recall de 100\% em Descargas de Baixa Energia (D1, com $F_1 = 0,925$). O principal gargalo do classificador concentra-se na ambiguidade entre as classes Normal e T1, responsável por 17 amostras normais classificadas como sobreaquecimento e 8 instâncias de T1 atribuídas à condição normal. Essa sobreposição é coerente com a física de degradação em isolamentos a óleo, visto que sobreaquecimentos térmicos incipientes em regime inferior a 300~$^\circ\text{C}$ produzem taxas reduzidas de evolução gasosa, gerando concentrações residuais que se confundem com o envelhecimento natural do óleo mineral.
+
+\section{Resultados do Track B: Diagnóstico Multiclasse e o Teto Informacional}\label{sec:res_track_b}
+
+O Track B aborda a classificação multiclasse de sete estados de integridade operacional (Normal, PD, D1, D2, T1, T2 e T3) a partir de base compilada de registros de DGA estáticos com 1.972 amostras únicas, obtidas após procedimento de auditoria que expurgou 349 duplicatas redundantes presentes no dataset original. O conjunto de teste contém 295 amostras distribuídas entre 106 registros Normais, 17 de PD, 41 de D1, 33 de D2, 16 de T1, 16 de T2 e 66 de T3. Nesse cenário, o objetivo consistiu em avaliar o comportamento de classificadores baseados em árvores de decisão em comparação direta com os métodos normativos internacionais e com o modelo de referência de \citeonline{wu2021}.
+
+Avaliaram-se cinco abordagens distintas, compreendendo o classificador IGA-XGBoost do presente trabalho (C3), o modelo XGBoost padrão sobre o espaço completo de 19 atributos derivados (C4), a replicação exata do modelo de \citeonline{wu2021} constituído por 18 atributos candidatos (T3), a norma do Triângulo 1 de Duval (T2) e o método das razões da norma IEC 60599 (T1). A Tabela~\ref{tab:track_b_desempenho} apresenta as métricas computadas no conjunto de teste e o índice de validação cruzada estratificada repetida em cinco repetições com cinco dobras (Repeated Stratified $5 \times 5$ CV, totalizando 25 dobras de avaliação).
+
+\begin{table}[htbp]
+\centering
+\caption{Desempenho diagnóstico multiclasse no Track B sobre sete categorias operacionais.}
+\label{tab:track_b_desempenho}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccc}
+\hline
+\textbf{Modelo / Método} & \textbf{Atributos} & \textbf{$F_1$-macro Teste} & \textbf{IC 95\% Teste} & \textbf{$F_1$-macro CV $5\times 5$} & \textbf{IC 95\% CV} \\ \hline
+C3: IGA-XGBoost & 16 & 0,7970 & $[0,7392; 0,8515]$ & 0,7516 & $[0,7406; 0,7626]$ \\
+C4: XGBoost Padrão & 19 & 0,7843 & $[0,7259; 0,8376]$ & 0,7616 & $[0,7527; 0,7705]$ \\
+T3: Wu et al. (2021) & 14 & 0,7829 & $[0,7261; 0,8376]$ & 0,7654 & $[0,7555; 0,7752]$ \\
+T2: Triângulo de Duval & 3 gases & 0,3634 & $[0,3101; 0,4135]$ & -- & -- \\
+T1: Razões IEC 60599 & 5 gases & 0,2569 & $[0,1944; 0,3143]$ & -- & -- \\ \hline
+Linha de base (5 gases) & 5 & 0,7250 & $[0,6587; 0,7851]$ & 0,7082 & $[0,6965; 0,7200]$ \\ \hline
+\end{tabular}%
+}
+\fonte{Elaborado pelo autor.}
+\end{table}
+
+A comparação pareada por \textit{bootstrap} no conjunto de teste revelou que a diferença entre o modelo C3 e a replicação de Wu et al. (T3) atingiu $\Delta F_1 = +0,0141$ com intervalo de confiança $[-0,0054; +0,0368]$ e valor de $p \approx 0,1824$. De forma análoga, o contraste entre C3 e a configuração padrão C4 resultou em $\Delta F_1 = +0,0127$ com intervalo $[-0,0211; +0,0490]$ e $p \approx 0,4680$. Em ambos os casos, a nulidade encontra-se contida no intervalo de confiança empírico, revelando que os três modelos baseados em gradiente de árvores apresentam equivalência estatística. Essa constatação é corroborada pelos resultados de validação cruzada repetida em 25 dobras, nos quais os intervalos de confiança de 95\% de C3 ($0,7516 \pm 0,0281$), C4 ($0,7616 \pm 0,0226$) e T3 ($0,7654 \pm 0,0252$) exibem sobreposição completa.
+
+Sob a perspectiva da teoria da informação, essa convergência demonstra a presença de um teto informacional nos dados de DGA estáticos. Uma vez que a totalidade das variáveis derivadas (incluindo percentuais de Duval, razões de hidrocarbonetos e somas totais) constitui transformações matemáticas determinísticas das cinco concentrações primárias observadas ($\text{H}_2$, $\text{CH}_4$, $\text{C}_2\text{H}_6$, $\text{C}_2\text{H}_4$ e $\text{C}_2\text{H}_2$), a engenharia de atributos não é capaz de introduzir informação mútua nova ao problema. Ela facilita a identificação de cortes hiperplanares pelas árvores em comparação com o treinamento puramente sobre as variáveis em escala bruta (cujo $F_1$ limita-se a 0,7082), mas não supera o limite de separabilidade determinado pela distribuição física dos dados.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\textwidth]{figuras/xgb_confusion_track_b.png}
+\caption{Matriz de confusão do modelo C3 (IGA-XGBoost) no teste de sete classes do Track B.}
+\label{fig:matriz_track_b}
+\fonte{Elaborado pelo autor.}
+\end{figure}
+
+A inspeção da matriz de confusão do modelo C3 (Figura~\ref{fig:matriz_track_b}) elucida os mecanismos geradores de erro no Track B. Observa-se que 14 equívocos diagnósticos concentram-se na transição entre descargas de baixa e alta energia (9 amostras de D1 previstas como D2 e 5 amostras de D2 previstas como D1). Essa transição reflete uma fronteira termodinâmica contínua, na qual variações discretas na densidade de corrente e na geometria do arco induzem sobreposição de assinaturas químicas. Adicionalmente, as classes térmicas incipientes T1 e T2 registram desempenhos modestos ($F_1 = 0,585$ e $F_1 = 0,621$, respectivamente), decorrentes da escassez de dados para treinamento e validação (apenas 16 amostras de teste em cada categoria), ao passo que as categorias Normal e T3 sustentam índices superiores a 0,91.
+
+\section{Auditoria Normativa: Divergência dos Métodos Tradicionais}\label{sec:res_auditoria}
+
+Os índices de macro-precisão reportados para os métodos normativos tradicionais na Tabela~\ref{tab:track_b_desempenho} ($F_1 = 0,3634$ para o Triângulo 1 de Duval e $F_1 = 0,2569$ para as razões da IEC 60599) distanciam-se significativamente das taxas de acurácia comumente descritas na literatura de sistemas de potência, as quais frequentemente oscilam entre 70\% e 90\%. Essa discrepância suscitou a necessidade de auditoria algorítmica rigorosa sobre o código de implementação e sobre os rótulos de referência da base.
+
+Para assegurar que o baixo desempenho não resultasse de falhas de codificação analítica, submeteram-se as rotinas de cálculo a um conjunto de testes unitários com casos canônicos. Para o Triângulo 1 de Duval, avaliaram-se 13 pontos canônicos representativos das zonas diagnósticas descritas no Anexo B da norma IEC 60599, obtendo-se correspondência estrita em todos os pontos centrais de polígono. Para a norma IEC 60599, avaliaram-se os códigos clássicos das razões $\text{C}_2\text{H}_2/\text{C}_2\text{H}_4$, $\text{CH}_4/\text{H}_2$ e $\text{C}_2\text{H}_4/\text{C}_2\text{H}_6$, confirmando-se a conformidade das regras. As únicas discordâncias registradas ocorreram estritamente sobre a linha limítrofe de separação poligonal ou em casos que recaem na zona de transição mista (DT), comprovando a correção matemática dos algoritmos.
+
+A auditoria empírica sobre a distribuição das predições da base completa de 1.972 amostras, consolidada na Tabela~\ref{tab:auditoria_normativa}, evidenciou que a divergência decorre de duas inconsistências ontológicas fundamentais entre as normas e os bancos de dados abertos.
+
+\begin{table}[htbp]
+\centering
+\caption{Concordância entre os rótulos da base e os diagnósticos da IEC 60599 e do Triângulo de Duval.}
+\label{tab:auditoria_normativa}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccc}
+\hline
+\textbf{Classe} & \textbf{Total} & \multicolumn{2}{c}{\textbf{IEC 60599}} & \multicolumn{3}{c}{\textbf{Triângulo 1 de Duval}} \\ \cline{3-4} \cline{5-7}
+\textbf{Rotulada} & \textbf{($N$)} & \textbf{Concordância} & \textbf{Não Determinado} & \textbf{Concordância} & \textbf{Zona DT} & \textbf{Principal Desvio} \\ \hline
+Normal & 707 & 0,0\% & 14,0\% & 0,0\% & 0,7\% & 89,0\% predito como T1 \\
+PD & 111 & 14,4\% & 80,2\% & 14,4\% & 4,5\% & 52,3\% predito como T1 \\
+D1 & 273 & 24,2\% & 71,4\% & 76,2\% & 4,8\% & 14,7\% predito como D2 \\
+D2 & 221 & 15,8\% & 40,7\% & 58,4\% & 10,0\% & 24,4\% predito como D1 \\
+T1 & 107 & 48,6\% & 36,4\% & 31,8\% & 2,8\% & 41,1\% predito como T2 \\
+T2 & 108 & 64,8\% & 17,6\% & 38,9\% & 10,2\% & 39,8\% predito como T3 \\
+T3 & 435 & 31,3\% & 14,0\% & 38,4\% & 8,5\% & 39,1\% predito como T2 \\ \hline
+\end{tabular}%
+}
+\fonte{Elaborado pelo autor.}
+\end{table}
+
+A primeira causa reside no fato de que os métodos de Duval e IEC foram concebidos exclusivamente para determinar o mecanismo de falha em equipamentos cujo estado anômalo já foi previamente estabelecido por limiares de concentração total de gás ou taxas de evolução diária. Consequentemente, esses métodos não contemplam a categoria operacional Normal em sua formulação geométrica. Quando aplicados à totalidade da base, o Triângulo de Duval categoriza 629 das 707 amostras normais (89,0\%) como falha térmica T1, e a IEC 60599 classifica 591 amostras normais (83,6\%) como T1, zerando a acurácia de ambos nessa classe majoritária. Além disso, a rigidez analítica da IEC 60599 resulta em índices de indeterminação elevados (80,2\% em PD e 71,4\% em D1), gerando diagnósticos nulos para a maioria dos casos práticos.
+
+A segunda causa, de natureza físico-química, envolve uma contradição termodinâmica na classe T3. De acordo com a física clássica da IEC 60599, uma falha térmica de temperatura elevada ($T > 700\ ^\circ\text{C}$) provoca quebra pirolítica severa de etano em etileno, exigindo razão $\text{C}_2\text{H}_4/\text{C}_2\text{H}_6 > 4$. Todavia, a análise descritiva da base compilada demonstrou que a mediana dessa razão para os dados anotados como T3 situa-se em apenas 0,25, com o terceiro quartil permanecendo abaixo de 1,0. Por essa razão, tanto a IEC 60599 quanto o Triângulo de Duval categorizam essas instâncias como sobreaquecimentos moderados (T1 ou T2). Esse resultado atesta que os modelos de aprendizado de máquina adaptaram-se à distribuição empírica dos dados operacionais e supera os sistemas normativos rígidos precisamente por sua capacidade de extrair fronteiras de decisão livres das hipóteses analíticas prévias das normas internacionais.
+
+\section{Interpretabilidade Físico-Química via SHAP}\label{sec:res_shap}
+
+A utilização de algoritmos de aprendizado supervisionado em engenharia de sistemas de potência demanda transparência decisória e conformidade estrita com os princípios da físico-química da degradação isolante. Para atender a esse requisito, implementou-se um pipeline de explicabilidade pós-hoc estruturado sobre a formulação de TreeSHAP aditivo \cite{lundberg2020}. Os valores de contribuição individual ($\phi_i$) foram computados de forma nativa a partir da decomposição das margens de log-odds em árvores de decisão, assegurando a propriedade fundamental de eficiência axiomática, segundo a qual a soma de todas as contribuições parciais acrescida do valor esperado basal iguala rigorosamente a predição contínua da margem do modelo ($\sum_{i=1}^{M} \phi_i + \phi_0 = f(x)$).
+
+\subsection{Estabilidade do Ranking Global}
+
+Antes de extrair conclusões físicas a partir das explicações pontuais, avaliou-se a estabilidade do ordenamento de importância frente a perturbações estocásticas induzidas pela inicialização de sementes aleatórias. Para cada uma das cinco sementes avaliadas no modelo C3 do Track B, construiu-se o vetor de importância global média absoluta ($E[|\phi_i|]$). Calculou-se a correlação de postos de Spearman ($\rho$) entre os rankings das sementes, obtendo-se correlação média de $\rho = 0,954$. A obtenção de coeficiente expressivamente superior ao patamar crítico de 0,80 comprova que as atribuições de relevância refletem estruturas funcionais latentes nos dados, e não artefatos aleatórios derivados da amostragem ou do treinamento local do ensemble.
+
+\subsection{Relevância por Classe e Agrupamento por Famílias Químicas}
+
+Para contornar a distorção interpretativa provocada pela colinearidade mútua entre variáveis quimicamente aparentadas, agrupou-se o impacto absoluto dos atributos em quatro famílias analíticas fundamentais (derivados de acetileno $\text{C}_2\text{H}_2$, derivados de etileno $\text{C}_2\text{H}_4$, derivados de metano $\text{CH}_4$ e gases brutos não derivados). A aditividade matemática do TreeSHAP garante que a soma dos valores de $\phi$ dentro de cada grupo represente a contribuição exata e linearmente desprovida de viés daquela classe funcional. A Figura~\ref{fig:shap_heatmap} ilustra o mapa de calor da importância global média para cada classe operacional, e a Figura~\ref{fig:shap_grouped} sintetiza a distribuição das quatro famílias químicas consolidadas.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\textwidth]{figuras/fase6/fig1_heatmap_track_b.png}
+\caption{Mapa de calor da importância média absoluta do SHAP por classe operacional no Track B.}
+\label{fig:shap_heatmap}
+\fonte{Elaborado pelo autor.}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\textwidth]{figuras/fase6/fig2_grouped_track_b.png}
+\caption{Importância agregada por famílias de gases para as sete categorias de integridade operacional.}
+\label{fig:shap_grouped}
+\fonte{Elaborado pelo autor.}
+\end{figure}
+
+A distribuição de crédito reproduz com fidelidade as diretrizes clássicas estabelecidas na literatura internacional de DGA. As falhas caracterizadas por descargas elétricas em meio dielétrico (D1 e D2) apresentam dependência quase exclusiva da família dos derivados de acetileno, respondendo os atributos $\text{C}_2\text{H}_2/\text{TH}$ e $\text{C}_2\text{H}_2/\text{C}_2\text{H}_4$ pela maior parte da probabilidade acumulada. Em contrapartida, as descargas parciais (PD) concentram a alocação de importância na família do metano e na razão $\text{CH}_4/\text{H}_2$, em consonância com o fato de que ionizações pontuais e eflúvios dielétricos de baixa energia clivam as cadeias de hidrocarbonetos gerando prioritariamente hidrogênio atômico e metano. Por fim, os sobreaquecimentos térmicos (T1, T2 e T3) dividem a importância entre os derivados de etileno ($\text{C}_2\text{H}_4/\text{TH}$) e etano ($\text{C}_2\text{H}_4/\text{C}_2\text{H}_6$), confirmando que a pirólise térmica do óleo em temperaturas moderadas e elevadas ativa predominantemente a decomposição de ligações carbono-carbono alifáticas duplas.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\textwidth]{figuras/fase6/fig3_beeswarm_D1.png}
+\caption{Distribuição dos valores de SHAP para a classe de Descargas de Baixa Energia (D1).}
+\label{fig:beeswarm_d1}
+\fonte{Elaborado pelo autor.}
+\end{figure}
+
+O gráfico de dispersão de abelha (\textit{beeswarm}) específico para a classe D1, ilustrado na Figura~\ref{fig:beeswarm_d1}, confirma essa mecânica em nível de instância individual. Níveis elevados de $\text{C}_2\text{H}_2/\text{TH}$ e da razão $\text{C}_2\text{H}_2/\text{C}_2\text{H}_4$ deslocam sistematicamente a margem de log-odds na direção positiva da classe, ao passo que proporções reduzidas ou nulas de acetileno forçam a predição para o campo negativo, discriminando com clareza as ocorrências de centelhamento de baixa intensidade.
+
+\subsection{Extração de Limiares Físicos Marginais}
+
+Por meio do cálculo da matriz de interações de Lundberg (\texttt{pred\_interactions}), realizou-se a extração do efeito principal diagonal isolado ($\phi_{i,i}$) de cada variável diagnóstica, revertendo-se a escala para unidades físicas originais. O ponto no qual a contribuição marginal cruza o eixo nulo ($\phi_{i,i} = 0$) identifica o limiar empírico a partir do qual aquela concentração passa a exercer pressão favorável à ocorrência de determinada falha. A Tabela~\ref{tab:limiares_fisicos} compara os pontos de transição aprendidos autonomamente pelo classificador XGBoost contra os cortes analíticos fixados pelo Triângulo 1 de Duval e pela norma IEC 60599.
+
+\begin{table}[htbp]
+\centering
+\caption{Comparação entre limiares analíticos normativos e pontos de transição marginal do TreeSHAP.}
+\label{tab:limiares_fisicos}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccc}
+\hline
+\textbf{Parâmetro Químico} & \textbf{Falha Alvo} & \textbf{Limiar Normativo} & \textbf{Limiar Marginal Extraído} \\ \hline
+Percentual $\% \text{C}_2\text{H}_4$ ($\text{C}_2\text{H}_4/\text{TH}$) & D1 & $< 23\%$ (Duval) & Faixa entre 20\% e 25\% \\
+Percentual $\% \text{C}_2\text{H}_2$ ($\text{C}_2\text{H}_2/\text{TH}$) & D1 & $\ge 13\%$ (Duval / IEC) & $\approx 8,0\%$ \\
+Percentual $\% \text{C}_2\text{H}_2$ ($\text{C}_2\text{H}_2/\text{TH}$) & D2 & $\ge 13\%$ ou $29\%$ (Duval) & $\approx 8,6\%$ \\
+Razão $\text{C}_2\text{H}_4/\text{C}_2\text{H}_6$ & T3 & $> 4,0$ (IEC 60599) & $\approx 2,97$ \\ \hline
+\end{tabular}%
+}
+\fonte{Elaborado pelo autor.}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\textwidth]{figuras/fase6/fig4_thresh_ratio_C2H4_TH_D1.png}
+\caption{Efeito principal isolado do TreeSHAP para a razão $\text{C}_2\text{H}_4/\text{TH}$ na classe D1.}
+\label{fig:shap_thresh_c2h4}
+\fonte{Elaborado pelo autor.}
+\end{figure}
+
+Conforme demonstrado na Figura~\ref{fig:shap_thresh_c2h4}, o comportamento da razão $\text{C}_2\text{H}_4/\text{TH}$ para a detecção de D1 revela conformidade notável com a física do problema. Enquanto a geometria clássica do Triângulo 1 de Duval delimita o polígono de D1 estritamente em proporções de etileno inferiores a 23\%, a curva empírica gerada pelo modelo cruza a linha de contribuição marginal nula exatamente no intervalo situado entre 20\% e 25\% (0,20 e 0,25 na escala da fração). Isso comprova que o ensemble de árvores extraiu de forma autônoma a restrição termodinâmica que diferencia descargas elétricas puras de arcos combinados com estresse térmico, sem necessidade de imposição prévia de regras pelo projetista.
+
+Por outro lado, o limiar empírico para o percentual de acetileno em D1 e D2 situou-se na faixa de 8\%, demonstrando postura mais conservadora que o patamar normativo clássico de 13\%. Esse comportamento reflete a distribuição empírica da base de calibração, na qual relatórios técnicos de manutenção atribuíram laudos de descarga incipiente a equipamentos apresentando traços menos volumosos de $\text{C}_2\text{H}_2$. Do mesmo modo, o limiar da razão $\text{C}_2\text{H}_4/\text{C}_2\text{H}_6$ para a falha T3 posicionou-se em 2,97, reproduzindo a anomalia amostral já diagnosticada na seção precedente.
+
+\subsection{Visualização Espacial no Triângulo de Duval}
+
+Com o propósito de correlacionar espacialmente as decisões do classificador XGBoost com o espaço baricêntrico convencional, projetaram-se as 295 amostras do conjunto de teste sobre as coordenadas triangulares do Triângulo 1 de Duval, parametrizadas pelas concentrações relativas $\% \text{CH}_4$, $\% \text{C}_2\text{H}_4$ e $\% \text{C}_2\text{H}_2$. A Figura~\ref{fig:duval_erros} apresenta o mapeamento espacial obtido, identificando os pontos de acerto e destacando os casos de classificação divergente.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\textwidth]{figuras/fase6/fig5_duval_triangle.png}
+\caption{Mapeamento das amostras de teste no Triângulo 1 de Duval evidenciando a localização dos erros diagnósticos.}
+\label{fig:duval_erros}
+\fonte{Elaborado pelo autor.}
+\end{figure}
+
+A visualização baricêntrica evidencia que os erros cometidos pelo modelo de aprendizado de máquina não se distribuem de maneira desordenada pelo espaço vetorial. Pelo contrário, as instâncias classificadas de forma divergente situam-se concentradas sobre as linhas divisórias limítrofes entre as zonas D1 e D2, bem como no interior da zona mista de transição DT (Descarga e Falha Térmica combinadas). Trata-se de uma constatação de grande relevância prática, pois demonstra que as discrepâncias residuais do modelo coincidem precisamente com as regiões em que a própria norma internacional de Duval reconhece a existência de ambiguidade diagnóstica intrínseca.
+
+\subsection{Análise Local de Erros de Classificação}
+
+A decomposição aditiva local via gráficos em cascata (\textit{waterfall plots}) possibilita auditar o mecanismo analítico que conduziu a classificações incorretas em casos específicos da partição de teste. A Figura~\ref{fig:waterfall_d1_d2} detalha a decomposição do log-odds para a amostra de índice 11, cujo rótulo empírico original indicava falha D1, mas a predição do modelo apontou classe D2.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\textwidth]{figuras/fase6/fig6_waterfall_error_D1_to_D2_11.png}
+\caption{Decomposição aditiva via Waterfall plot do caso de classificação divergente de D1 para D2 (amostra 11).}
+\label{fig:waterfall_d1_d2}
+\fonte{Elaborado pelo autor.}
+\end{figure}
+
+A decomposição vetorial demonstra que o erro de classificação derivou da atuação conjunta de dois fatores marginais. A amostra apresentava proporção relativa de etileno levemente superior a 22\%, situando-se a poucos décimos da fronteira de transição para falhas com envolvimento térmico, associada a concentração basal de metano que suprimiu a contribuição da família de $\text{C}_2\text{H}_2$ para a classe D1 ($\phi = -0,48$), deslocando a margem global na direção do polígono de alta energia característico de D2. Trata-se, portanto, de um caso fronteiriço típico no qual o modelo respondeu à proximidade física da amostra com a zona contígua.
+
+\subsection{Migração Estocástica de Crédito e Fechamento da Hipótese Temporal}
+
+Para concluir formalmente a investigação acerca do papel exercido pela rede LSTM no Track A, avaliou-se a dispersão de crédito alocada pelo TreeSHAP sobre modelos submetidos a diferentes sementes de inicialização estocástica. A Figura~\ref{fig:migracao_credito} expõe a importância média do gás hidrogênio dividida entre a medida observada instantânea ($\text{H}_{2,\text{obs}}$) e as estimativas projetadas recursivamente para 14 e 28 passos ($\text{H}_{2,\text{h14}}$ e $\text{H}_{2,\text{h28}}$).
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.85\textwidth]{figuras/fase6/fig7_lstm_credit_migration.png}
+\caption{Migração estocástica de crédito de importância do SHAP entre variáveis observadas e preditas pela LSTM.}
+\label{fig:migracao_credito}
+\fonte{Elaborado pelo autor.}
+\end{figure}
+
+O comportamento visualizado na Figura~\ref{fig:migracao_credito} constitui prova empírica definitiva sobre a natureza da interação entre os módulos. Observa-se que, ao alterar a semente de treinamento do classificador XGBoost, a alocação de importância oscila arbitrariamente entre as projeções $\text{H}_{2,\text{h14}}$ e $\text{H}_{2,\text{h28}}$, evidenciando a partição estocástica de crédito típica de ensembles de árvores submetidos a variáveis com correlação extrema. Entretanto, a curva representativa da soma agregada de importância alocada à família do hidrogênio (traçado escuro) permanece rigorosamente estável e idêntica à importância computada em modelos que utilizam unicamente a concentração observada. Esse fenômeno comprova que as previsões da rede recorrente não inserem dimensões ortogonais de discernimento diagnóstico no estado operacional avaliado, ratificando a conclusão de que a hibridização temporal de curto prazo não eleva a separabilidade estática em transformadores em operação contínua.

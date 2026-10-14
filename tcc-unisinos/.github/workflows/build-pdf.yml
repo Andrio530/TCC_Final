@@ -1,0 +1,37 @@
+name: Compilar PDF
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compilar com latexmk
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: main.tex
+          latexmk_use_lualatex: false
+          args: -pdf -file-line-error -halt-on-error -interaction=nonstopmode
+
+      - name: Publicar PDF como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: TCC-pdf
+          path: main.pdf
+          if-no-files-found: error
+
+      - name: Publicar log em caso de falha
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-compilacao
+          path: |
+            main.log
+            main.blg
+          if-no-files-found: ignore

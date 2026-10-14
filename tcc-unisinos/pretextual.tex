@@ -1,0 +1,152 @@
+% ----------------------------------------------------------
+% ELEMENTOS PRÉ-TEXTUAIS
+% ----------------------------------------------------------
+% \pretextual
+
+% ---
+% Capa
+% ---
+\imprimircapa
+% ---
+
+% ---
+% Folha de rosto
+% (o * indica que haverá a ficha bibliográfica)
+% ---
+%\imprimirfolhaderosto*
+\imprimirfolhaderosto
+% ---
+
+
+
+% ---
+% Agradecimentos
+% ---
+%\begin{agradecimentos}
+%Não remover a palavra agradecimentos.
+%Os agradecimentos devem ser dirigidos a quem realmente contribuiu, de maneira relevante, à elaboração do trabalho. 
+
+%\end{agradecimentos}
+% ---
+
+% ---
+% Epígrafe
+% ---
+%\begin{epigrafe}
+%    \vspace*{\fill}
+%	\begin{flushright}
+%		\textit{Epígrafe (Não se escreve a palavra epígrafe). Elemento opcional. 
+%A epígrafe deve ser colocada após o agradecimento; trata-se de uma citação, seguida de indicação de autoria, relacionada à matéria tratada no corpo do trabalho. Deve ser “[...] elaborada conforme a NBR 10520 [...]. Podem também constar epígrafes nas folhas ou páginas de abertura das seções primárias” (ABNT, 2002, p. 7). 
+%A fonte da epígrafe deve sempre ser mencionada nas referências. 
+%Citação direta até 3 linhas deve estar entre aspas e em parágrafo normal (vá até a janela de Estilo - selecione - Parágrafo), se tiver mais de 3 linhas, deve ser recuada 4 cm da margem esquerda, com fonte menor que 12 e espaçamento entre linhas simples 
+%}
+%	\end{flushright}
+%\end{epigrafe}
+% ---
+
+% ---
+% RESUMOS
+% ---
+
+% resumo em português
+\setlength{\absparsep}{18pt} % ajusta o espaçamento dos parágrafos do resumo
+\begin{resumo}
+A Análise de Gases Dissolvidos (DGA) constitui a principal técnica para diagnóstico de falhas incipientes em transformadores de potência imersos em óleo mineral. Contudo, métodos normativos clássicos como o Triângulo 1 de Duval e a IEC 60599 operam sob fronteiras rígidas, carecem de definição para o estado operacional normal e geram elevadas taxas de indeterminação. Por outro lado, modelos de aprendizado de máquina frequentemente assumem, sem comprovação empírica, que a incorporação de projeções temporais de gases eleva o desempenho de classificadores estáticos. Este trabalho investiga a integração de redes neurais recorrentes LSTM e classificadores XGBoost otimizados por um Algoritmo Genético Melhorado (IGA), estruturando a experimentação em dois eixos analíticos complementares em função da assimetria das bases industriais públicas. O Eixo A avalia séries temporais multivariadas com amostragem a cada 12 horas (3.000 séries, 4 gases, 4 classes) sob teste formal de ablação pareada por bootstrap com 5.000 iterações. Os resultados evidenciam que, embora a LSTM apresente erro de predição reduzido, a forte colinearidade observada entre valores atuais e previstos ($r > 0,997$) não proporciona ganho estatisticamente significativo na discriminação diagnóstica ($\Delta F_1 = +0,0056$ com intervalo de confiança de 95\% entre $-0,0037$ e $+0,0150$). Em contrapartida, o IGA promove uma redução de 53\% no espaço de atributos mantendo desempenho balanceado equivalente ($F_1 \approx 0,891$). O Eixo B estabelece um referencial multiclasse sobre uma base auditada e deduplicada (1.972 amostras, 5 gases, 7 classes), comprovando por validação cruzada repetida $5 \times 5$ a existência de um teto informacional ($F_1 \approx 0,75\text{--}0,76$), no qual abordagens avançadas são estatisticamente indistinguíveis. Por fim, a aplicação da teoria dos jogos cooperativos via algoritmo TreeSHAP e matrizes de interação purificadas unifica as decisões do ensemble aos princípios termodinâmicos da IEC e de Duval, identificando os limiares físicos exatos de transição de falhas e mapeando a concentração de erros nas fronteiras poligonais.
+
+ \textbf{Palavras-chave}: Transformadores de Potência, Análise de Gases Dissolvidos, Redes LSTM, XGBoost, Algoritmo Genético Melhorado, Interpretabilidade Físico-Química, TreeSHAP.
+\end{resumo}
+
+% resumo em inglês
+\begin{resumo}[Abstract]
+ \begin{otherlanguage*}{english}
+Dissolved Gas Analysis (DGA) is the primary technique for incipient fault diagnosis in mineral oil-immersed power transformers. However, traditional standard methods, such as Duval Triangle 1 and IEC 60599 ratios, rely on rigid boundaries, lack a definition for the normal operating state, and produce high indeterminacy rates. Conversely, machine learning models frequently assume, without rigorous empirical verification, that incorporating temporal gas forecasts necessarily improves static classification performance. This work investigates the integration of Long Short-Term Memory (LSTM) recurrent neural networks and XGBoost classifiers optimized via an Improved Genetic Algorithm (IGA), structured into two complementary experimental tracks dictated by the asymmetry of public industrial repositories. Track A evaluates industrial multivariate time series sampled every 12 hours (3,000 series, 4 gases, 4 classes) under a formal paired bootstrap ablation test with 5,000 resamples. The results demonstrate that, despite low LSTM prediction errors, the strong collinearity between observed and forecasted concentrations ($r > 0.997$) yields no statistically significant gain in diagnostic discrimination ($\Delta F_1 = +0.0056$ with a 95\% confidence interval between $-0.0037$ and $+0.0150$). In contrast, the IGA achieves a 53\% dimensionality reduction while preserving identical macro-averaged performance ($F_1 \approx 0.891$). Track B establishes a multiclass benchmark on an audited, deduplicated database (1,972 unique samples, 5 gases, 7 classes), demonstrating an informational ceiling ($F_1 \approx 0.75\text{--}0.76$) through repeated $5 \times 5$ cross-validation where advanced models are statistically indistinguishable. Finally, cooperative game theory via TreeSHAP and purified interaction matrices reconciles the ensemble decision boundaries with thermodynamic domain knowledge from Duval and IEC standards, identifying physical transition thresholds and mapping classification errors along polygonal boundary zones.
+
+   \vspace{\onelineskip}
+ 
+   \noindent 
+   \textbf{Keywords}: Power Transformers, Dissolved Gas Analysis, LSTM Networks, XGBoost, Improved Genetic Algorithm, Physical Interpretability, TreeSHAP.
+ \end{otherlanguage*}
+\end{resumo}
+
+
+% ---
+% inserir lista de ilustrações
+% ---
+\pdfbookmark[0]{\listfigurename}{lof}
+\listoffigures*
+\cleardoublepage
+% ---
+
+% ---
+% inserir lista de quadros
+% ---
+%\pdfbookmark[0]{\listofquadrosname}{loq}
+¨%\listofquadros*
+%\cleardoublepage
+% ---
+
+% ---
+% inserir lista de tabelas
+% ---
+\pdfbookmark[0]{\listtablename}{lot}
+\listoftables*
+\cleardoublepage
+% ---
+
+% ---
+% inserir lista de abreviaturas e siglas
+% ---
+\begin{siglas}
+  \item[ABNT] Associação Brasileira de Normas Técnicas
+  \item[AG] Algoritmo Genético
+  \item[ANFIS] \textit{Adaptive Neuro-Fuzzy Inference System} (Sistema de Inferência Neuro-Fuzzy Adaptativo)
+  \item[AUC-ROC] \textit{Area Under the Curve -- Receiver Operating Characteristic} (Área sob a Curva -- Característica de Operação do Receptor)
+  \item[BPTT] \textit{Backpropagation Through Time} (Retropropagação Através do Tempo)
+  \item[CNN] \textit{Convolutional Neural Network} (Rede Neural Convolucional)
+  \item[CRISP-DM] \textit{Cross-Industry Standard Process for Data Mining} (Processo Padrão Intersetorial para Mineração de Dados)
+  \item[DGA] \textit{Dissolved Gas Analysis} (Análise de Gases Dissolvidos)
+  \item[GA] \textit{Genetic Algorithm} (Algoritmo Genético)
+  \item[IEC] \textit{International Electrotechnical Commission} (Comissão Eletrotécnica Internacional)
+  \item[IGA] \textit{Improved Genetic Algorithm} (Algoritmo Genético Melhorado)
+  \item[KNN] \textit{k-Nearest Neighbors} (k-Vizinhos Mais Próximos)
+  \item[LightGBM] \textit{Light Gradient Boosting Machine} (Máquina de Aumento de Gradiente Leve)
+  \item[LSTM] \textit{Long Short-Term Memory} (Memória de Curto e Longo Prazo)
+  \item[MAE] \textit{Mean Absolute Error} (Erro Médio Absoluto)
+  \item[MLP] \textit{Multilayer Perceptron} (Perceptron Multicamadas)
+  \item[PSO] \textit{Particle Swarm Optimization} (Otimização por Enxame de Partículas)
+  \item[RMSE] \textit{Root Mean Squared Error} (Raiz do Erro Quadrático Médio)
+  \item[RNN] \textit{Recurrent Neural Network} (Rede Neural Recorrente)
+  \item[SHAP] \textit{SHapley Additive exPlanations} (Explicações Aditivas de Shapley)
+  \item[SMOTE] \textit{Synthetic Minority Over-sampling Technique} (Técnica de Sobreamostragem de Minorias Sintéticas)
+  \item[SVM] \textit{Support Vector Machine} (Máquina de Vetores de Suporte)
+  \item[XGBoost] \textit{Extreme Gradient Boosting} (Aumento Extremo de Gradiente)
+\end{siglas}
+% ---
+
+% ---
+% inserir lista de símbolos
+% ---
+\begin{simbolos}
+  \item[$w$] Tamanho da janela temporal (número de passos históricos)
+  \item[$h$] Horizonte de previsão (passos à frente)
+  \item[$x_t$] Vetor de concentrações dos gases no instante $t$
+  \item[$\hat{y}$] Saída predita pelo modelo
+  \item[$h_t$] Estado oculto da rede recorrente no instante $t$
+  \item[$C_t$] Estado da célula (memória) da LSTM no instante $t$
+  \item[$f_k(x)$] Árvore $k$ no ensemble de \textit{gradient boosting}
+  \item[$L(y,\hat{y})$] Função de perda
+  \item[$N$] Tamanho da população no AG/IGA
+  \item[$G$] Número máximo de gerações no AG/IGA
+  \item[$P_c$] Taxa de cruzamento (\textit{crossover rate})
+  \item[$P_m$] Taxa de mutação
+  \item[$\delta$] Limiar de diversidade populacional (desvio padrão da aptidão)
+\end{simbolos}
+% ---
+
+% ---
+% inserir o sumario
+% ---
+\pdfbookmark[0]{\contentsname}{toc}
+\tableofcontents*
+\cleardoublepage
+% ---

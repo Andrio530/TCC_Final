@@ -1,0 +1,53 @@
+# Python e Ambientes Virtuais
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+ENV/
+.ipynb_checkpoints/
+
+# Modelos e Dados Brutos Volumosos
+*.h5
+*.keras
+!tcc-transformer-fault/data/processed/*.keras
+*.pkl
+!tcc-transformer-fault/data/processed/*.pkl
+*.joblib
+tcc-transformer-fault/data/raw/*
+!tcc-transformer-fault/data/raw/.gitkeep
+
+# Arquivos Auxiliares do LaTeX
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.brf
+*.fdb_latexmk
+*.fls
+*.idx
+*.ilg
+*.ind
+*.lof
+*.log
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.dvi
+*.nav
+*.snm
+*.vrb
+
+# Sistema Operacional e Editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
