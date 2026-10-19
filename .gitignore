@@ -43,6 +43,9 @@ tcc-transformer-fault/data/raw/*
 *.nav
 *.snm
 *.vrb
+*_temp.*
+*_test.*
+main_test.*
 
 # Sistema Operacional e Editores
 .DS_Store
