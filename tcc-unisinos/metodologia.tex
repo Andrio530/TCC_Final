@@ -8,9 +8,9 @@ O desenho experimental deste trabalho foi definido a partir das características
 
 Diante dessas características distintas, a pesquisa foi estruturada em dois eixos experimentais complementares, denominados Track A e Track B, cuja visão geral está esquematizada na Figura~\ref{fig:arquitetura}. O Track A investiga o aspecto temporal da degradação, empregando uma rede neural recorrente LSTM empilhada para modelar a evolução multivariada de quatro gases e gerar projeções futuras de concentração, as quais alimentam um classificador XGBoost submetido a um teste controlado de ablação sobre quatro classes de severidade. Já o Track B estabelece um referencial comparativo de classificação multiclasse sobre sete categorias operacionais da norma IEC 60599, permitindo confrontar o classificador XGBoost otimizado por Algoritmo Genético Melhorado (IGA) contra métodos tradicionais de normas técnicas, modelos de referência da literatura e configurações simplificadas, complementando a análise com técnicas de interpretabilidade baseadas em valores de Shapley.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
-\includegraphics[width=0.85\textwidth]{figuras/Arquitetura.pdf}
+\includegraphics[width=0.50\textwidth]{figuras/Arquitetura.pdf}
 \caption{Fluxograma metodológico do trabalho estruturado na divisão entre os eixos Track A e Track B.}
 \label{fig:arquitetura}
 \fonte{Elaborado pelo autor.}
@@ -22,17 +22,26 @@ A experimentação utiliza dois conjuntos de dados reais e independentes, que pa
 
 \subsection{Base de Séries Temporais Industriais (Track A)}
 
-O Track A adota o conjunto de telemetria contínua divulgado por \citeonline{katser2022}, associado a transformadores de potência de instalações de geração energética no âmbito de estudos do consórcio Skoltech e Rosatom. O conjunto reúne 3.000 séries temporais multivariadas com leituras a cada 12 horas, totalizando 420 passos de tempo por série (equivalente a 210 dias de histórico contínuo). A divisão oficial fornecida pelos autores é composta por 2.100 séries destinadas a treino e validação, reservando-se 900 séries exclusivamente para a partição final de teste.
+O Track A adota o conjunto de medições contínuas divulgado por \citeonline{katser2022}, associado a transformadores de potência de instalações de geração energética do consórcio Skoltech e Rosatom. O conjunto reúne 3.000 séries temporais com leituras a cada 12 horas, totalizando 420 passos de tempo por série (equivalente a 210 dias de histórico contínuo). A divisão oficial fornecida pelos autores é composta por 2.100 séries destinadas a treino e validação, reservando-se 900 séries exclusivamente para a partição final de teste.
 
-Essa base monitora quatro espécies gasosas: hidrogênio ($\text{H}_2$), monóxido de carbono ($\text{CO}$), etileno ($\text{C}_2\text{H}_4$) e acetileno ($\text{C}_2\text{H}_2$). Cada série temporal possui um diagnóstico operacional constante ao longo de todo o período, categorizando o equipamento em quatro classes, cuja distribuição no conjunto de teste é: 731 amostras normais (Normal), 38 eventos de descarga parcial (PD), 49 casos de descarga de baixa energia (D1) e 82 ocorrências de sobreaquecimento térmico incipiente (T1). Os valores de concentração dessa base encontram-se em escala normalizada (da ordem de $10^{-3}$), formato disponibilizado originalmente pelos autores a partir das leituras dos sensores online.
+Essa base monitora quatro gases, sendo eles: hidrogênio ($\text{H}_2$), monóxido de carbono ($\text{CO}$), etileno ($\text{C}_2\text{H}_4$) e acetileno ($\text{C}_2\text{H}_2$). Cada série temporal possui um diagnóstico operacional constante ao longo de todo o período, categorizando o equipamento em quatro classes, cuja distribuição no conjunto de teste é: 731 amostras normais (Normal), 38 eventos de descarga parcial (PD), 49 casos de descarga de baixa energia (D1) e 82 ocorrências de sobreaquecimento térmico incipiente (T1). Os valores de concentração dessa base encontram-se em escala normalizada (da ordem de $10^{-3}$), formato disponibilizado originalmente pelos autores a partir das leituras dos sensores online.
+
+Como a condição operacional de integridade permanece constante ao longo de todo o período monitorado ($T=420$ passos) para cada transformador, a amostragem tabular pontual destinada ao treinamento e teste dos classificadores XGBoost é extraída no instante final ($t = 420$). Utiliza-se a sequência dos últimos 50 passos temporais contíguos ($w=50$, correspondente aos passos 371 a 420) como janela de entrada para alimentar a rede LSTM e gerar as previsões correspondentes aos horizontes futuros de 14 e 28 passos ($h = 14$ e $h = 28$).
 
 \subsection{Base Compilada de Diagnóstico Estático (Track B)}
 
-O Track B utiliza uma compilação de dados estáticos de DGA obtidos em transformadores de potência em serviço na rede elétrica chinesa. O repositório reúne ensaios laboratoriais por cromatografia gasosa cobrindo as concentrações absolutas em partes por milhão (ppm) dos cinco gases clássicos: hidrogênio ($\text{H}_2$), metano ($\text{CH}_4$), etano ($\text{C}_2\text{H}_6$), etileno ($\text{C}_2\text{H}_4$) e acetileno ($\text{C}_2\text{H}_2$), acompanhados pelo diagnóstico de integridade correspondente.
+O Track B utiliza uma compilação de dados estáticos de ensaios laboratoriais de DGA obtidos em transformadores de potência em serviço na rede elétrica chinesa, disponibilizados publicamente por \citeonline{li2019_membership} via IEEE DataPort e catalogados na biblioteca de ferramentas de diagnóstico DGALab \cite{ibrahim2018_dgalab}, hospedada no repositório de livre acesso de \citeonline{alan2021_dataset}. O repositório reúne medições pontuais cobrindo as concentrações absolutas em partes por milhão (ppm) de cinco gases: hidrogênio ($\text{H}_2$), metano ($\text{CH}_4$), etano ($\text{C}_2\text{H}_6$), etileno ($\text{C}_2\text{H}_4$) e acetileno ($\text{C}_2\text{H}_2$), acompanhados pelo respectivo rótulo de integridade.
 
-Na etapa de auditoria dos dados brutos, constatou-se que a base original continha 2.321 amostras com ocorrência de duplicidades e inconsistências de anotação. Aplicaram-se dois critérios estritos de saneamento: (i) para registros com concentrações idênticas nos cinco gases e mesmo laudo diagnóstico, manteve-se apenas a primeira ocorrência, descartando 303 réplicas redundantes; e (ii) para perfis com concentrações idênticas mas rótulos diagnósticos conflitantes entre si, descartaram-se todas as 56 amostras envolvidas, eliminando ruído espúrio de anotação. Esse procedimento removeu 359 registros (taxa de exclusão de 15,5\%), consolidando uma base estrita de 1.962 amostras únicas.
+Na etapa de auditoria dos dados brutos, constatou-se que a base original continha 2.321 amostras com ocorrência de duplicidades e inconsistências de anotação. Aplicaram-se dois critérios objetivos para saneamento dos dados: 
 
-Esse conjunto foi dividido de forma estratificada por tipo de falha na proporção 70/15/15: treino com 1.372 amostras (70,0\%), validação com 295 amostras (15,0\%) e teste independente com 295 amostras (15,0\%). As 1.962 instâncias distribuem-se entre as sete classes da norma IEC 60599: 707 normais, 111 de descargas parciais (PD), 273 de descargas de baixa energia (D1), 221 de descargas de alta energia (D2), 107 de falhas térmicas inferiores a 300~$^\circ\text{C}$ (T1), 108 de falhas térmicas entre 300~$^\circ\text{C}$ e 700~$^\circ\text{C}$ (T2) e 435 de falhas térmicas superiores a 700~$^\circ\text{C}$ (T3).
+\begin{enumerate}         
+    \item para registros com concentrações idênticas nos cinco gases e mesmo laudo diagnóstico, manteve-se apenas a primeira ocorrência, descartando 303 réplicas redundantes;
+    \item para perfis com concentrações idênticas mas rótulos diagnósticos conflitantes entre si, descartaram-se todas as 56 amostras envolvidas, eliminando ruído de anotação. Esse procedimento removeu 359 registros (taxa de exclusão de 15,5\%), consolidando uma base de 1.962 amostras únicas.
+\end{enumerate}
+
+Cabe ressaltar que os diagnósticos da base foram atribuídos originalmente a partir de laudos operacionais das concessionárias e de inspeções visuais realizadas durante o desparafusamento e abertura da parte ativa do transformador (\textit{untanking}). Como refletem laudos de campo e não ensaios controlados de laboratório com falhas puras, a base apresenta naturalmente sobreposições físico-químicas e casos limítrofes entre categorias --- por exemplo, na classe de falhas térmicas de alta temperatura (T3), a mediana observada para a razão $\text{C}_2\text{H}_4/\text{C}_2\text{H}_6$ é de apenas 0,25, distante do patamar teórico de 4,0 prescrito pela IEC 60599. Essa complexidade intrínseca dos dados reais foi a motivação central para que \citeonline{li2019_membership} formulassem o diagnóstico via graus de pertinência difusos (\textit{membership degree}), justificando igualmente o teto prático de desempenho em torno de 76\% a 78\% obtido pelos modelos de aprendizado de máquina.
+
+Esse conjunto consolidado foi dividido de forma estratificada por tipo de falha na proporção 70/15/15: treino com 1.372 amostras (70,0\%), validação com 295 amostras (15,0\%) e teste independente com 295 amostras (15,0\%). As 1.962 instâncias distribuem-se entre as sete classes da norma IEC 60599: 707 normais, 111 de descargas parciais (PD), 273 de descargas de baixa energia (D1), 221 de descargas de alta energia (D2), 107 de falhas térmicas inferiores a 300~$^\circ\text{C}$ (T1), 108 de falhas térmicas entre 300~$^\circ\text{C}$ e 700~$^\circ\text{C}$ (T2) e 435 de falhas térmicas superiores a 700~$^\circ\text{C}$ (T3).
 
 \subsection{Critérios de Exclusão e Descarte de Bases de Dados}
 
@@ -42,13 +51,15 @@ Optou-se também por não utilizar bases sintéticas geradas por simulação ale
 
 \section{Pré-processamento e Engenharia de Atributos}\label{sec:preprocessamento}
 
-Para alimentar os modelos de aprendizado de máquina, as concentrações de gases passam por etapas de transformação de escala e derivação de variáveis baseadas no conhecimento da área.
+Para alimentar os modelos de aprendizado de máquina, as concentrações de gases passam por etapas de transformação de escala e derivação de variáveis.
 
 \subsection{Tratamento de Escala e Normalização}
 
 O tratamento de escala foi conduzido de acordo com as especificidades de cada conjunto de dados. No Track A, como as leituras já se encontravam em escala contínua normalizada (da ordem de $10^{-3}$), aplicou-se diretamente a normalização Min-Max calculada por gás sobre o conjunto de treino.
 
 No Track B, as concentrações em ppm apresentam ampla variação dinâmica (de frações unitárias a dezenas de milhares de ppm em arcos elétricos). Para atenuar a assimetria sem descartar amostras, aplicou-se a transformação logarítmica com deslocamento unitário: $x_{\text{log}} = \ln(x + 1)$, em que a adição de 1 evita divergências numéricas em concentrações nulas. Em seguida, os valores foram reescalonados para o intervalo $[0, 1]$ por meio da normalização Min-Max: $(x_{\text{log}} - x_{\text{min}}) / (x_{\text{max}} - x_{\text{min}})$.
+
+É fundamental destacar a ordem rigorosa de processamento: todas as razões físico-químicas normativas ($\text{CH}_4/\text{H}_2$, $\text{C}_2\text{H}_2/\text{C}_2\text{H}_4$, $\text{C}_2\text{H}_4/\text{C}_2\text{H}_6$, etc.), as somas de hidrocarbonetos ($\text{TH}$ e $\text{TH}_1$) e as proporções percentuais relativas foram estritamente calculadas a partir das concentrações originais dos gases em partes por milhão (escala física desnormalizada). Somente após a derivação analítica dessas variáveis é que a transformação logarítmica e a normalização Min-Max tabular foram aplicadas sobre cada coluna, preservando integralmente a integridade física e termodinâmica das proporções molares.
 
 Para evitar vazamento de dados (\textit{data leakage}), os parâmetros $x_{\text{min}}$ e $x_{\text{max}}$ foram ajustados exclusivamente no conjunto de treino e aplicados de forma consistente nas partições de validação e teste. Caso alguma leitura no conjunto de teste ultrapasse o valor máximo de treino, o valor resultante fica ligeiramente superior a $1,0$, mantendo a fidelidade física sem truncamentos artificiais.
 
@@ -57,7 +68,7 @@ Para evitar vazamento de dados (\textit{data leakage}), os parâmetros $x_{\text
 Para o Track A, definiu-se um espaço candidato com 17 variáveis divididas em três grupos:
 \begin{enumerate}
     \item Os quatro gases brutos observados no instante presente ($\text{H}_{2,\text{obs}}$, $\text{CO}_{\text{obs}}$, $\text{C}_2\text{H}_{4,\text{obs}}$ e $\text{C}_2\text{H}_{2,\text{obs}}$);
-    \item Cinco atributos derivados adaptados aos gases monitorados, compreendendo a razão clássica $\text{C}_2\text{H}_2/\text{C}_2\text{H}_4$, a razão adaptada $\text{H}_2/\text{C}_2\text{H}_2$, a soma dos hidrocarbonetos disponíveis ($\text{TH}_{\text{katser}} = \text{C}_2\text{H}_4 + \text{C}_2\text{H}_2$) e as proporções parciais $\text{C}_2\text{H}_2/\text{TH}_{\text{katser}}$ e $\text{C}_2\text{H}_4/\text{TH}_{\text{katser}}$. A razão $\text{CO}/\text{C}_2\text{H}_4$ foi descartada da modelagem, pois monóxido de carbono e etileno provêm de processos de degradação independentes (papel e óleo, respectivamente), sem respaldo normativo para essa divisão;
+    \item Cinco atributos derivados adaptados aos gases monitorados, compreendendo a razão clássica $\text{C}_2\text{H}_2/\text{C}_2\text{H}_4$, a razão adaptada $\text{H}_2/\text{C}_2\text{H}_2$, a soma dos hidrocarbonetos disponíveis ($\text{TH}_{\text{katser}} = \text{C}_2\text{H}_4 + \text{C}_2\text{H}_2$) e as proporções parciais $\text{C}_2\text{H}_2/\text{TH}_{\text{katser}}$ e $\text{C}_2\text{H}_4/\text{TH}_{\text{katser}}$;
     \item Oito projeções futuras estimadas pela rede LSTM, correspondentes às concentrações previstas dos quatro gases para horizontes de uma semana ($h = 14$ passos) e duas semanas ($h = 28$ passos): $\text{H}_{2,\text{h14}}$, $\text{CO}_{\text{h14}}$, $\text{C}_2\text{H}_{4,\text{h14}}$, $\text{C}_2\text{H}_{2,\text{h14}}$, $\text{H}_{2,\text{h28}}$, $\text{CO}_{\text{h28}}$, $\text{C}_2\text{H}_{4,\text{h28}}$ e $\text{C}_2\text{H}_{2,\text{h28}}$.
 \end{enumerate}
 
@@ -81,15 +92,17 @@ No Track B, como a base é estática e apresenta poucas amostras para falhas com
 
 \section{Módulo de Previsão Temporal}\label{sec:modulo_lstm}
 
-O módulo preditivo temporal do Track A utiliza uma rede neural recorrente LSTM empilhada para aprender o comportamento temporal dos gases e projetar suas concentrações para passos futuros. Os dados de entrada são formatados por meio de uma janela deslizante multivariada: a rede recebe o histórico de $w = 50$ passos regulares contíguos (equivalente a 25 dias de medição), formando uma matriz $50 \times 4$. O objetivo é estimar o vetor com as quatro concentrações de gases no passo futuro $t + h$, onde $h$ indica o horizonte de previsão.
+O módulo preditivo temporal do Track A utiliza uma rede neural recorrente LSTM empilhada para aprender o comportamento temporal dos gases e projetar suas concentrações para passos futuros. Os dados de entrada são formatados por meio de uma janela deslizante multivariada. A rede recebe o histórico de $w = 50$ passos regulares contíguos (equivalente a 25 dias de medição), formando uma matriz $50 \times 4$. O objetivo é estimar o vetor com as quatro concentrações de gases no passo futuro $t + h$, onde $h$ indica o horizonte de previsão.
 
 A arquitetura da rede é composta por duas camadas recorrentes LSTM empilhadas de 64 unidades cada, utilizando tangente hiperbólica como função de ativação e sigmoide nas portas internas. Entre as camadas, incluiu-se uma regularização por \textit{dropout} com taxa de 0,2 para evitar sobreajuste. A camada de saída é uma densa linear com 4 neurônios, fornecendo as previsões dos quatro gases.
 
-O modelo foi treinado com o otimizador Adam e taxa de aprendizado inicial de $10^{-3}$, minimizando o erro quadrático médio (MSE) com lotes de 1.024 amostras. Utilizou-se o mecanismo de redução da taxa de aprendizado (\texttt{ReduceLROnPlateau}) com fator de 0,5 após 7 épocas sem melhoria no erro de validação, associado a parada antecipada (\textit{early stopping}) com paciência de 15 épocas. Para mapear o alcance temporal da rede, foram avaliados 11 horizontes preditivos recursivos: $h \in \{1, 2, 4, 7, 14, 28, 42, 56, 70, 84, 98\}$ passos (de 12 horas a 7 semanas de projeção), selecionando-se os horizontes de 1 e 2 semanas ($h = 14$ e $h = 28$ passos) para os testes com o classificador.
+O modelo foi treinado com o otimizador Adam e taxa de aprendizado inicial de $10^{-3}$, minimizando o erro quadrático médio (MSE) com lotes de 1.024 amostras. As 2.100 séries temporais reservadas para ajuste foram divididas internamente em 1.680 séries para treino (80\%) e 420 séries para validação (20\%), atingindo convergência por parada antecipada (\textit{early stopping}) tipicamente entre 30 e 45 épocas com paciência de 15 épocas. Empregou-se adicionalmente o mecanismo de redução da taxa de aprendizado (\texttt{ReduceLROnPlateau}) com fator de 0,5 após 7 épocas sem melhoria na perda de validação.
+
+Para mapear o alcance temporal da rede, foram avaliados 11 horizontes preditivos recursivos: $h \in \{1, 2, 4, 7, 14, 28, 42, 56, 70, 84, 98\}$ passos (de 12 horas a 7 semanas de projeção). Adotou-se o coeficiente de determinação $R^2 \ge 0,80$ como patamar de confiabilidade estatística para séries de manutenção preditiva em transformadores, assegurando que as concentrações futuras reproduzam fielmente a cinética físico-química dos gases antes do acoplamento ao classificador. A partir dessa análise, selecionaram-se os horizontes de 1 e 2 semanas ($h = 14$ e $h = 28$ passos) para os testes de ablação com o classificador.
 
 \section{Algoritmo Genético Melhorado e Otimização do XGBoost}\label{sec:iga_xgboost}
 
-Para buscar de forma automatizada configurações equilibradas para o classificador, utilizou-se o Algoritmo Genético Melhorado (IGA), implementado sob medida em Python com suporte das bibliotecas NumPy e Scikit-Learn. O algoritmo realiza a seleção das variáveis mais informativas e sintoniza simultaneamente os principais hiperparâmetros do XGBoost.
+Para buscar de forma automatizada configurações equilibradas para o classificador, utilizou-se o Algoritmo Genético Melhorado (IGA), implementado em Python com suporte das bibliotecas NumPy e Scikit-Learn. O algoritmo realiza a seleção das variáveis mais informativas e sintoniza simultaneamente os principais hiperparâmetros do XGBoost.
 
 \subsection{Representação Cromossômica e Operadores Genéticos}
 
@@ -99,7 +112,7 @@ Cada solução candidata é codificada por um cromossomo dividido em duas partes
     \item Um vetor de 9 valores contínuos reais no intervalo $[0, 1]$, mapeados para as faixas de busca dos hiperparâmetros do XGBoost: taxa de aprendizado (0,01 a 0,30), profundidade máxima das árvores (3 a 12), número de estimadores (50 a 500), fração de amostragem de instâncias (0,50 a 1,00), proporção de atributos por árvore (0,30 a 1,00), ganho mínimo para divisão de nós $\gamma$ (0,0 a 5,0), peso mínimo foliar (1 a 10) e termos de regularização $L_1$ (0,0 a 1,0) e $L_2$ (0,0 a 5,0).
 \end{itemize}
 
-Os operadores genéticos foram ajustados para cada tipo de variável: cruzamento uniforme e mutação por inversão de bits (probabilidade de 0,10) para a máscara binária; cruzamento BLX-$\alpha$ ($\alpha = 0,50$) e mutação gaussiana ($\sigma = 0,10$) para os hiperparâmetros contínuos. A seleção dos pais ocorre por torneio de tamanho $k = 3$, e as duas melhores soluções de cada geração são preservadas diretamente por elitismo.
+A probabilidade de cruzamento global foi estabelecida em $P_c = 0,80$. O cromossomo bipartido opera com esquemas específicos para cada segmento: para a máscara binária de seleção de atributos, utilizam-se cruzamento uniforme e mutação por inversão de bits com probabilidade $P_m = 0,10$; para o vetor de hiperparâmetros contínuos, aplicam-se o cruzamento BLX-$\alpha$ ($\alpha = 0,50$) e mutação perturbativa gaussiana com desvio padrão $\sigma = 0,10$. A seleção dos pais ocorre por torneio determinístico de tamanho $k = 3$, e as duas melhores soluções de cada geração são preservadas diretamente por elitismo estrito.
 
 \subsection{Função de Aptidão e Critérios de Parada}
 
@@ -107,7 +120,7 @@ A função de aptidão (\textit{fitness}) foi definida como a média do $F_1$-ma
 
 \section{Protocolo Experimental e Rigor Estatístico}\label{sec:protocolo_experimental}
 
-Para garantir a validade dos resultados e evitar conclusões influenciadas por variações pontuais de amostragem, definiu-se um protocolo experimental estruturado em testes de ablação pareados e validação cruzada repetida. As configurações baseadas em hiperparâmetros fixos utilizam valores de referência representativos da literatura prática (\texttt{learning\_rate} = 0,10, \texttt{max\_depth} = 6, \texttt{n\_estimators} = 100, \texttt{subsample} = 0,90 e \texttt{colsample\_bytree} = 1,0), permitindo isolar o ganho estrito da otimização evolutiva e das variáveis adicionadas.
+Para garantir a validade dos resultados e evitar conclusões influenciadas por variações pontuais de amostragem, definiu-se um protocolo estruturado em testes de ablação pareados e validação cruzada repetida. As configurações baseadas em hiperparâmetros fixos utilizam valores de referência representativos da literatura prática (\texttt{learning\_rate} = 0,10, \texttt{max\_depth} = 6, \texttt{n\_estimators} = 100, \texttt{subsample} = 0,90 e \texttt{colsample\_bytree} = 1,0), permitindo isolar o ganho da otimização evolutiva e das variáveis adicionadas.
 
 \subsection{Desenho Experimental e Ablação no Track A}
 
@@ -120,7 +133,7 @@ O protocolo do Track A foi estruturado para avaliar de forma isolada se as previ
     \item \textbf{C6}: XGBoost com configuração fixa treinado unicamente com as 8 variáveis preditas pela LSTM, sem acesso aos gases observados no instante presente.
 \end{itemize}
 
-Ressalta-se como particularidade metodológica que, na partição de treino do XGBoost, as variáveis preditas da LSTM foram geradas sobre séries integrantes do treinamento da própria rede recorrente, ao passo que a partição de teste foi avaliada sobre 900 séries estritamente independentes.
+Ressalta-se como particularidade metodológica que, na partição de treino do XGBoost, as variáveis preditas da LSTM foram geradas sobre séries integrantes do treinamento da própria rede recorrente, ao passo que a partição de teste foi avaliada sobre 900 séries independentes.
 
 \subsection{Desenho Experimental no Track B}
 
@@ -129,7 +142,7 @@ No Track B, o experimento avaliou o diagnóstico multiclasse entre as sete categ
     \item \textbf{C3}: modelo proposto IGA-XGBoost avaliado sobre os 19 atributos candidatos;
     \item \textbf{C4}: XGBoost com configuração fixa de referência avaliado sobre os mesmos 19 atributos;
     \item \textbf{M3}: modelo de referência IGA-XGBoost configurado sobre o espaço de 18 atributos candidatos de \citeonline{wu2021} (que difere de C3 unicamente por não incluir a razão $\text{C}_2\text{H}_2/\text{CH}_4$), resultando em 14 variáveis selecionadas pelo algoritmo genético;
-    \item \textbf{M2}: regras normativas do Triângulo 1 de Duval;
+    \item \textbf{M2}: regras normativas do Triângulo de Duval;
     \item \textbf{M1}: regras do Método das Razões da norma IEC 60599.
 \end{itemize}
 
@@ -137,19 +150,19 @@ No Track B, o experimento avaliou o diagnóstico multiclasse entre as sete categ
 
 Para verificar se as diferenças entre os modelos são estatisticamente significativas, aplicou-se o método de reamostragem por \textit{bootstrap} pareado e estratificado por classe com 5.000 repetições sobre o conjunto de teste independente. O desenho estratificado realiza a amostragem com reposição internamente a cada categoria, fixando o suporte exato por classe e evitando réplicas degeneradas sem amostras de falhas raras.
 
-Em cada iteração com reposição, calcularam-se o $F_1$-macro de cada modelo e a diferença exata $\Delta F_1 = F_1(A) - F_1(B)$ sobre os mesmos índices reamostrados, gerando a distribuição empírica das diferenças pareadas. O intervalo de confiança de 95\% foi obtido pelos percentis 2,5\% e 97,5\% dessa distribuição. A diferença é considerada estatisticamente significativa apenas quando o intervalo não engloba o valor zero ($\Delta F_1 = 0$) e o teste bicaudal pareado resulta em $p < 0,05$.
+Em cada iteração com reposição, calcularam-se o $F_1$-macro de cada modelo e a diferença exata $\Delta F_1 = F_1(A) - F_1(B)$ sobre os mesmos índices reamostrados, gerando a distribuição das diferenças pareadas. O intervalo de confiança de 95\% foi obtido pelos percentuais 2,5\% e 97,5\% dessa distribuição. A diferença é considerada estatisticamente significativa apenas quando o intervalo não engloba o valor zero ($\Delta F_1 = 0$) e o teste bilateral pareado resulta em $p < 0,05$.
 
-Adicionalmente, para avaliar a estabilidade do desempenho e investigar a existência de limites práticos na base do Track B, os modelos C3, C4, M3 e a linha de base com os cinco gases brutos foram avaliados por validação cruzada estratificada repetida em 5 repetições de 5 dobras (\textit{Repeated Stratified K-Fold} $5 \times 5$, totalizando 25 avaliações de treino e teste), permitindo comparar as distribuições de resultados em diferentes divisões dos dados.
+Além disso, para avaliar a estabilidade do desempenho e investigar a existência de limites práticos na base do Track B, os modelos C3, C4, M3 e a linha de base com os cinco gases brutos foram avaliados por validação cruzada estratificada repetida em 5 repetições de 5 dobras (\textit{Repeated Stratified K-Fold} $5 \times 5$, totalizando 25 avaliações de treino e teste), permitindo comparar as distribuições de resultados em diferentes divisões dos dados. Cabe salientar que, para viabilizar computacionalmente as 25 rodadas e garantir uma comparação equitativa, a seleção de atributos pelo IGA precedeu o protocolo de validação cruzada repetida, fixando o subconjunto representacional otimizado para que todos os modelos fossem submetidos ao mesmo teste com rigor uniforme.
 
 \section{Protocolo de Interpretabilidade e Validação Físico-Química}\label{sec:protocolo_interpretabilidade}
 
-Para verificar se os critérios de decisão aprendidos pelo XGBoost coincidem com os princípios físicos da degradação de isolamentos em transformadores, utilizou-se o método TreeSHAP \cite{lundberg2020}. Os valores de Shapley foram calculados diretamente pelo algoritmo integrado do XGBoost no espaço de margens lineares de decisão (\textit{log-odds}) de cada classe antes da softmax, garantindo que a soma das contribuições individuais somada ao valor médio basal resulte na pontuação contínua da árvore.
+A conformidade física do modelo XGBoost foi verificada por meio do método TreeSHAP \cite{lundberg2020}. O cálculo dos valores de Shapley foi feito na escala de log-odds (antes da softmax), o que permite que a soma das contribuições de cada característica explique diretamente a pontuação contínua gerada pelas árvores a partir de um valor médio basal.
 
 O protocolo de interpretabilidade compreendeu cinco análises consecutivas:
 \begin{enumerate}
     \item \textbf{Estabilidade das importâncias}: avaliação da estabilidade do ranking de variáveis por meio do coeficiente de correlação de postos de Spearman ($\rho$) entre os vetores médios de importância obtidos em modelos treinados sob cinco sementes aleatórias distintas, considerando $\rho > 0,80$ indicativo de estabilidade;
     \item \textbf{Agrupamento por famílias químicas}: soma das contribuições dos atributos agrupados em famílias funcionais (derivados de acetileno, etileno, metano e gases brutos), permitindo analisar a importância de cada grupo químico sem distorções provocadas por correlações entre variáveis semelhantes;
     \item \textbf{Curvas de efeito principal univariado}: utilização da matriz de interações para isolar o efeito univariado ($\phi_{i,i}$), descartando efeitos conjuntos com outros atributos. Ao traçar esse efeito contra a concentração real desnormalizada da variável, identifica-se o ponto em que ela transita de inibidora para promotora da falha ($\phi_{i,i} = 0$), permitindo confrontar os limiares aprendidos pelo modelo com os valores de corte das normas técnicas;
-    \item \textbf{Mapeamento espacial dos erros}: projeção das amostras classificadas incorretamente sobre as coordenadas baricêntricas do Triângulo 1 de Duval, permitindo visualizar se os erros de classificação ocorrem principalmente nas zonas de transição geométrica entre classes vizinhas;
+    \item \textbf{Mapeamento espacial dos erros}: projeção das amostras classificadas incorretamente sobre as coordenadas baricêntricas do Triângulo de Duval, permitindo visualizar se os erros de classificação ocorrem principalmente nas zonas de transição geométrica entre classes vizinhas;
     \item \textbf{Análise de migração de crédito}: exame de amostras individuais no Track A onde gases observados e projeções da LSTM disputam importância nas divisões das árvores, avaliando se a adição da projeção temporal traz contribuição independente ou apenas redistribui o peso da leitura atual.
 \end{enumerate}

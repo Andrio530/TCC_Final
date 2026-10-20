@@ -1,10 +1,12 @@
 \chapter{Fundamentação Teórica}\label{Fundamentacao}\label{cap:fundamentacao}
 
-Este capítulo apresenta os conceitos teóricos fundamentais para o desenvolvimento deste trabalho. Inicialmente, são abordados os transformadores de potência, a composição do seu sistema de isolamento e os processos físico-químicos que levam à formação de gases no óleo mineral. Em seguida, são detalhados os métodos normativos de diagnóstico mais utilizados na indústria, com destaque para o Triângulo 1 de Duval e o Método das Razões da norma IEC 60599. Na sequência, são descritos os algoritmos de aprendizado de máquina adotados: o classificador XGBoost, as redes neurais recorrentes LSTM para previsão de séries temporais e o Algoritmo Genético Melhorado (IGA) para seleção de atributos e otimização. Também são apresentados os conceitos de explicabilidade baseados em valores de Shapley e no algoritmo TreeSHAP. Por fim, revisam-se os principais trabalhos correlatos da literatura recente, contextualizando a abordagem proposta nesta pesquisa.
+Este capítulo apresenta os conceitos teóricos fundamentais para o desenvolvimento deste trabalho. Inicialmente, são abordados os transformadores de potência, a composição do seu sistema de isolamento e os processos físico-químicos que levam à formação de gases no óleo mineral. Em seguida, são detalhados os métodos normativos de diagnóstico mais utilizados na indústria, com destaque para o Triângulo de Duval e o Método das Razões da norma IEC 60599. Na sequência, são descritos os algoritmos de aprendizado de máquina adotados: o classificador XGBoost, as redes neurais recorrentes LSTM para previsão de séries temporais e o Algoritmo Genético Melhorado (IGA) para seleção de atributos e otimização. Também são apresentados os conceitos de explicabilidade baseados em valores de Shapley e no algoritmo TreeSHAP. Por fim, são apresentados trabalhos relacionados ao tema, com o objetivo de compreender como a literatura recente tem tratado o problema e de evidenciar o espaço em que a proposta deste estudo se insere.
 
-\section{Transformadores de Potência e Degradação do Isolamento}\label{sec:transformadores_isolamento}
+\section{Transformadores de Potência}\label{sec:transformadores_isolamento}
 
-Os transformadores de potência são equipamentos eletromagnéticos essenciais na conversão de níveis de tensão e corrente elétrica em sistemas de transmissão e distribuição de energia \cite{ali2023}. O princípio de operação baseia-se na Lei de Faraday, em que variações no fluxo magnético induzem forças eletromotrizes entre enrolamentos acoplados por um núcleo ferromagnético laminado \cite{tightiz2020}. Operando de forma contínua e sob regimes de carga variáveis, esses equipamentos exigem sistemas de isolamento capazes de suportar simultaneamente gradientes térmicos elevados e campos dielétricos intensos.
+Os transformadores de potência são dispositivos eletromagnéticos estáticos responsáveis pela transferência de energia elétrica entre circuitos, por meio do princípio da indução eletromagnética \cite{ali2023}. Esses equipamentos desempenham um papel fundamental nos sistemas elétricos de potência, permitindo a elevação ou redução dos níveis de tensão para transmissão e distribuição de energia de forma eficiente.
+
+O funcionamento de um transformador baseia-se na Lei de Faraday, segundo a qual uma variação de fluxo magnético em um circuito induz uma força eletromotriz em outro circuito acoplado magneticamente \cite{tightiz2020}. Estruturalmente, um transformador é composto por um núcleo magnético e enrolamentos isolados entre si. Do ponto de vista do diagnóstico por aprendizado de máquina, três características operacionais são particularmente relevantes: a composição do sistema de isolamento, os mecanismos de geração de gases dissolvidos e a taxonomia das falhas internas.
 
 \subsection{Sistema de Isolamento e Mecanismos de Degradação}
 
@@ -20,17 +22,21 @@ A concentração e a proporção relativa entre esses gases dependem da temperat
 
 \subsection{Taxonomia e Severidade de Falhas Internas}
 
-A literatura e as normas internacionais categorizam os defeitos internos em transformadores em três classes fundamentais: falhas elétricas, falhas térmicas e defeitos combinados \cite{alsakini2025}. As falhas elétricas englobam as descargas parciais (PD), que ocorrem em microcavidades com falhas de impregnação no papel ou pequenas bolhas de gás; as descargas de baixa energia (D1), caracterizadas por centelhamentos intermitentes de baixa corrente; e as descargas de alta energia (D2), representadas por arcos elétricos intensos com queima perceptível de óleo e papel.
+A literatura e as normas internacionais categorizam os defeitos internos em transformadores em três classes fundamentais: falhas elétricas, falhas térmicas e defeitos combinados \cite{alsakini2025}. 
 
-As falhas térmicas são subdivididas de acordo com a temperatura estimada no ponto crítico. A classe T1 abrange sobreaquecimentos térmicos com temperaturas inferiores a 300~$^\circ\text{C}$, associados a fluxos restritos de circulação de óleo ou correntes induzidas em partes metálicas. A classe T2 corresponde a sobreaquecimentos entre 300~$^\circ\text{C}$ e 700~$^\circ\text{C}$, comuns em maus contatos de conexões aparafusadas e derivações. A classe T3 define falhas térmicas severas, com temperaturas superiores a 700~$^\circ\text{C}$, originadas por correntes circulantes intensas no tanque ou curtos-circuitos entre espiras. Falhas combinadas envolvem a ocorrência simultânea de solicitações dielétricas e térmicas na mesma região do equipamento. Na prática operacional, a distribuição dessas falhas nos bancos de dados históricos apresenta grande desbalanceamento: ocorrências de arcos elétricos severos ou descargas parciais são registradas com frequência muito menor do que casos de operação normal ou de sobreaquecimentos térmicos leves.
+\begin{itemize}         
+    \item \textbf{Falhas térmicas}: associadas ao superaquecimento do óleo ou do papel isolante, são subdivididas de acordo com a temperatura estimada no ponto crítico. A classe T1 abrange sobreaquecimentos térmicos com temperaturas inferiores a 300~$^\circ\text{C}$, associados a fluxos restritos de circulação de óleo ou correntes induzidas em partes metálicas. A classe T2 corresponde a sobreaquecimentos entre 300~$^\circ\text{C}$ e 700~$^\circ\text{C}$, comuns em maus contatos de conexões aparafusadas e derivações. A classe T3 define falhas térmicas severas, com temperaturas superiores a 700~$^\circ\text{C}$, originadas por correntes circulantes intensas no tanque ou curtos-circuitos entre espiras;
+    \item \textbf{Falhas elétricas}: englobam as descargas parciais (PD), que ocorrem em microcavidades com falhas de impregnação no papel ou pequenas bolhas de gás; as descargas de baixa energia (D1), caracterizadas por centelhamentos intermitentes de baixa corrente e as descargas de alta energia (D2), representadas por arcos elétricos intensos com queima perceptível de óleo e papel;
+    \item \textbf{Falhas combinadas}: envolvem a ocorrência simultânea de solicitações dielétricas e térmicas na mesma região do equipamento. Na prática operacional, a distribuição dessas falhas nos bancos de dados históricos apresenta grande desbalanceamento: ocorrências de arcos elétricos severos ou descargas parciais são registradas com frequência muito menor do que casos de operação normal ou de sobreaquecimentos térmicos leves.
+\end{itemize}
 
 \section{Métodos Normativos de Diagnóstico em DGA}\label{sec:metodos_normativos}
 
 A interpretação técnica dos ensaios de DGA baseia-se tradicionalmente em métodos gráficos e tabelas padronizadas que correlacionam as proporções e razões entre os gases dissolvidos com os diferentes tipos de falha.
 
-\subsection{Triângulo 1 de Duval}\label{sec:triangulo_duval}
+\subsection{Triângulo de Duval}\label{sec:triangulo_duval}
 
-O Triângulo 1 de Duval, consolidado no Anexo B da norma IEC 60599 \cite{iec60599_2022} e em diretrizes técnicas correlatas \cite{duval2002_review}, é um método gráfico fundamentado em coordenadas triangulares. A formulação utiliza a concentração em partes por milhão (ppm) de três espécies gasosas com diferentes níveis de energia de formação: metano ($\text{CH}_4$), etileno ($\text{C}_2\text{H}_4$) e acetileno ($\text{C}_2\text{H}_2$). A soma percentual dessas três espécies define o total de referência:
+O Triângulo de Duval, consolidado no Anexo B da norma IEC 60599 \cite{iec60599_2022} e em diretrizes técnicas correlatas \cite{duval2002_review}, é um método gráfico fundamentado em coordenadas triangulares. A formulação utiliza a concentração relativa em partes por milhão (ppm) de três gases: metano ($\text{CH}_4$), etileno ($\text{C}_2\text{H}_4$) e acetileno ($\text{C}_2\text{H}_2$). A soma percentual dessas três espécies define o total de referência:
 
 \begin{equation}\label{eq:duval_th}
 \text{TH}_{\text{Duval}} = [\text{CH}_4] + [\text{C}_2\text{H}_4] + [\text{C}_2\text{H}_2]
@@ -46,24 +52,27 @@ As coordenadas percentuais de cada ponto são calculadas por:
 
 A soma dessas três coordenadas totaliza 100\%, definindo um ponto no interior de um triângulo equilátero, conforme ilustrado na Figura~\ref{fig:Triangulo_Duval}.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.7\textwidth]{figuras/Triangulo Duval.png}
-\caption{Triângulo 1 de Duval para interpretação de gases dissolvidos em óleo mineral.}
+\caption{Triângulo de Duval para interpretação de gases dissolvidos em óleo mineral.}
 \label{fig:Triangulo_Duval}
 \fonte{Adaptado de \citeonline{ali2023}.}
 \end{figure}
 
 A área do triângulo é particionada em sete regiões correspondentes a diferentes mecanismos de falha:
-descargas parciais (PD), delimitadas pela região com $\% \text{CH}_4 \ge 98\%$;
-descargas de baixa energia (D1), definidas por $\% \text{C}_2\text{H}_2 > 13\%$ e $\% \text{C}_2\text{H}_4 < 23\%$;
-descargas de alta energia (D2), delimitadas por $\% \text{C}_2\text{H}_2 \ge 29\%$ e $\% \text{C}_2\text{H}_4 \ge 23\%$, e pela sub-região com $\% \text{C}_2\text{H}_2$ entre 13\% e 29\% com $\% \text{C}_2\text{H}_4 \ge 23\%$;
-falhas térmicas inferiores a 300~$^\circ\text{C}$ (T1), condicionadas a $\% \text{CH}_4 < 98\%$, $\% \text{C}_2\text{H}_2 < 4\%$ e $\% \text{C}_2\text{H}_4 < 20\%$;
-falhas térmicas entre 300~$^\circ\text{C}$ e 700~$^\circ\text{C}$ (T2), delimitadas por $\% \text{C}_2\text{H}_2 < 4\%$ e $20\% \le \% \text{C}_2\text{H}_4 < 50\%$;
-falhas térmicas superiores a 700~$^\circ\text{C}$ (T3), caracterizadas por $\% \text{C}_2\text{H}_2 < 15\%$ e $\% \text{C}_2\text{H}_4 \ge 50\%$;
-e a zona de transição térmica e elétrica combinada (DT), delimitada por $\% \text{C}_2\text{H}_2$ entre 4\% e 13\% com $\% \text{C}_2\text{H}_4 \ge 20\%$ e $\% \text{C}_2\text{H}_4 < 50\%$.
 
-A principal limitação do Triângulo 1 de Duval é a inexistência de uma região destinada à operação normal. Dessa forma, qualquer amostra projetada sobre o gráfico é classificada em alguma categoria de falha, podendo gerar falsos positivos em transformadores saudáveis que apresentem apenas taxas normais de gaseificação basal. Além disso, amostras localizadas muito próximas às linhas de fronteira sofrem com a sensibilidade a pequenas incertezas de medição, em que pequenas variações nas concentrações podem alterar a classe atribuída.
+\begin{itemize}         
+    \item descargas parciais (PD), delimitadas pela região com $\% \text{CH}_4 \ge 98\%$;
+    \item descargas de baixa energia (D1), definidas por $\% \text{C}_2\text{H}_2 > 13\%$ e $\% \text{C}_2\text{H}_4 < 23\%$;
+    \item descargas de alta energia (D2), delimitadas por $\% \text{C}_2\text{H}_2 \ge 29\%$ e $\% \text{C}_2\text{H}_4 \ge 23\%$, e pela sub-região com $\% \text{C}_2\text{H}_2$ entre 13\% e 29\% com $\% \text{C}_2\text{H}_4 \ge 23\%$;
+    \item falhas térmicas inferiores a 300~$^\circ\text{C}$ (T1), condicionadas a $\% \text{CH}_4 < 98\%$, $\% \text{C}_2\text{H}_2 < 4\%$ e $\% \text{C}_2\text{H}_4 < 20\%$;
+    \item falhas térmicas entre 300~$^\circ\text{C}$ e 700~$^\circ\text{C}$ (T2), delimitadas por $\% \text{C}_2\text{H}_2 < 4\%$ e $20\% \le \% \text{C}_2\text{H}_4 < 50\%$;
+    \item falhas térmicas superiores a 700~$^\circ\text{C}$ (T3), caracterizadas por $\% \text{C}_2\text{H}_2 < 15\%$ e $\% \text{C}_2\text{H}_4 \ge 50\%$;
+    \item e a zona de transição térmica e elétrica combinada (DT), delimitada por $\% \text{C}_2\text{H}_2$ entre 4\% e 13\% com $\% \text{C}_2\text{H}_4 \ge 20\%$ e $\% \text{C}_2\text{H}_4 < 50\%$.
+\end{itemize}
+
+A principal limitação do Triângulo de Duval é a inexistência de uma região destinada à operação normal. Dessa forma, qualquer amostra projetada sobre o gráfico é classificada em alguma categoria de falha, podendo gerar falsos positivos em transformadores saudáveis que apresentem apenas taxas normais de gaseificação. Além disso, amostras localizadas muito próximas às linhas de fronteira sofrem com a sensibilidade a pequenas incertezas de medição, em que pequenas variações nas concentrações podem alterar a classe atribuída.
 
 \subsection{Método das Razões da IEC 60599}\label{sec:razoes_iec}
 
@@ -77,9 +86,9 @@ r_3 = \frac{[\text{C}_2\text{H}_4]}{[\text{C}_2\text{H}_6]}
 
 A relação $r_1$ avalia a presença de acetileno em relação ao etileno, permitindo distinguir centelhamentos elétricos de sobreaquecimentos térmicos puros. A relação $r_2$ compara o metano com o hidrogênio, auxiliando na identificação do regime térmico de descargas ou aquecimentos iniciais. A relação $r_3$ confronta hidrocarbonetos insaturados com saturados, oferecendo sensibilidade direta à temperatura de degradação do óleo.
 
-A norma estabelece intervalos discretos de valores para cada uma das razões, associando suas combinações aos tipos clássicos de falha. As descargas parciais (PD) exigem $r_1 < 0,1$, $r_2 < 0,1$ e $r_3 < 0,2$. As descargas de baixa energia (D1) requerem $r_1 > 1$, $0,1 \le r_2 \le 0,5$ e $r_3 > 1$, enquanto as descargas de alta energia (D2) são caracterizadas por $0,6 \le r_1 \le 2,5$, $0,1 \le r_2 \le 1$ e $r_3 > 2$. Para as falhas térmicas, a degradação de baixa temperatura inferior a 300~$^\circ\text{C}$ (T1) demanda $r_1 < 0,1$, $r_2 > 1$ e $r_3 < 1$. A faixa intermediária entre 300~$^\circ\text{C}$ e 700~$^\circ\text{C}$ (T2) requer $r_1 < 0,1$, $r_2 > 1$ e $1 \le r_3 \le 4$, enquanto as falhas de alta temperatura superiores a 700~$^\circ\text{C}$ (T3) exigem $r_1 < 0,2$, $r_2 > 1$ e $r_3 > 4$.
+A norma estabelece intervalos discretos de valores para cada uma das razões, associando suas combinações aos tipos clássicos de falha. As descargas parciais (PD) exigem $r_1 < 0,1$; $r_2 < 0,1$; e $r_3 < 0,2$. As descargas de baixa energia (D1) requerem $r_1 > 1$; $0,1 \le r_2 \le 0,5$; e $r_3 > 1$, enquanto as descargas de alta energia (D2) são caracterizadas por $0,6 \le r_1 \le 2,5$; $0,1 \le r_2 \le 1$; e $r_3 > 2$. Para as falhas térmicas, a degradação de baixa temperatura inferior a 300~$^\circ\text{C}$ (T1) demanda $r_1 < 0,1$; $r_2 > 1$; e $r_3 < 1$. A faixa intermediária entre 300~$^\circ\text{C}$ e 700~$^\circ\text{C}$ (T2) requer $r_1 < 0,1$; $r_2 > 1$; e $1 \le r_3 \le 4$, enquanto as falhas de alta temperatura superiores a 700~$^\circ\text{C}$ (T3) exigem $r_1 < 0,2$; $r_2 > 1$; e $r_3 > 4$.
 
-Caso a combinação de razões $(r_1, r_2, r_3)$ não corresponda a nenhum dos padrões catalogados na tabela da norma, o diagnóstico é classificado como Não Determinado (ND). Em dados de campo, a proporção de laudos indeterminados costuma ser considerável, principalmente em transformadores com falhas múltiplas combinadas ou ruídos de medição, o que limita a eficácia do método quando utilizado de maneira isolada. Assim como no Triângulo de Duval, a norma IEC 60599 não possui uma combinação específica para indicar condição normal de operação, exigindo que o diagnóstico por razões seja aplicado apenas após as concentrações ultrapassarem os limites típicos de atenção estabelecidos para a frota.
+Caso a combinação de razões $(r_1, r_2, r_3)$ não corresponda a nenhum dos padrões catalogados na tabela da norma, o diagnóstico é classificado como Não Determinado (ND). Em dados de campo, em casos de transformadores com falhas múltiplas combinadas ou ruídos de medição, há uma limitação na eficácia do método quando utilizado de maneira isolada. Assim como no Triângulo de Duval, a norma IEC 60599 não possui uma combinação específica para indicar condição normal de operação, exigindo que o diagnóstico por razões seja aplicado apenas após as concentrações ultrapassarem os limites típicos de atenção estabelecidos.
 
 \section{Algoritmos de Aprendizado de Máquina Aplicados à DGA}\label{sec:algoritmos_ml}
 
@@ -167,13 +176,13 @@ Otimização Bayesiana & -- & Amostragem baseada em processos gaussianos & Menor
 
 \end{longtable}
 
-Entre os classificadores clássicos, as Máquinas de Vetores de Suporte (SVM) apresentam bom desempenho na separação de classes em espaços mapeados por funções de base radial, mas têm dificuldade em regiões com forte sobreposição entre classes vizinhas, como as falhas térmicas T2 e T3 \cite{alsakini2025}. Modelos baseados em vizinhos mais próximos (KNN) e árvores de decisão simples sofrem com a presença de ruído e alta variância. O Random Forest ameniza essa variância ao combinar múltiplas árvores independentes por amostragem com reposição (\textit{bagging}), contudo não dispõe de um mecanismo integrado para selecionar atributos e otimizar hiperparâmetros de forma conjunta. Por fim, o Naive Bayes, embora simples para estabelecer uma linha de base, assume que as variáveis preditoras são independentes entre si, premissa que não reflete a realidade físico-química da DGA, na qual os gases são gerados por processos de degradação térmica e elétrica inter-relacionados \cite{ali2023}.
+Entre os classificadores clássicos, as Máquinas de Vetores de Suporte (SVM) apresentam bom desempenho em espaço de alta dimensão, mas têm dificuldade em regiões com forte sobreposição entre classes vizinhas, como as falhas térmicas T2 e T3 \cite{alsakini2025}. Modelos baseados em vizinhos mais próximos (KNN) e árvores de decisão simples sofrem com a presença de ruído e alta variância. O Random Forest ameniza essa variância ao combinar múltiplas árvores independentes por amostragem com reposição (\textit{bagging}), contudo não dispõe de um mecanismo integrado para selecionar atributos e otimizar hiperparâmetros de forma conjunta. Por fim, o Naive Bayes, embora útil como linha de base probabilística, assume independência entre as variáveis de entrada, premissa que é claramente violada em dados de DGA, onde os gases co-evoluem por um mecanismo físico comum \cite{ali2023}.
 
 \subsection{Ensembles de Árvores e o Algoritmo XGBoost}\label{sec:xgboost}
 
 Os métodos de \textit{gradient boosting} constroem modelos preditivos por meio da combinação sequencial aditiva de estimadores fracos, tipicamente árvores de decisão de profundidade moderada \cite{friedman2001}. A cada iteração $k$, uma nova árvore $f_k(x)$ é ajustada para estimar o gradiente negativo da função de perda em relação à predição atual, reduzindo progressivamente os erros residuais, conforme ilustrado na Figura~\ref{fig:xgboost}.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.8\textwidth]{figuras/xgboost.png}
 \caption{Processo iterativo de minimização de resíduos em ensembles de gradient boosting.}
@@ -241,7 +250,7 @@ h_t = o_t \odot \tanh(C_t)
 
 Nas Equações~(\ref{eq:lstm_forget}) a (\ref{eq:lstm_hidden}), $\sigma$ denota a função sigmoide, $\odot$ representa o produto elemento a elemento de Hadamard, $f_t$ é a porta de esquecimento que modula o descarte de informações da célula anterior $C_{t-1}$, $i_t$ é a porta de entrada que regula a absorção do novo candidato $\tilde{C}_t$, $C_t$ é o estado interno da célula e $o_t$ é a porta de saída que determina a parcela de informação exposta no estado oculto $h_t$.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{figuras/celula_lstm.png}
 \caption{Arquitetura estrutural da célula de memória recorrente LSTM.}
@@ -251,7 +260,7 @@ Nas Equações~(\ref{eq:lstm_forget}) a (\ref{eq:lstm_hidden}), $\sigma$ denota 
 
 Para modelar dinâmicas temporais complexas em séries temporais de gases, emprega-se a LSTM empilhada (\textit{Stacked LSTM}), que conecta múltiplas camadas recorrentes em série, conforme mostrado na Figura~\ref{fig:lstm_stacked}. Nesse formato, as saídas ocultas da primeira camada servem como sequência de entrada para a camada subsequente, permitindo capturar padrões de evolução das concentrações gasosas ao longo do tempo.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{figuras/LSTM_stacked.png}
 \caption{Topologia de rede neural recorrente LSTM empilhada para modelagem temporal.}
@@ -265,7 +274,7 @@ O ajuste de um classificador XGBoost envolve uma escolha simultânea entre os at
 
 Em matrizes de dados de DGA, o algoritmo genético clássico pode sofrer com convergência prematura em mínimos locais. O Algoritmo Genético Melhorado (IGA) contorna essa limitação incorporando mecanismos específicos de diversidade e conservação, conforme ilustrado na Figura~\ref{fig:IGA} \cite{wu2021}.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.55\textwidth]{figuras/IGA.png}
 \caption{Fluxo operacional do Algoritmo Genético Melhorado para busca conjunta.}
@@ -279,56 +288,43 @@ No IGA, cada indivíduo é estruturado por um cromossomo bipartido: uma máscara
 
 Na aplicação de aprendizado de máquina em sistemas críticos como redes elétricas de alta tensão, a compreensão dos fatores que determinam cada diagnóstico é essencial para que os resultados sejam aceitos e validados por equipes de engenharia. A área de inteligência artificial explicável (\textit{Explainable Artificial Intelligence}, XAI) fornece fundamentos matemáticos para quantificar a contribuição individual de cada variável de DGA nas predições geradas pelos modelos.
 
-\subsection{Teoria dos Jogos Cooperativos e Valores de Shapley}\label{sec:valores_shapley}
+\subsection{Fundamentos Conceituais dos Valores de Shapley}\label{sec:valores_shapley}
 
-A formulação matemática dos valores de Shapley origina-se na teoria dos jogos cooperativos com utilidade transferível \cite{shapley1953}. Define-se um jogo cooperativo pelo par $(F, v)$, no qual $F = \{1, 2, \dots, M\}$ representa o conjunto de jogadores (atributos preditores) e $v: 2^F \to \mathbb{R}$ é a função característica que associa um ganho real a cada subconjunto possível $S \subseteq F$, assumindo-se convencionalmente $v(\emptyset) = 0$.
+A formulação dos valores de Shapley origina-se na teoria dos jogos cooperativos \cite{shapley1953}, sendo adaptada para o aprendizado de máquina por \citeonline{lundberg2017} para quantificar a contribuição justa de cada atributo preditor na saída de um modelo. Em vez de avaliar uma variável de forma isolada, o método considera o ganho marginal que a inclusão dessa variável proporciona a todas as possíveis combinações de atributos (coalizões).
 
-O valor de Shapley $\phi_i(v)$ atribui a cada atributo $i$ uma parcela justa do resultado global da coalizão completa $v(F)$, ponderando a contribuição marginal média do atributo sobre todas as ordens possíveis de formação dos grupos:
+A grande vantagem teórica dos valores de Shapley reside nas propriedades de \textbf{eficiência} e \textbf{aditividade local}: a soma das contribuições $\phi_i$ atribuídas a cada uma das variáveis de entrada $i$ corresponde exatamente à diferença entre a predição pontual do modelo $f(x)$ para uma dada amostra e o valor médio esperado basal $\mathbb{E}[f(X)]$ em toda a base:
 
-\begin{equation}\label{eq:shapley_formula}
-\phi_i(v) = \sum_{S \subseteq F \setminus \{i\}} \frac{|S|! \, (|F| - |S| - 1)!}{|F|!} \left[ v(S \cup \{i\}) - v(S) \right]
+\begin{equation}\label{eq:shapley_additivity}
+\sum_{i=1}^{M} \phi_i(x) = f(x) - \mathbb{E}[f(X)]
 \end{equation}
 
-A formulação da Equação~(\ref{eq:shapley_formula}) é a única partição de contribuição que satisfaz simultaneamente quatro propriedades fundamentais \cite{lundberg2017}:
-
-\begin{itemize}
-    \item \textbf{Eficiência}: a soma das contribuições distribuídas a todos os atributos reproduz exatamente a diferença entre a saída do modelo para a amostra e o valor esperado médio, satisfazendo $\sum_{i \in F} \phi_i(v) = v(F) - v(\emptyset)$;
-    \item \textbf{Simetria}: se dois atributos exercem contribuições marginais idênticas para qualquer combinação intermediária, de modo que $v(S \cup \{i\}) = v(S \cup \{j\})$ para todo $S \subseteq F \setminus \{i, j\}$, seus valores de Shapley serão iguais, $\phi_i(v) = \phi_j(v)$;
-    \item \textbf{Atributo nulo}: se uma variável não altera o ganho de nenhum subconjunto, satisfazendo $v(S \cup \{i\}) = v(S)$ para todo $S \subseteq F \setminus \{i\}$, sua contribuição associada é nula, $\phi_i(v) = 0$;
-    \item \textbf{Aditividade}: para dois modelos combinados linearmente, a atribuição de crédito satisfaz $\phi_i(u + v) = \phi_i(u) + \phi_i(v)$.
-\end{itemize}
+Essa propriedade assegura que nenhuma parcela da decisão do algoritmo seja artificialmente inflada ou omitida, distribuindo o crédito preditivo de forma proporcional e consistente entre as variáveis monitoradas.
 
 \subsection{O Algoritmo TreeSHAP e Decomposição de Contribuições}\label{sec:treeshap}
 
-O cálculo direto da Equação~(\ref{eq:shapley_formula}) possui complexidade temporal exponencial $O(M 2^M)$, tornando-se inviável para modelos com muitos atributos. Para viabilizar esse cálculo em conjuntos de árvores de decisão, \citeonline{lundberg2020} propuseram o algoritmo TreeSHAP, que calcula os valores exatos de Shapley em tempo polinomial $O(T L D^2)$, onde $T$ é o número de árvores, $L$ é o número máximo de folhas e $D$ representa a profundidade máxima das árvores.
+O cálculo exato dos valores de Shapley pela formulação combinatória clássica possui complexidade exponencial com o número de atributos, tornando-se computacionalmente custoso. Para ensembles baseados em árvores de decisão, \citeonline{lundberg2020} desenvolveram o algoritmo TreeSHAP, que otimiza essa avaliação para tempo polinomial ao percorrer recursivamente a estrutura dos nós das árvores.
 
-Em classificadores multiclasse como o XGBoost, o TreeSHAP calcula as contribuições diretamente no espaço linear das margens de decisão (\textit{log-odds}) antes da aplicação da função softmax (\texttt{pred\_contribs}). Para cada classe diagnóstica $c$, a pontuação $f_c(x)$ da amostra $x$ é decomposta de forma exata:
+Em classificadores multiclasse como o XGBoost, o TreeSHAP opera diretamente no espaço linear das margens de decisão (\textit{log-odds}) antes da conversão probabilística pela função softmax (\texttt{pred\_contribs}). Para cada classe diagnóstica $c$, a pontuação contínua $f_c(x)$ da amostra $x$ é decomposta de forma aditiva exata:
 
 \begin{equation}\label{eq:treeshap_add}
 f_c(x) = \phi_{0,c} + \sum_{i=1}^{M} \phi_{i,c}(x)
 \end{equation}
 
-Em que $\phi_{0,c} = \mathbb{E}[f_c(X)]$ denota o valor médio basal da classe $c$ sobre a base de treinamento, e $\phi_{i,c}(x)$ corresponde à contribuição aditiva individual da variável $i$. Vale destacar que o valor de Shapley indica quanto a variável contribui para aumentar ($\phi > 0$) ou diminuir ($\phi < 0$) a probabilidade daquela classe específica, enquanto a classe final prevista corresponde àquela com maior escore conjunto via $\arg\max_c f_c(x)$.
+Em que $\phi_{0,c} = \mathbb{E}[f_c(X)]$ denota o valor médio basal da classe $c$ sobre a base de treinamento, e $\phi_{i,c}(x)$ corresponde à contribuição aditiva individual da variável $i$. O valor de Shapley indica diretamente se a variável atua a favor ($\phi > 0$) ou contra ($\phi < 0$) a probabilidade daquela classe específica, enquanto a classe final prevista corresponde àquela com maior escore conjunto via $\arg\max_c f_c(x)$.
 
-Para isolar as dependências entre pares de variáveis, o algoritmo também calcula a matriz de interação de Lundberg (\texttt{pred\_interactions}) baseada no índice de interação de Shapley \cite{lundberg2020}:
-
-\begin{equation}\label{eq:shapley_interaction}
-\phi_{i,j}(x) = \sum_{S \subseteq F \setminus \{i, j\}} \frac{|S|! \, (|F| - |S| - 2)!}{2 \, (|F| - 1)!} \left[ v(S \cup \{i, j\}) - v(S \cup \{i\}) - v(S \cup \{j\}) + v(S) \right]
-\end{equation}
-
-Para $i \ne j$, $\phi_{i,j}(x)$ mede a interação de segunda ordem entre os atributos $i$ e $j$. A diagonal principal da matriz permite isolar o efeito principal univariado de cada variável $\phi_{i,i}(x)$:
+Além da contribuição global, o TreeSHAP possibilita desacoplar as interações conjuntas entre pares de variáveis. Por meio da matriz de interações (\texttt{pred\_interactions}), o efeito principal univariado de cada variável $\phi_{i,i}(x)$ é obtido isolando sua contribuição direta e subtraindo os termos cruzados de interação com as demais variáveis do modelo:
 
 \begin{equation}\label{eq:main_effect}
 \phi_{i,i}(x) = \phi_i(x) - \sum_{j \neq i} \phi_{i,j}(x)
 \end{equation}
 
-Ao relacionar o efeito principal $\phi_{i,i}(x)$ com o valor físico real da variável (em ppm ou em percentual relativo), é possível identificar o ponto em que a contribuição transita de negativa para positiva ($\phi_{i,i} = 0$), permitindo comparar os critérios aprendidos pelo XGBoost com os limiares práticos das normas da IEC e do Triângulo de Duval.
+Ao relacionar o efeito principal $\phi_{i,i}(x)$ com a concentração física real da variável (em ppm ou em percentual relativo), identifica-se com precisão o ponto de inflexão em que a contribuição transita de negativa para positiva ($\phi_{i,i} = 0$). Esse cruzamento define o limiar marginal aprendido pelo algoritmo, permitindo confrontar os critérios empíricos do XGBoost diretamente com os limites práticos das normas da IEC 60599 e do Triângulo de Duval.
 
 \section{Trabalhos Relacionados}\label{sec:trabalhos_relacionados}
 
 O diagnóstico preditivo de falhas em transformadores por meio de DGA tem evoluído de métodos gráficos tradicionais para técnicas baseadas em modelos computacionais de aprendizado de máquina. A Tabela~\ref{tab:comparacao_trabalhos} sintetiza os principais estudos representativos da literatura recente, comparando suas abordagens, dados utilizados, principais vantagens e limitações observadas.
 
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
 \caption{Comparação entre trabalhos relacionados e o escopo investigado neste estudo.}
 \label{tab:comparacao_trabalhos}
