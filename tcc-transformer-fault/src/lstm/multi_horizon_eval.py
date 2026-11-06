@@ -374,13 +374,13 @@ def _determinar_horizonte_maximo(resultados: dict) -> dict:
 def _eixo_x_duplo(ax, hs: list[int]) -> None:
     """Adiciona eixo X superior com equivalencia em semanas."""
     import matplotlib.pyplot as plt  # noqa: PLC0415
-    horas = [h * HORAS_POR_PASSO for h in hs]
-    semanas = [h * SEMANAS_POR_PASSO for h in hs]
     ax2 = ax.twiny()
     ax2.set_xlim(ax.get_xlim())
-    ax2.set_xticks(horas)
-    ax2.set_xticklabels([f"{s:.1f}sem" for s in semanas], fontsize=8, rotation=45)
-    ax2.set_xlabel("Equivalencia em semanas (comparacao com artigo de referencia)")
+    max_sem = int(round(max(hs) * SEMANAS_POR_PASSO))
+    week_hours = [w * 168 for w in range(max_sem + 1)]
+    ax2.set_xticks(week_hours)
+    ax2.set_xticklabels([f"{w}" for w in range(max_sem + 1)], fontsize=10)
+    ax2.set_xlabel("Horizonte de previsão (semanas)", fontsize=11)
     return ax2
 
 
@@ -398,12 +398,13 @@ def plotar_r2_degradacao(resultados: dict, sufixo: str = "") -> Path:
 
     FIGURES_DIR.mkdir(parents=True, exist_ok=True)
     destino = FIGURES_DIR / f"lstm_multi_horizon_r2{sufixo}.png"
+    destino_latex = ROOT.parent / "tcc-unisinos" / "figuras" / f"lstm_multi_horizon_r2{sufixo}.png"
 
     por_h = resultados["por_horizonte"]
     hs = [int(k) for k in por_h.keys()]
     horas = [h * HORAS_POR_PASSO for h in hs]
 
-    cores = {"H2": "#2196F3", "CH4": "#FF5722", "CO": "#4CAF50", "C2H2": "#9C27B0"}
+    cores = {"H2": "#2196F3", "CO": "#4CAF50", "C2H4": "#FF9800", "C2H2": "#9C27B0"}
     cores_fb = ["#2196F3", "#FF5722", "#4CAF50", "#9C27B0"]
 
     fig, ax = plt.subplots(figsize=(14, 7))
@@ -413,21 +414,21 @@ def plotar_r2_degradacao(resultados: dict, sufixo: str = "") -> Path:
         cor = cores.get(g, cores_fb[i % 4])
         r2_m = [por_h[str(h)]["r2_por_gas"][g]["media"] for h in hs]
         r2_s = [por_h[str(h)]["r2_por_gas"][g]["std"]   for h in hs]
-        ax.plot(horas, r2_m, "o-", color=cor, label=f"R2 {g}", linewidth=2, markersize=5)
+        ax.plot(horas, r2_m, "o-", color=cor, label=f"R² {g}", linewidth=2, markersize=5)
         ax.fill_between(horas, [m - s for m, s in zip(r2_m, r2_s)],
                         [m + s for m, s in zip(r2_m, r2_s)], alpha=0.12, color=cor)
 
     # R2 medio
     r2_med_m = [por_h[str(h)]["r2_medio"]["media"] for h in hs]
     r2_med_s = [por_h[str(h)]["r2_medio"]["std"]   for h in hs]
-    ax.plot(horas, r2_med_m, "s--", color="black", label="R2 medio (todos gases)",
+    ax.plot(horas, r2_med_m, "s--", color="black", label="R² médio (todos gases)",
             linewidth=2.5, markersize=7, zorder=5)
     ax.fill_between(horas, [m - s for m, s in zip(r2_med_m, r2_med_s)],
                     [m + s for m, s in zip(r2_med_m, r2_med_s)], alpha=0.08, color="black")
 
     # Linha de corte
     ax.axhline(R2_THRESHOLD, color="red", linestyle="--", linewidth=1.5,
-               label=f"Threshold R2={R2_THRESHOLD}", zorder=4)
+               label=f"Threshold R²={R2_THRESHOLD:.2f}", zorder=4)
 
     # Marcador horizonte maximo
     h_max = resultados["horizonte_max_aceitavel"]
@@ -435,19 +436,21 @@ def plotar_r2_degradacao(resultados: dict, sufixo: str = "") -> Path:
     hm_h = h_max["h_horas"]
     hm_s = h_max["h_semanas"]
     ax.axvline(hm_h, color="darkgreen", linestyle=":", linewidth=2, zorder=4,
-               label=f"Horizonte max aceitavel: h={hm_p}, {hm_h}h ({hm_s:.1f} semanas)")
+               label=f"Horizonte máx aceitável: h={hm_p}, {hm_h}h ({hm_s:.1f} semanas)")
 
     _eixo_x_duplo(ax, hs)
-    ax.set_xlabel("Horizonte de previsao (horas)")
-    ax.set_ylabel("R2 (coeficiente de determinacao)")
+    ax.set_xlabel("Horizonte de previsão (horas)", fontsize=11)
+    ax.set_ylabel("R² (coeficiente de determinação)", fontsize=11)
     n_s = resultados["n_seeds"]
     n_sp = resultados["n_series_por_seed"]
-    ax.set_title(f"Degradacao do R2 por Horizonte -- LSTM (previsao recursiva)\nn_seeds={n_s} | n_series/seed={n_sp}")
-    ax.legend(loc="lower left", fontsize=9)
+    ax.set_title(f"Degradação do R² por Horizonte — LSTM (previsão recursiva)\nn_seeds={n_s} | n_series/seed={n_sp}", fontsize=12)
+    ax.legend(loc="lower left", fontsize=9.5)
     ax.grid(True, alpha=0.3)
     ax.set_ylim(-0.1, 1.05)
     fig.tight_layout()
-    fig.savefig(destino, dpi=150, bbox_inches="tight")
+    fig.savefig(destino, dpi=200, bbox_inches="tight")
+    if destino_latex.parent.exists():
+        fig.savefig(destino_latex, dpi=200, bbox_inches="tight")
     plt.close(fig)
     logger.info("Grafico R2 salvo em %s", destino)
     return destino
@@ -470,7 +473,7 @@ def plotar_mae_pct_degradacao(resultados: dict, sufixo: str = "") -> Path:
     hs = [int(k) for k in por_h.keys()]
     horas = [h * HORAS_POR_PASSO for h in hs]
 
-    cores = {"H2": "#2196F3", "CH4": "#FF5722", "CO": "#4CAF50", "C2H2": "#9C27B0"}
+    cores = {"H2": "#2196F3", "CO": "#4CAF50", "C2H4": "#FF9800", "C2H2": "#9C27B0"}
     cores_fb = ["#2196F3", "#FF5722", "#4CAF50", "#9C27B0"]
 
     fig, ax = plt.subplots(figsize=(14, 7))

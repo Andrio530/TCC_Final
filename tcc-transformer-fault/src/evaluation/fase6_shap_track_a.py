@@ -76,29 +76,44 @@ def plot_lstm_credit_migration(shap_por_seed, feature_names):
     pct_h14 = (impact_h14 / soma) * 100
     pct_h28 = (impact_h28 / soma) * 100
     
-    fig, ax = plt.subplots(figsize=(8, 6))
+    fig, ax = plt.subplots(figsize=(9, 6))
     seeds_str = [str(s) for s in SEEDS_AVALIACAO]
     
-    # Plota a soma total em cima como referência
-    ax2 = ax.twinx()
-    ax2.plot(seeds_str, soma, 'o-', color='black', label='Impacto Total de H2', linewidth=2)
-    ax2.set_ylabel("Soma Média de |SHAP| (H2)")
-    ax2.set_ylim(0, max(soma)*1.2)
-    
     # Plota barras de %
-    ax.bar(seeds_str, pct_h14, label='lstm_h14_H2', color='skyblue')
-    ax.bar(seeds_str, pct_h28, bottom=pct_h14, label='lstm_h28_H2', color='salmon')
+    bars_h14 = ax.bar(seeds_str, pct_h14, label='lstm_h14_H2', color='skyblue', edgecolor='white', width=0.55)
+    bars_h28 = ax.bar(seeds_str, pct_h28, bottom=pct_h14, label='lstm_h28_H2', color='salmon', edgecolor='white', width=0.55)
+
+    # Anotações de porcentagem isoladas no centro de cada barra
+    for i in range(len(seeds_str)):
+        ax.text(i, pct_h14[i] / 2, f"{pct_h14[i]:.1f}%", ha='center', va='center', color='darkblue', fontweight='bold', fontsize=10)
+        ax.text(i, pct_h14[i] + pct_h28[i] / 2, f"{pct_h28[i]:.1f}%", ha='center', va='center', color='darkred', fontweight='bold', fontsize=10)
     
-    ax.set_ylabel("% de Crédito (SHAP)")
-    ax.set_xlabel("Semente (Seed)")
-    ax.set_title("Migração de Crédito SHAP entre Gêmeas (H2) por Semente")
+    # Plota a soma total acima do topo das barras (100%) sem sobrepor as porcentagens
+    ax2 = ax.twinx()
+    line_total = ax2.plot(seeds_str, soma, 'o-', color='black', label='Impacto Total de H2 (|SHAP| médio)', linewidth=2.5, markersize=8, zorder=5)
+    for i, s_val in enumerate(soma):
+        ax2.annotate(f"{s_val:.4f}", (i, s_val), textcoords="offset points", xytext=(0, 8), ha='center', fontsize=9.5, fontweight='bold')
+    
+    ax.set_ylabel("% de Crédito (SHAP)", fontsize=11)
+    ax.set_xlabel("Semente (Seed)", fontsize=11)
+    ax.set_ylim(0, 145)
+    ax.set_yticks([0, 20, 40, 60, 80, 100])
+    ax2.set_ylabel("Soma Média de |SHAP| (H2)", fontsize=11)
+    ax2.set_ylim(0, 0.64)
+    ax2.set_yticks([0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6])
+    
+    ax.set_title("Migração de Crédito SHAP entre Projeções Gêmeas (H2) por Semente", pad=12, fontsize=12, fontweight='bold')
     
     lines_1, labels_1 = ax.get_legend_handles_labels()
     lines_2, labels_2 = ax2.get_legend_handles_labels()
-    ax.legend(lines_1 + lines_2, labels_1 + labels_2, loc='upper right')
+    ax.legend(lines_1 + lines_2, labels_1 + labels_2, loc='upper right', ncol=3, fontsize=9.5, frameon=True, framealpha=0.95)
     
     plt.tight_layout()
-    plt.savefig(FASE6_FIGURES_DIR / "fig7_lstm_credit_migration.png", dpi=300)
+    dest_rep = FASE6_FIGURES_DIR / "fig7_lstm_credit_migration.png"
+    dest_latex = Path(__file__).resolve().parents[3] / "tcc-unisinos" / "figuras" / "fase6" / "fig7_lstm_credit_migration.png"
+    plt.savefig(dest_rep, dpi=300)
+    if dest_latex.parent.exists():
+        plt.savefig(dest_latex, dpi=300)
     plt.close()
 
 

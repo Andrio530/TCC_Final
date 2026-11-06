@@ -24,26 +24,27 @@ dados_tradeoff = [
     {"Modelo": "Track B - Wu et al. (2021)", "F1": 0.7829, "Features": 14, "Cor": "#2ca02c", "Marker": "^", "offset": (-155, -12)}
 ]
 
-plt.figure(figsize=(10, 6))
+plt.figure(figsize=(10, 6.2))
 for d in dados_tradeoff:
-    plt.scatter(d["Features"], d["F1"], color=d["Cor"], marker=d["Marker"], s=220, label=f"{d['Modelo']} ({d['Features']} feats, F1={d['F1']:.4f})", edgecolors='black', zorder=4)
+    plt.scatter(d["Features"], d["F1"], color=d["Cor"], marker=d["Marker"], s=260, label=f"{d['Modelo']} ({d['Features']} feats, F1={d['F1']:.4f})", edgecolors='black', linewidth=1.2, zorder=4)
     plt.annotate(
-        f"{d['Modelo']}\n({d['Features']} feats)",
+        f"{d['Modelo']}\n({d['Features']} atributos)",
         (d["Features"], d["F1"]),
         xytext=d["offset"],
         textcoords='offset points',
-        fontsize=9,
-        fontweight='semibold',
-        bbox=dict(boxstyle="round,pad=0.2", facecolor="white", alpha=0.7, edgecolor="gray", linewidth=0.5)
+        fontsize=10.5,
+        fontweight='bold',
+        bbox=dict(boxstyle="round,pad=0.25", facecolor="white", alpha=0.85, edgecolor="gray", linewidth=0.6)
     )
 
-plt.title('Trade-off: Complexidade Dimensional vs Desempenho Diagnóstico', fontsize=13, fontweight='bold', pad=12)
-plt.xlabel('Número de Atributos (Complexidade)', fontsize=11)
-plt.ylabel('F1-Macro (Conjunto de Teste)', fontsize=11)
+plt.title('Trade-off: Complexidade Dimensional vs Desempenho Diagnóstico', fontsize=14, fontweight='bold', pad=14)
+plt.xlabel('Número de Atributos (Complexidade)', fontsize=12.5, fontweight='bold')
+plt.ylabel('F1-Macro (Conjunto de Teste)', fontsize=12.5, fontweight='bold')
+plt.tick_params(axis='both', which='major', labelsize=11)
 plt.xlim(6, 21)
 plt.ylim(0.76, 0.92)
 plt.grid(True, linestyle='--', alpha=0.5)
-plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', frameon=True, fontsize=9.5)
+plt.legend(loc='center left', bbox_to_anchor=(0.04, 0.46), frameon=True, fontsize=10.5, framealpha=0.92, edgecolor='gray')
 plt.tight_layout()
 plt.savefig(FIGURES_DIR / 'xgb_tradeoff_complexity.png', dpi=300)
 if TCC_FIGURES_DIR.exists():

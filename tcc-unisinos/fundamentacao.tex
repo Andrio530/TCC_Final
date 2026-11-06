@@ -6,7 +6,7 @@ Este capítulo apresenta os conceitos teóricos fundamentais para o desenvolvime
 
 Os transformadores de potência são dispositivos eletromagnéticos estáticos responsáveis pela transferência de energia elétrica entre circuitos, por meio do princípio da indução eletromagnética \cite{ali2023}. Esses equipamentos desempenham um papel fundamental nos sistemas elétricos de potência, permitindo a elevação ou redução dos níveis de tensão para transmissão e distribuição de energia de forma eficiente.
 
-O funcionamento de um transformador baseia-se na Lei de Faraday, segundo a qual uma variação de fluxo magnético em um circuito induz uma força eletromotriz em outro circuito acoplado magneticamente \cite{tightiz2020}. Estruturalmente, um transformador é composto por um núcleo magnético e enrolamentos isolados entre si. Do ponto de vista do diagnóstico por aprendizado de máquina, três características operacionais são particularmente relevantes: a composição do sistema de isolamento, os mecanismos de geração de gases dissolvidos e a taxonomia das falhas internas.
+O funcionamento de um transformador baseia-se na Lei de Indução Eletromagnética de Faraday, segundo a qual uma variação temporal de fluxo magnético em um circuito induz uma força eletromotriz em outro circuito acoplado magneticamente \cite{chapman2013}. Estruturalmente, um transformador é composto por um núcleo magnético e enrolamentos isolados entre si. Do ponto de vista do diagnóstico por aprendizado de máquina, destacam-se três características operacionais principais, que são a composição do sistema de isolamento, os mecanismos de geração de gases dissolvidos e a taxonomia das falhas internas.
 
 \subsection{Sistema de Isolamento e Mecanismos de Degradação}
 
@@ -27,8 +27,10 @@ A literatura e as normas internacionais categorizam os defeitos internos em tran
 \begin{itemize}         
     \item \textbf{Falhas térmicas}: associadas ao superaquecimento do óleo ou do papel isolante, são subdivididas de acordo com a temperatura estimada no ponto crítico. A classe T1 abrange sobreaquecimentos térmicos com temperaturas inferiores a 300~$^\circ\text{C}$, associados a fluxos restritos de circulação de óleo ou correntes induzidas em partes metálicas. A classe T2 corresponde a sobreaquecimentos entre 300~$^\circ\text{C}$ e 700~$^\circ\text{C}$, comuns em maus contatos de conexões aparafusadas e derivações. A classe T3 define falhas térmicas severas, com temperaturas superiores a 700~$^\circ\text{C}$, originadas por correntes circulantes intensas no tanque ou curtos-circuitos entre espiras;
     \item \textbf{Falhas elétricas}: englobam as descargas parciais (PD), que ocorrem em microcavidades com falhas de impregnação no papel ou pequenas bolhas de gás; as descargas de baixa energia (D1), caracterizadas por centelhamentos intermitentes de baixa corrente e as descargas de alta energia (D2), representadas por arcos elétricos intensos com queima perceptível de óleo e papel;
-    \item \textbf{Falhas combinadas}: envolvem a ocorrência simultânea de solicitações dielétricas e térmicas na mesma região do equipamento. Na prática operacional, a distribuição dessas falhas nos bancos de dados históricos apresenta grande desbalanceamento: ocorrências de arcos elétricos severos ou descargas parciais são registradas com frequência muito menor do que casos de operação normal ou de sobreaquecimentos térmicos leves.
+    \item \textbf{Falhas combinadas}: envolvem a ocorrência simultânea de solicitações dielétricas e térmicas na mesma região do equipamento. Na prática operacional, a distribuição dessas falhas nos bancos de dados históricos apresenta grande desbalanceamento, pois ocorrências de arcos elétricos severos ou descargas parciais são registradas com frequência muito menor do que casos de operação normal ou de sobreaquecimentos térmicos leves.
 \end{itemize}
+
+Compreendidos os mecanismos físico-químicos de geração de gases e a taxonomia das falhas internas, a seção seguinte apresenta os métodos normativos tradicionalmente adotados pela engenharia de manutenção para interpretar essas concentrações gasosas.
 
 \section{Métodos Normativos de Diagnóstico em DGA}\label{sec:metodos_normativos}
 
@@ -57,19 +59,19 @@ A soma dessas três coordenadas totaliza 100\%, definindo um ponto no interior d
 \includegraphics[width=0.7\textwidth]{figuras/Triangulo Duval.png}
 \caption{Triângulo de Duval para interpretação de gases dissolvidos em óleo mineral.}
 \label{fig:Triangulo_Duval}
-\fonte{Adaptado de \citeonline{ali2023}.}
+\fonte{Extraído de \citeonline[p.~4]{ali2023}.}
 \end{figure}
 
 A área do triângulo é particionada em sete regiões correspondentes a diferentes mecanismos de falha:
 
 \begin{itemize}         
-    \item descargas parciais (PD), delimitadas pela região com $\% \text{CH}_4 \ge 98\%$;
-    \item descargas de baixa energia (D1), definidas por $\% \text{C}_2\text{H}_2 > 13\%$ e $\% \text{C}_2\text{H}_4 < 23\%$;
-    \item descargas de alta energia (D2), delimitadas por $\% \text{C}_2\text{H}_2 \ge 29\%$ e $\% \text{C}_2\text{H}_4 \ge 23\%$, e pela sub-região com $\% \text{C}_2\text{H}_2$ entre 13\% e 29\% com $\% \text{C}_2\text{H}_4 \ge 23\%$;
+    \item descargas parciais (PD), delimitadas pela região superior com $\% \text{CH}_4 \ge 98\%$;
+    \item descargas de baixa energia (D1), definidas pela região com $\% \text{C}_2\text{H}_2 \ge 13\%$ e $\% \text{C}_2\text{H}_4 < 23\%$;
+    \item descargas de alta energia (D2), delimitadas pela região poligonal com $\% \text{C}_2\text{H}_2 \ge 13\%$ na faixa $23\% \le \% \text{C}_2\text{H}_4 < 40\%$ e $\% \text{C}_2\text{H}_2 \ge 29\%$ para $\% \text{C}_2\text{H}_4 \ge 40\%$;
     \item falhas térmicas inferiores a 300~$^\circ\text{C}$ (T1), condicionadas a $\% \text{CH}_4 < 98\%$, $\% \text{C}_2\text{H}_2 < 4\%$ e $\% \text{C}_2\text{H}_4 < 20\%$;
     \item falhas térmicas entre 300~$^\circ\text{C}$ e 700~$^\circ\text{C}$ (T2), delimitadas por $\% \text{C}_2\text{H}_2 < 4\%$ e $20\% \le \% \text{C}_2\text{H}_4 < 50\%$;
     \item falhas térmicas superiores a 700~$^\circ\text{C}$ (T3), caracterizadas por $\% \text{C}_2\text{H}_2 < 15\%$ e $\% \text{C}_2\text{H}_4 \ge 50\%$;
-    \item e a zona de transição térmica e elétrica combinada (DT), delimitada por $\% \text{C}_2\text{H}_2$ entre 4\% e 13\% com $\% \text{C}_2\text{H}_4 \ge 20\%$ e $\% \text{C}_2\text{H}_4 < 50\%$.
+    \item e a zona de transição térmica e elétrica combinada (DT), situada de forma intermediária entre as zonas térmicas e de descarga ($4\% \le \% \text{C}_2\text{H}_2 < 13\%$ para $\% \text{C}_2\text{H}_4 < 40\%$, $4\% \le \% \text{C}_2\text{H}_2 < 29\%$ para $40\% \le \% \text{C}_2\text{H}_4 < 50\%$ e $15\% \le \% \text{C}_2\text{H}_2 < 29\%$ para $\% \text{C}_2\text{H}_4 \ge 50\%$).
 \end{itemize}
 
 A principal limitação do Triângulo de Duval é a inexistência de uma região destinada à operação normal. Dessa forma, qualquer amostra projetada sobre o gráfico é classificada em alguma categoria de falha, podendo gerar falsos positivos em transformadores saudáveis que apresentem apenas taxas normais de gaseificação. Além disso, amostras localizadas muito próximas às linhas de fronteira sofrem com a sensibilidade a pequenas incertezas de medição, em que pequenas variações nas concentrações podem alterar a classe atribuída.
@@ -89,6 +91,8 @@ A relação $r_1$ avalia a presença de acetileno em relação ao etileno, permi
 A norma estabelece intervalos discretos de valores para cada uma das razões, associando suas combinações aos tipos clássicos de falha. As descargas parciais (PD) exigem $r_1 < 0,1$; $r_2 < 0,1$; e $r_3 < 0,2$. As descargas de baixa energia (D1) requerem $r_1 > 1$; $0,1 \le r_2 \le 0,5$; e $r_3 > 1$, enquanto as descargas de alta energia (D2) são caracterizadas por $0,6 \le r_1 \le 2,5$; $0,1 \le r_2 \le 1$; e $r_3 > 2$. Para as falhas térmicas, a degradação de baixa temperatura inferior a 300~$^\circ\text{C}$ (T1) demanda $r_1 < 0,1$; $r_2 > 1$; e $r_3 < 1$. A faixa intermediária entre 300~$^\circ\text{C}$ e 700~$^\circ\text{C}$ (T2) requer $r_1 < 0,1$; $r_2 > 1$; e $1 \le r_3 \le 4$, enquanto as falhas de alta temperatura superiores a 700~$^\circ\text{C}$ (T3) exigem $r_1 < 0,2$; $r_2 > 1$; e $r_3 > 4$.
 
 Caso a combinação de razões $(r_1, r_2, r_3)$ não corresponda a nenhum dos padrões catalogados na tabela da norma, o diagnóstico é classificado como Não Determinado (ND). Em dados de campo, em casos de transformadores com falhas múltiplas combinadas ou ruídos de medição, há uma limitação na eficácia do método quando utilizado de maneira isolada. Assim como no Triângulo de Duval, a norma IEC 60599 não possui uma combinação específica para indicar condição normal de operação, exigindo que o diagnóstico por razões seja aplicado apenas após as concentrações ultrapassarem os limites típicos de atenção estabelecidos.
+
+Para superar essas restrições geométricas e a ocorrência de diagnósticos inconclusivos nos métodos normativos, a seção a seguir descreve os algoritmos de aprendizado de máquina e de otimização evolutiva aplicados à classificação automatizada e à modelagem preditiva em DGA.
 
 \section{Algoritmos de Aprendizado de Máquina Aplicados à DGA}\label{sec:algoritmos_ml}
 
@@ -126,7 +130,7 @@ A Tabela~\ref{tab:algoritmos} apresenta um panorama comparativo das principais f
 \endfoot
 
 \hline
-\multicolumn{4}{p{\dimexpr\textwidth-2\tabcolsep\relax}}{\footnotesize Fonte: elaborado pelo autor com base em \citeonline{ali2023}, \citeonline{alsakini2025}, \citeonline{wu2021}, \citeonline{zhu2023} e \citeonline{lecun1998gradient}.} \\
+\multicolumn{4}{p{\dimexpr\textwidth-2\tabcolsep\relax}}{\footnotesize Fonte: elaborado pelo autor com base em \citeonline{ali2023}, \citeonline{alsakini2025}, \citeonline{wu2021}, \citeonline{zhou2021_informer} e \citeonline{lecun1998gradient}.} \\
 \multicolumn{4}{p{\dimexpr\textwidth-2\tabcolsep\relax}}{\footnotesize Nota: $\checkmark$ indica as técnicas adotadas na formulação experimental deste estudo.} \\
 \endlastfoot
 
@@ -134,7 +138,7 @@ A Tabela~\ref{tab:algoritmos} apresenta um panorama comparativo das principais f
 \hline
 SVM & Al-Sakini et al. (2025) & Maximização de margem de separação em alta dimensão & Dificuldade em classes sobrepostas e expansão multiclasse não nativa \\
 
-KNN & Ali et al. (2023) & Simplicidade conceitual sem premissas distributivas & Sensibilidade a ruídos locais e custo computacional alto na predição \\
+KNN & Ali et al. (2023) & Simplicidade de implementação e independência da distribuição dos dados & Sensibilidade a ruídos locais e custo computacional alto na predição \\
 
 Árvore de Decisão & Ali et al. (2023) & Facilidade de interpretação e extração direta de regras & Instabilidade a pequenas perturbações e tendência a sobreajuste \\
 
@@ -147,7 +151,7 @@ Naive Bayes & Ali et al. (2023) & Simplicidade de cálculo e treinamento rápido
 \hline
 \textbf{XGBoost} $\checkmark$ & Wu et al. (2021) & Regularização explícita e ponderação para dados desbalanceados & Necessidade de ajuste hiperparamétrico e ausência de memória temporal \\
 
-LightGBM & -- & Eficiência em bases volumosas por expansão foliar & Risco de sobreajuste em conjuntos com poucas centenas de amostras \\
+LightGBM & -- & Treinamento rápido em grandes bases por crescimento focado nas folhas & Risco de sobreajuste em conjuntos com poucas centenas de amostras \\
 \hline
 
 \multicolumn{4}{l}{\textit{Redes neurais}} \\
@@ -163,12 +167,12 @@ ARIMA & Ali et al. (2023) & Modelo estatístico linear simples e bem fundamentad
 
 \textbf{LSTM} $\checkmark$ & Katser et al. (2022) & Captura de dependências temporais longas por mecanismos de portas & Custo de treino superior e necessidade de séries regulares \\
 
-Transformer & Zhu et al. (2023) & Mecanismos de atenção em horizontes longos & Exigência de grandes volumes de dados, indisponíveis em DGA aberta \\
+Transformer & Zhou et al. (2021) & Mecanismos de atenção em horizontes longos & Exigência de grandes volumes de dados, indisponíveis em DGA aberta \\
 \hline
 
 \multicolumn{4}{l}{\textit{Otimização evolutiva}} \\
 \hline
-AG padrão & Ali et al. (2023) & Busca estocástica global sem necessidade de derivadas & Risco de convergência prematura em problemas multimodais \\
+AG padrão & Ali et al. (2023) & Busca estocástica global sem necessidade de derivadas & Risco de estagnar cedo em ótimos locais \\
 
 \textbf{IGA} $\checkmark$ & Wu et al. (2021) & Cruzamento adaptativo, operadores mistos e elitismo & Custo computacional elevado pela validação cruzada iterativa \\
 
@@ -185,9 +189,9 @@ Os métodos de \textit{gradient boosting} constroem modelos preditivos por meio 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.8\textwidth]{figuras/xgboost.png}
-\caption{Processo iterativo de minimização de resíduos em ensembles de gradient boosting.}
+\caption{Esquema conceitual do processo iterativo de minimização de resíduos em ensembles de gradient boosting.}
 \label{fig:xgboost}
-\fonte{Elaborado pelo autor.}
+\fonte{Gerada por ChatGPT / GPT 5.6 Terra, 2026.}
 \end{figure}
 
 A predição final de uma amostra $x$ após a inclusão de $K$ árvores é obtida pela soma das contribuições de cada estimador:
@@ -208,7 +212,7 @@ Em que $l$ representa a função de perda diferenciável e $\Omega(f)$ define o 
 \Omega(f) = \gamma T_L + \frac{1}{2} \lambda_{\text{reg}} \sum_{j=1}^{T_L} w_j^2 + \alpha_{\text{reg}} \sum_{j=1}^{T_L} |w_j|
 \end{equation}
 
-Nessa expressão, $T_L$ denota o número de folhas da árvore, $w_j$ é o peso associado à folha $j$, $\gamma$ representa o custo de complexidade para a criação de novas folhas e os parâmetros $\lambda_{\text{reg}}$ e $\alpha_{\text{reg}}$ correspondem aos termos de regularização $L_2$ e $L_1$, respectivamente. A expansão de Taylor em segunda ordem da função de perda permite calcular de forma analítica o ganho de divisão dos nós e os pesos ótimos das folhas, garantindo convergência eficiente e controle contra o sobreajuste.
+Nessa expressão, $T_L$ denota o número de folhas da árvore, $w_j$ é o peso associado à folha $j$, $\gamma$ representa o custo de complexidade para a criação de novas folhas e os parâmetros $\lambda_{\text{reg}}$ e $\alpha_{\text{reg}}$ correspondem aos termos de regularização $L_2$ e $L_1$, respectivamente. O uso das derivadas de primeira e segunda ordem da função de perda permite calcular diretamente o ganho de cada divisão nos nós e o peso ideal das folhas, acelerando o treinamento e ajudando a evitar o sobreajuste.
 
 Para lidar com o desbalanceamento característico de bases de dados de DGA, o XGBoost suporta a atribuição de pesos diferenciados por instância (\texttt{sample\_weight}), permitindo ponderar a contribuição das amostras na função de perda de forma inversamente proporcional à frequência de cada classe.
 
@@ -248,24 +252,24 @@ o_t = \sigma\left(W_o [h_{t-1}, x_t] + b_o\right)
 h_t = o_t \odot \tanh(C_t)
 \end{equation}
 
-Nas Equações~(\ref{eq:lstm_forget}) a (\ref{eq:lstm_hidden}), $\sigma$ denota a função sigmoide, $\odot$ representa o produto elemento a elemento de Hadamard, $f_t$ é a porta de esquecimento que modula o descarte de informações da célula anterior $C_{t-1}$, $i_t$ é a porta de entrada que regula a absorção do novo candidato $\tilde{C}_t$, $C_t$ é o estado interno da célula e $o_t$ é a porta de saída que determina a parcela de informação exposta no estado oculto $h_t$.
+Nas Equações~(\ref{eq:lstm_forget}) a (\ref{eq:lstm_hidden}), $\sigma$ denota a função sigmoide, $\odot$ representa a multiplicação elemento a elemento entre vetores, $f_t$ é a porta de esquecimento que controla o descarte de informações da célula anterior $C_{t-1}$, $i_t$ é a porta de entrada que regula a absorção do novo candidato $\tilde{C}_t$, $C_t$ é o estado interno da célula e $o_t$ é a porta de saída que determina a parcela de informação exposta no estado oculto $h_t$.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{figuras/celula_lstm.png}
-\caption{Arquitetura estrutural da célula de memória recorrente LSTM.}
+\caption{Diagrama conceitual da arquitetura interna de uma célula de memória recorrente LSTM.}
 \label{fig:celula_lstm}
-\fonte{Elaborado pelo autor com base em \citeonline{hochreiter1997long}.}
+\fonte{Gerada por ChatGPT / GPT 5.6 Terra, 2026.}
 \end{figure}
 
-Para modelar dinâmicas temporais complexas em séries temporais de gases, emprega-se a LSTM empilhada (\textit{Stacked LSTM}), que conecta múltiplas camadas recorrentes em série, conforme mostrado na Figura~\ref{fig:lstm_stacked}. Nesse formato, as saídas ocultas da primeira camada servem como sequência de entrada para a camada subsequente, permitindo capturar padrões de evolução das concentrações gasosas ao longo do tempo.
+Para modelar o comportamento de séries temporais de gases com maior capacidade de representação, emprega-se a LSTM empilhada (\textit{Stacked LSTM}), que conecta múltiplas camadas recorrentes em série, conforme mostrado na Figura~\ref{fig:lstm_stacked}. Nesse formato, as saídas ocultas da primeira camada servem como sequência de entrada para a camada subsequente, permitindo capturar padrões de evolução das concentrações gasosas ao longo do tempo.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{figuras/LSTM_stacked.png}
-\caption{Topologia de rede neural recorrente LSTM empilhada para modelagem temporal.}
+\caption{Diagrama conceitual da topologia de rede neural recorrente LSTM empilhada para modelagem temporal.}
 \label{fig:lstm_stacked}
-\fonte{Elaborado pelo autor.}
+\fonte{Gerada por ChatGPT / GPT 5.6 Terra, 2026.}
 \end{figure}
 
 \subsection{Otimização Evolutiva por Algoritmo Genético Melhorado (IGA)}\label{sec:iga}
@@ -276,13 +280,15 @@ Em matrizes de dados de DGA, o algoritmo genético clássico pode sofrer com con
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.55\textwidth]{figuras/IGA.png}
+\includegraphics[width=0.88\textwidth]{figuras/IGA.png}
 \caption{Fluxo operacional do Algoritmo Genético Melhorado para busca conjunta.}
 \label{fig:IGA}
-\fonte{Adaptado de \citeonline{wu2021}.}
+\fonte{Elaborado pelo autor, com base em \citeonline{wu2021}.}
 \end{figure}
 
-No IGA, cada indivíduo é estruturado por um cromossomo bipartido: uma máscara binária (que define quais variáveis são utilizadas) e um vetor de números reais (correspondente aos hiperparâmetros contínuos do XGBoost). Na etapa de recombinação, aplica-se cruzamento uniforme sobre a máscara binária e cruzamento linear adaptativo (\textit{Blend Crossover}, BLX-$\alpha$) sobre os genes contínuos, associados a perturbações gaussianas para mutação contínua e inversão probabilística de bits para a parte discreta. A preservação por elitismo garante que as melhores soluções encontradas sejam repassadas diretamente para a geração seguinte, guiando a busca para configurações de alta precisão e menor complexidade.
+No IGA, cada indivíduo é estruturado por um cromossomo bipartido composto por uma máscara binária (que define quais variáveis são utilizadas) e por um vetor de números reais (correspondente aos hiperparâmetros contínuos do XGBoost). Na etapa de recombinação, aplica-se cruzamento uniforme sobre a máscara binária e cruzamento linear adaptativo (\textit{Blend Crossover}, BLX-$\alpha$) sobre os genes contínuos, associados a perturbações gaussianas para mutação contínua e inversão probabilística de bits para a parte discreta. A preservação por elitismo garante que as melhores soluções encontradas sejam repassadas diretamente para a geração seguinte, guiando a busca para configurações de alta precisão e menor complexidade.
+
+Embora a combinação entre ensembles de árvores e otimização evolutiva proporcione elevado poder discriminativo, sua adoção segura em diagnósticos industriais requer transparência sobre os critérios internos de decisão, tema abordado na próxima seção por meio das técnicas de interpretabilidade em aprendizado de máquina.
 
 \section{Interpretabilidade em Aprendizado de Máquina (XAI)}\label{sec:xai_shap}
 
@@ -292,7 +298,7 @@ Na aplicação de aprendizado de máquina em sistemas críticos como redes elét
 
 A formulação dos valores de Shapley origina-se na teoria dos jogos cooperativos \cite{shapley1953}, sendo adaptada para o aprendizado de máquina por \citeonline{lundberg2017} para quantificar a contribuição justa de cada atributo preditor na saída de um modelo. Em vez de avaliar uma variável de forma isolada, o método considera o ganho marginal que a inclusão dessa variável proporciona a todas as possíveis combinações de atributos (coalizões).
 
-A grande vantagem teórica dos valores de Shapley reside nas propriedades de \textbf{eficiência} e \textbf{aditividade local}: a soma das contribuições $\phi_i$ atribuídas a cada uma das variáveis de entrada $i$ corresponde exatamente à diferença entre a predição pontual do modelo $f(x)$ para uma dada amostra e o valor médio esperado basal $\mathbb{E}[f(X)]$ em toda a base:
+A grande vantagem teórica dos valores de Shapley reside nas propriedades de \textbf{eficiência} e \textbf{aditividade local}. A soma das contribuições $\phi_i$ atribuídas a cada uma das variáveis de entrada $i$ corresponde exatamente à diferença entre a predição pontual do modelo $f(x)$ para uma dada amostra e o valor médio esperado basal $\mathbb{E}[f(X)]$ em toda a base:
 
 \begin{equation}\label{eq:shapley_additivity}
 \sum_{i=1}^{M} \phi_i(x) = f(x) - \mathbb{E}[f(X)]
@@ -312,13 +318,15 @@ f_c(x) = \phi_{0,c} + \sum_{i=1}^{M} \phi_{i,c}(x)
 
 Em que $\phi_{0,c} = \mathbb{E}[f_c(X)]$ denota o valor médio basal da classe $c$ sobre a base de treinamento, e $\phi_{i,c}(x)$ corresponde à contribuição aditiva individual da variável $i$. O valor de Shapley indica diretamente se a variável atua a favor ($\phi > 0$) ou contra ($\phi < 0$) a probabilidade daquela classe específica, enquanto a classe final prevista corresponde àquela com maior escore conjunto via $\arg\max_c f_c(x)$.
 
-Além da contribuição global, o TreeSHAP possibilita desacoplar as interações conjuntas entre pares de variáveis. Por meio da matriz de interações (\texttt{pred\_interactions}), o efeito principal univariado de cada variável $\phi_{i,i}(x)$ é obtido isolando sua contribuição direta e subtraindo os termos cruzados de interação com as demais variáveis do modelo:
+Além da contribuição total de cada atributo, o TreeSHAP permite separar o efeito isolado de uma variável das suas combinações com as demais. Por meio da matriz de interações (\texttt{pred\_interactions}), obtém-se o efeito individual $\phi_{i,i}(x)$ de cada gás ou razão após descontar as interações cruzadas com os outros atributos, conforme expresso por
 
 \begin{equation}\label{eq:main_effect}
 \phi_{i,i}(x) = \phi_i(x) - \sum_{j \neq i} \phi_{i,j}(x)
 \end{equation}
 
-Ao relacionar o efeito principal $\phi_{i,i}(x)$ com a concentração física real da variável (em ppm ou em percentual relativo), identifica-se com precisão o ponto de inflexão em que a contribuição transita de negativa para positiva ($\phi_{i,i} = 0$). Esse cruzamento define o limiar marginal aprendido pelo algoritmo, permitindo confrontar os critérios empíricos do XGBoost diretamente com os limites práticos das normas da IEC 60599 e do Triângulo de Duval.
+Ao relacionar esse efeito isolado $\phi_{i,i}(x)$ com o valor físico real da variável em ppm ou em percentual relativo, identifica-se o ponto exato em que sua contribuição passa de contrária ($\phi_{i,i} < 0$) para favorável ($\phi_{i,i} > 0$) àquela classe de falha ($\phi_{i,i} = 0$). Esse ponto de transição revela o limite prático aprendido pelo XGBoost, permitindo compará-lo diretamente com as fronteiras da norma IEC 60599 e do Triângulo de Duval.
+
+Apresentados os fundamentos teóricos dos modelos preditivos, da busca evolutiva e da decomposição aditiva por valores de Shapley, a seção seguinte analisa como os trabalhos recentes da literatura têm integrado essas técnicas no diagnóstico de transformadores de potência.
 
 \section{Trabalhos Relacionados}\label{sec:trabalhos_relacionados}
 
@@ -343,7 +351,7 @@ Al-Sakini et al. (2025) & Aprendizado de Máquina Supervisionado & Classificaç�
 \hline
 Tightiz et al. (2020) & ANFIS + Regras de Associação & Classificação & Integração de inferência neuro-fuzzy com regras de diagnóstico & Ajuste complexo de muitas regras e ausência de componente temporal \\
 \hline
-Zhu et al. (2023) & Transformers em Séries Temporais & Previsão & Atenção em dependências temporais em sistemas de potência & Custo computacional elevado e demanda de grande volume de dados \\
+Zhou et al. (2021) & Transformer (Informer) em Séries Temporais & Previsão & Mecanismo de autoatenção eficiente para dependências longas em transformadores & Custo computacional elevado e demanda de grandes volumes de dados \\
 \hline
 \textbf{Abordagem deste Trabalho} & LSTM Empilhada + IGA-XGBoost + TreeSHAP & Híbrido em Dois Eixos & Avaliação do impacto de previsões temporais, seleção de atributos por IGA e interpretação física com TreeSHAP & Separação em dois eixos devido às características distintas das bases de dados públicas disponíveis \\
 \hline
@@ -358,6 +366,8 @@ Por outro lado, o trabalho de \citeonline{wang2023} focou na modelagem temporal 
 
 Por sua vez, \citeonline{alsakini2025} testaram diversos modelos de aprendizado supervisionado em dados laboratoriais reais, confirmando que ensembles de árvores superam modelos simples em conjuntos com ruído, mas também se limitaram a diagnósticos pontuais estáticos. Já as revisões conduzidas por \citeonline{ali2023} apontam que as principais carências da área incluem a falta de protocolos estatísticos para lidar com o desbalanceamento real das classes, a escassez de modelos que combinem dinâmicas temporais com classificadores otimizados e a ausência de análises que interpretem fisicamente as decisões dos algoritmos à luz das normas técnicas.
 
-Por fim, o uso de arquiteturas Transformer em séries temporais de transformadores, explorado por \citeonline{zhu2023}, confirma a utilidade dos mecanismos de autoatenção para sequências longas, mas esbarra na exigência de grandes volumes de dados de treinamento, raramente disponíveis em bases públicas abertas de DGA.
+Por fim, o uso de arquiteturas Transformer em séries temporais de transformadores, a exemplo do modelo Informer proposto por \citeonline{zhou2021_informer}, confirma a utilidade dos mecanismos de autoatenção para sequências longas, mas esbarra na exigência de grandes volumes de dados de treinamento, raramente disponíveis em bases públicas abertas de DGA.
 
-Com base nesse panorama, este trabalho estrutura sua metodologia em dois eixos complementares: utiliza dados industriais saneados, testa de forma controlada o impacto de previsões temporais da LSTM acopladas ao XGBoost, emprega o algoritmo genético para selecionar subconjuntos enxutos de atributos e analisa as regras aprendidas pelo modelo com base em valores de Shapley, aproximando as decisões dos algoritmos dos critérios estabelecidos pelas normas técnicas de DGA.
+Com base nesse panorama, este trabalho testa de forma controlada o impacto de previsões temporais da LSTM acopladas ao XGBoost, emprega o algoritmo genético para selecionar subconjuntos enxutos de atributos e analisa as regras aprendidas pelo modelo com base em valores de Shapley, aproximando as decisões dos algoritmos dos critérios estabelecidos pelas normas técnicas de DGA.
+
+No próximo capítulo, detalham-se os procedimentos metodológicos estruturados para operacionalizar essa investigação, abrangendo a arquitetura experimental em dois eixos (Track A e Track B), a auditoria e o pré-processamento das bases de dados, a engenharia de atributos, a modelagem preditiva e os protocolos de validação estatística e de interpretabilidade.
