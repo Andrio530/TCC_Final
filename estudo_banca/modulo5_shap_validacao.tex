@@ -1,0 +1,448 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{lmodern}
+\usepackage[margin=2.2cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsfonts,mathtools}
+\usepackage{booktabs,tabularx,array,longtable,multirow}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage[most,breakable,skins]{tcolorbox}
+\usepackage[colorlinks=true,linkcolor=MidnightBlue,citecolor=MidnightBlue,urlcolor=MidnightBlue]{hyperref}
+
+% Cores personalizadas
+\definecolor{NavyBlue}{RGB}{16, 44, 87}
+\definecolor{MidnightBlue}{RGB}{24, 43, 73}
+\definecolor{DarkSlateGray}{RGB}{38, 70, 83}
+\definecolor{TealAccent}{RGB}{42, 157, 143}
+\definecolor{WarningRed}{RGB}{180, 40, 40}
+\definecolor{CardBg}{RGB}{248, 249, 250}
+\definecolor{CodeBg}{RGB}{244, 245, 247}
+\definecolor{BorderColor}{RGB}{218, 224, 233}
+\definecolor{MathHighlight}{RGB}{235, 243, 250}
+
+% Configuração de cabeçalho e rodapé
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textbf{\textsf{TCC Engenharia da Computação | Unisinos}}}
+\fancyhead[R]{\small\textsf{Módulo 5: TreeSHAP e Validação Físico-Química}}
+\fancyfoot[L]{\small\textsf{Material de Preparação para Banca de Defesa}}
+\fancyfoot[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.6pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Configuração de código Python
+\lstset{
+  language=Python,
+  backgroundcolor=\color{CodeBg},
+  basicstyle=\ttfamily\footnotesize\color{black},
+  keywordstyle=\bfseries\color{NavyBlue},
+  commentstyle=\itshape\color{DarkSlateGray!80},
+  stringstyle=\color{TealAccent!90!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  stepnumber=1,
+  numbersep=8pt,
+  showstringspaces=false,
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{BorderColor},
+  xleftmargin=12pt,
+  framexleftmargin=10pt
+}
+
+% Caixas de destaque com tcolorbox
+\newtcolorbox{mathcard}[1][]{
+  colback=MathHighlight,
+  colframe=NavyBlue,
+  fonttitle=\bfseries\sffamily\color{white},
+  coltitle=white,
+  boxrule=0.8pt,
+  arc=3mm,
+  title=#1,
+  left=8pt,right=8pt,top=6pt,bottom=6pt,
+  enhanced,
+  drop shadow=black!10
+}
+
+\newtcolorbox{warningcard}[1][]{
+  colback=WarningRed!5,
+  colframe=WarningRed,
+  fonttitle=\bfseries\sffamily\color{white},
+  coltitle=white,
+  boxrule=0.8pt,
+  arc=3mm,
+  title=#1,
+  left=8pt,right=8pt,top=6pt,bottom=6pt,
+  enhanced,
+  drop shadow=black!10
+}
+
+\newtcolorbox{defensebox}[1][]{
+  colback=CardBg,
+  colframe=TealAccent,
+  fonttitle=\bfseries\sffamily\color{white},
+  coltitle=white,
+  boxrule=0.8pt,
+  arc=3mm,
+  title=#1,
+  left=8pt,right=8pt,top=6pt,bottom=6pt,
+  enhanced,
+  drop shadow=black!10
+}
+
+\begin{document}
+
+% Cabeçalho do Documento
+\begin{center}
+  {\Large \textbf{\textsf{\color{NavyBlue}MÓDULO 5: INTERPRETABILIDADE FÍSICO-QUÍMICA VIA TREESHAP, AUDITORIA NORMATIVA E NUANCES DE VALIDAÇÃO}}}\\[0.25cm]
+  {\large \textsf{\color{DarkSlateGray}Fundamentação dos Valores de Shapley, Algoritmo TreeSHAP Polinomial, Extração de Limiares Térmicos/Elétricos, Análise de Migração de Crédito e Sustentação Oral perante a Banca}}\\[0.3cm]
+  \textsf{\textbf{Autor:} Andrio Gabriel Epp | \textbf{Orientação Técnica e Simulação de Banca}}
+\end{center}
+\vspace{-0.2cm}
+\noindent\rule{\textwidth}{1.2pt}
+
+\section{Visão Geral e Propósito Estratégico na Defesa}
+
+O Módulo 5 representa o ápice da maturidade científica e da integridade técnica do seu Trabalho de Conclusão de Curso. Em aplicações industriais críticas do setor elétrico de potência, modelos de inteligência artificial puramente ``caixa-preta'' (\textit{black-box}) são sumariamente rejeitados por concessionárias, operadores de sistema (como o ONS) e comitês normativos (CIGRE, IEEE, IEC). Uma alta acurácia estatística é condição necessária, mas não suficiente: é obrigatório demonstrar \textbf{como} e \textbf{por que} o modelo tomou cada decisão diagnóstica, provando que ele aprendeu princípios termodinâmicos e elétricos legítimos, e não meros artefatos espúrios de amostragem.
+
+Neste módulo, você dominará:
+\begin{enumerate}[leftmargin=*]
+  \item A base matemática exata da Teoria dos Jogos Cooperativos de Lloyd Shapley (1953) e sua transposição para Aprendizado de Máquina (Lundberg \& Lee, 2017).
+  \item O algoritmo \textbf{TreeSHAP} (Lundberg et al., 2020), que reduz a complexidade combinatória exponencial $\mathcal{O}(M 2^M)$ para tempo polinomial estrito $\mathcal{O}(T L D^2)$, calculando contribuições aditivas exatas na escala de \textit{log-odds}.
+  \item A decomposição de interações e o isolamento do \textbf{Efeito Principal Univariado} ($\Phi_{i, i}$) via suavização LOWESS, provando a extração autônoma de limiares físicos comparáveis à IEC 60599 e ao Triângulo 1 de Duval.
+  \item O fenômeno da \textbf{Migração de Crédito} entre variáveis gêmeas/colineares, que fundamenta matematicamente o desfecho da Hipótese Temporal no Track A.
+  \item O roteiro contundente de defesa para as principais vulnerabilidades metodológicas do trabalho (rótulos estáticos ao longo do tempo e vazamento interno no treino híbrido).
+\end{enumerate}
+
+---
+
+\section{Pilar 1: Fundamentação Matemática e Teórica}
+
+\subsection{Teoria dos Jogos Cooperativos de Lloyd Shapley (1953)}
+
+Considere um jogo cooperativo com utilidade transferível definido pelo par $(N, v)$, onde:
+\begin{itemize}[leftmargin=*]
+  \item $N = \{1, 2, \dots, M\}$ é o conjunto finito de $M$ jogadores (no nosso contexto, o conjunto de atributos de entrada $\mathbf{x} = [x_1, \dots, x_M]^T$).
+  \item $v: \mathcal{P}(N) \to \mathbb{R}$ é a \textbf{função característica de valor}, que mapeia cada subconjunto (coalizão) $S \subseteq N$ em um ganho escalar real $v(S)$, com a convenção de jogo vazio $v(\emptyset) = 0$.
+\end{itemize}
+
+O problema econômico fundamental formulado por Lloyd Shapley é: \textit{como distribuir o ganho total da grande coalizão $v(N)$ entre os $M$ jogadores de forma unicamente justa e equilibrada?}
+
+Shapley provou analiticamente que existe uma \textbf{única regra de atribuição} $\phi(v) = [\phi_1(v), \dots, \phi_M(v)]^T$ que satisfaz simultaneamente quatro axiomas fundamentais de justiça:
+
+\begin{mathcard}[Equação Clássica do Valor de Shapley]
+$$\phi_i(v) = \sum_{S \subseteq N \setminus \{i\}} \frac{|S|! \, (|N| - |S| - 1)!}{|N|!} \left[ v(S \cup \{i\}) - v(S) \right]$$
+\end{mathcard}
+
+Onde:
+\begin{itemize}[leftmargin=*]
+  \item $S \subseteq N \setminus \{i\}$ representa todas as possíveis coalizões formadas sem o jogador $i$.
+  \item $[v(S \cup \{i\}) - v(S)]$ é a \textbf{contribuição marginal} proporcionada pela entrada do jogador $i$ à coalizão $S$.
+  \item $\frac{|S|! \, (|N| - |S| - 1)!}{|N|!}$ é a probabilidade combinatória uniforme de que a coalizão $S$ seja formada antes da chegada do jogador $i$, considerando todas as $|N|!$ ordens possíveis de inserção aleatória dos jogadores.
+\end{itemize}
+
+\subsection{Os Quatro Axiomas Clássicos de Shapley}
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Eficiência (Aditividade Local):} A soma de todas as atribuições individuais esgota exatamente o valor total gerado pela grande coalizão:
+  $$\sum_{i \in N} \phi_i(v) = v(N) - v(\emptyset)$$
+  \item \textbf{Simetria:} Se dois jogadores $i$ e $j$ geram exatamente a mesma contribuição marginal para qualquer coalizão $S \subseteq N \setminus \{i, j\}$ tal que $v(S \cup \{i\}) = v(S \cup \{j\})$, então seus valores de Shapley são idênticos:
+  $$\phi_i(v) = \phi_j(v)$$
+  \item \textbf{Jogador Nulo (\textit{Dummy/Null Player}):} Se um jogador $i$ não agrega valor a nenhuma coalizão possível, isto é, $v(S \cup \{i\}) = v(S)$ para todo $S \subseteq N \setminus \{i\}$, sua contribuição é nula:
+  $$\phi_i(v) = 0$$
+  \item \textbf{Aditividade (Linearidade):} Se dois jogos cooperativos independentes com funções características $u$ e $v$ são combinados em um único jogo $(u + v)$, o valor de Shapley da soma é a soma dos valores de Shapley:
+  $$\phi_i(u + v) = \phi_i(u) + \phi_i(v)$$
+\end{enumerate}
+
+\subsection{Transposição para Aprendizado de Máquina (Lundberg \& Lee, 2017)}
+
+Ao transpor os valores de Shapley para a explicabilidade de modelos preditivos $f(\mathbf{x})$, os jogadores passam a ser os atributos de entrada $\mathbf{x} = [x_1, \dots, x_M]^T$. Para calcular a função de valor $v(S)$ de um subconjunto de features presentes $S \subseteq N$, é necessário marginalizar os atributos ausentes $N \setminus S$. 
+
+Na formulação condicional padrão:
+$$v(S) = \mathbb{E}_{\mathbf{X}_{\bar{S}} \mid \mathbf{X}_S = \mathbf{x}_S} \left[ f(\mathbf{x}_S, \mathbf{X}_{\bar{S}}) \right]$$
+
+O axioma da \textbf{Eficiência} assume a forma de aditividade local em relação à previsão basal esperada $\phi_0 = \mathbb{E}[f(\mathbf{X})]$:
+$$f(\mathbf{x}) = \phi_0 + \sum_{i=1}^M \phi_i(\mathbf{x})$$
+
+\subsection{O Algoritmo TreeSHAP e a Dedução da Complexidade Polinomial}
+
+Em abordagens agnósticas de modelo (\textit{model-agnostic}), como o KernelSHAP, calcular $\phi_i$ exige avaliar $f(\mathbf{x})$ sobre todas as $2^M$ combinações de atributos possíveis. Para um vetor com $M=16$ atributos, $2^{16} = 65.536$ avaliações seriam necessárias \textbf{para cada uma das amostras de teste}, tornando a auditoria computacionalmente inviável.
+
+O algoritmo \textbf{TreeSHAP} (Lundberg et al., Nature Machine Intelligence, 2020) resolve este gargalo ao explorar a estrutura hierárquica das Árvores de Decisão (CART) que compõem o XGBoost. 
+
+Uma árvore $T_k$ particiona recursivamente o espaço de atributos em hiper-retângulos ortogonais disjuntos. Em cada nó interno, a decisão depende de uma única variável. O TreeSHAP calcula a esperança condicional descendo recursivamente pela árvore e monitorando as frações de amostras de treinamento que percorrem as subárvores esquerda e direita (\textit{cobertura do nó}).
+
+\begin{mathcard}[Complexidade Computacional: Exponencial vs Polinomial]
+$$\text{KernelSHAP (Agnóstico): } \mathcal{O}\left(N_{\text{amostras}} \cdot M \cdot 2^M\right)$$
+$$\text{TreeSHAP (Exato para Árvores): } \mathcal{O}\left(N_{\text{amostras}} \cdot T \cdot L \cdot D^2\right)$$
+\end{mathcard}
+
+Onde:
+\begin{itemize}[leftmargin=*]
+  \item $T$: Número de árvores no ensemble ($T = \texttt{n\_estimators} = 422$ no Track A C1; $342$ no Track B C3).
+  \item $L$: Número médio de folhas terminais por árvore ($L \le 2^D$).
+  \item $D$: Profundidade máxima da árvore ($D = \texttt{max\_depth} = 12$).
+  \item $M$: Número de variáveis ($M=16$).
+\end{itemize}
+
+Como $D^2 = 144$ e a profundidade efetiva real média das árvores após poda por $\gamma$ fica entre 4 e 6 ($D_{\text{efetivo}}^2 \approx 25$), o TreeSHAP executa o cálculo rigoroso dos valores de Shapley das 900 amostras do Track A em poucos segundos.
+
+\subsection{Escala das Contribuições no XGBoost: Margens Lineares (\textit{Log-Odds})}
+
+No XGBoost multi-classe com objetivo \texttt{multi:softprob}, o modelo produz para cada classe $c \in \{0, 1, 2, 3\}$ uma margem bruta contínua $\hat{y}_{i, c} = f_c(\mathbf{x}_i) \in \mathbb{R}$. A probabilidade final é gerada pela função Softmax:
+$$p_{i, c} = \frac{\exp(f_c(\mathbf{x}_i))}{\sum_{k=0}^{K-1} \exp(f_k(\mathbf{x}_i))}$$
+
+\begin{warningcard}[Propriedade Matemática Crítica: Escala Aditiva vs Não-Linear]
+A transformação Softmax é estritamente não-linear. Se tentássemos calcular o SHAP diretamente no espaço de probabilidades $[0, 1]$, a propriedade de aditividade exata $\sum \phi_i = p_{i, c} - \mathbb{E}[p_c]$ seria violada por causa da saturação exponencial do denominador da Softmax.
+
+Por isso, no seu projeto (Seção 3.7 e Seção 4.5), o TreeSHAP é executado diretamente na escala de \textbf{margens lineares brutas (\textit{log-odds})}, onde a aditividade local é estritamente preservada:
+$$f_c(\mathbf{x}_i) = \phi_0^{(c)} + \sum_{j=1}^M \phi_j^{(c)}(\mathbf{x}_i)$$
+\end{warningcard}
+
+\subsection{Matriz de Interação SHAP e Efeito Principal Univariado ($\Phi_{i, i}$)}
+
+O TreeSHAP permite expandir a atribuição de primeira ordem para uma matriz completa de interações de segunda ordem baseada no valor de interação de Shapley-Banzhaf:
+$$\Phi_{i, j}^{(c)} = \sum_{S \subseteq N \setminus \{i, j\}} \frac{|S|! \, (|N| - |S| - 2)!}{2(|N| - 1)!} \left[ v(S \cup \{i, j\}) - v(S \cup \{i\}) - v(S \cup \{j\}) + v(S) \right]$$
+
+Propriedade de decomposição aditiva:
+$$\phi_i^{(c)} = \Phi_{i, i}^{(c)} + \sum_{j \neq i} \Phi_{i, j}^{(c)}$$
+
+\begin{itemize}[leftmargin=*]
+  \item $\Phi_{i, i}^{(c)}$ (\textbf{Efeito Principal Univariado}): Mede o impacto intrínseco puro da variável $i$ isolado de qualquer sinergia ou correlação com outras variáveis.
+  \item $\Phi_{i, j}^{(c)}$ (\textbf{Efeito de Interação Bivariado}): Mede a variação na atribuição quando as variáveis $i$ e $j$ ocorrem simultaneamente, deduzidos seus efeitos isolados.
+\end{itemize}
+
+\subsection{Extração Analítica de Limiares Físicos via LOWESS}
+
+No seu código (\texttt{fase6\_shap\_track\_b.py}), o efeito principal $\Phi_{i, i}^{(c)}$ é confrontado diretamente contra a concentração física real desnormalizada da variável $x_i$ (em ppm ou em \% de razão DGA). Aplica-se a regressão não-paramétrica localmente ponderada (\textbf{LOWESS} - \textit{Locally Weighted Scatterplot Smoothing}) para estimar a curva contínua $\hat{g}(x_i) = \mathbb{E}[\Phi_{i, i}^{(c)} \mid X_i = x_i]$.
+
+O \textbf{Limiar Físico Marginal Aprendido} ($x_i^*$) é a raiz analítica da curva de efeito principal:
+$$\hat{g}(x_i^*) = 0 \iff \Phi_{i, i}^{(c)}(x_i^*) = 0$$
+
+\begin{itemize}[leftmargin=*]
+  \item Para $x_i < x_i^*$: $\Phi_{i, i}^{(c)} < 0$ (a variável atua inibindo ou reduzindo a probabilidade daquela falha).
+  \item Para $x_i > x_i^*$: $\Phi_{i, i}^{(c)} > 0$ (a variável passa a atuar positivamente, empurrando o transformador em direção ao estado de falha).
+\end{itemize}
+
+\subsection{Mapeamento Geométrico no Triângulo 1 de Duval}
+
+O Triângulo 1 de Duval utiliza três gases de decomposição térmica e elétrica expressos em porcentagens relativas do total $\text{TH} = \text{CH}_4 + \text{C}_2\text{H}_4 + \text{C}_2\text{H}_2$:
+$$\% \text{CH}_4 = \frac{\text{CH}_4}{\text{TH}} \times 100, \quad \% \text{C}_2\text{H}_4 = \frac{\text{C}_2\text{H}_4}{\text{TH}} \times 100, \quad \% \text{C}_2\text{H}_2 = \frac{\text{C}_2\text{H}_2}{\text{TH}} \times 100$$
+Com a restrição de fecho simplex $\% \text{CH}_4 + \% \text{C}_2\text{H}_4 + \% \text{C}_2\text{H}_2 = 100\%$.
+
+A transformação do espaço simplex baricêntrico para o plano cartesiano bidimensional $(x, y)$ implementada no código (\texttt{fase6\_shap\_extras.py}) é governada pelas equações trigonométricas de projeção em triângulo equilátero:
+$$x = \frac{0{,}5 \cdot (2 \cdot \% \text{C}_2\text{H}_4 + \% \text{CH}_4)}{100}, \quad\quad y = \frac{\frac{\sqrt{3}}{2} \cdot \% \text{CH}_4}{100}$$
+
+---
+
+\section{Pilar 2: Rastreamento no Código (Linha a Linha)}
+
+\subsection{Extração de SHAP e Verificação de Aditividade no Booster C++}
+
+No script \texttt{fase6\_shap\_track\_b.py} (linhas 215 a 240), a extração dos valores de Shapley é realizada diretamente pelo motor C++ nativo do XGBoost via estrutura \texttt{DMatrix}:
+
+\begin{lstlisting}
+dtest = xgb.DMatrix(X_test_model)
+
+# Extrai contribuicoes SHAP: shape (n_samples, n_classes, n_features + 1)
+contribs = booster.predict(dtest, pred_contribs=True)
+
+# Extrai a margem bruta (log-odds) real predita pelo modelo
+margin = booster.predict(dtest, output_margin=True)
+
+# Verificacao formal do Axioma da Eficiencia de Shapley:
+assert np.allclose(contribs.sum(axis=-1), margin, atol=1e-4), \
+    "Falha na verificacao de aditividade do SHAP!"
+
+# Isola os valores de Shapley descartando a ultima coluna (bias/phi_0)
+contribs_feats = contribs[:, :, :-1]
+\end{lstlisting}
+
+\subsection{Cálculo da Matriz de Interações e Efeito Principal}
+
+Nas linhas 250 a 275 de \texttt{fase6\_shap\_track\_b.py}:
+
+\begin{lstlisting}
+# Extrai o tensor de interacoes de segunda ordem:
+# Shape resultante: (n_samples, n_classes, n_features + 1, n_features + 1)
+interactions = booster_42.predict(dtest, pred_interactions=True)
+
+# Extrai o Efeito Principal Univariado (diagonal da matriz de interacao):
+# feat_name: indice da feature; class_name: indice da classe
+f_idx = feature_names.index("ratio_C2H4_TH")
+c_idx = class_names.index("D1")
+shap_main = interactions[:, c_idx, f_idx, f_idx]
+
+# Ajuste da curva LOWESS para extracao do limiar em phi_main = 0:
+smoothed = lowess(shap_main[mask], x_vals_unscaled[mask], frac=0.3)
+\end{lstlisting}
+
+\subsection{Análise de Migração de Crédito no Track A}
+
+No script \texttt{fase6\_shap\_track\_a.py} (linhas 45 a 90), a função \texttt{plot\_lstm\_credit\_migration} analisa a alocação de crédito entre as variáveis gêmeas de hidrogênio $\text{H}_{2, \text{h14}}$ e $\text{H}_{2, \text{h28}}$:
+
+\begin{lstlisting}
+idx_h14 = feature_names.index("lstm_h14_H2")
+idx_h28 = feature_names.index("lstm_h28_H2")
+
+# shap_por_seed tem shape (n_seeds, n_features)
+impact_h14 = shap_por_seed[:, idx_h14]
+impact_h28 = shap_por_seed[:, idx_h28]
+soma_total_h2 = impact_h14 + impact_h28
+
+pct_h14 = (impact_h14 / soma_total_h2) * 100
+pct_h28 = (impact_h28 / soma_total_h2) * 100
+\end{lstlisting}
+
+\subsection{Rastreamento Dimensional de Tensores e Matrizes}
+
+A Tabela~\ref{tab:shapes_shap} sintetiza as dimensões dos tensores envolvidos na pipeline do TreeSHAP:
+
+\begin{table}[H]
+\centering
+\caption{Mapeamento Dimensional das Estruturas de Dados no TreeSHAP.}
+\label{tab:shapes_shap}
+\small
+\begin{tabularx}{\textwidth}{lcp{3.5cm}X}
+\toprule
+\textbf{Tensor / Variável} & \textbf{Origem} & \textbf{Shape} & \textbf{Significado Físico / Algorítmico} \\
+\midrule
+\texttt{X\_test\_model} & Teste & $(900, 8)$ ou $(295, 16)$ & Matriz de atributos de teste após seleção do IGA (Track A C1 / Track B C3) \\
+\texttt{margin} & XGBoost & $(N_{\text{teste}}, K)$ & Margens lineares brutas preditas ($\hat{y}_{i, c}$ em \textit{log-odds}, $K=4$ ou $7$) \\
+\texttt{contribs} & \texttt{pred\_contribs} & $(N_{\text{teste}}, K, p + 1)$ & Contribuições aditivas: $p$ features + 1 termo basal ($\phi_0$) \\
+\texttt{contribs\_feats} & Fatiamento & $(N_{\text{teste}}, K, p)$ & Valores de Shapley puros ($\phi_{i, c, j}$) por amostra, classe e feature \\
+\texttt{mean\_abs\_shap} & \texttt{np.mean} & $(p, K)$ & Importância média global absoluta $E[|\phi|]$ por classe \\
+\texttt{interactions} & \texttt{pred\_interactions} & $(N_{\text{teste}}, K, p+1, p+1)$ & Tensor completo de interações de segunda ordem ($\Phi_{i, j}$) \\
+\texttt{shap\_main} & Diagonal & $(N_{\text{teste}},)$ & Efeito principal isolado $\Phi_{j, j}$ da feature $j$ na classe $c$ \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+---
+
+\section{Pilar 3: Decisões de Projeto e Nuances do Trabalho}
+
+\subsection{Por que TreeSHAP e não KernelSHAP ou LIME?}
+
+1. \textbf{Acurácia Matemática vs Aproximação Amostral:} O KernelSHAP e o LIME dependem de perturbações estocásticas em torno da amostra. Em espaços altamente colineares (como gases DGA), perturbar um gás isoladamente gera combinações fisicamente impossíveis no óleo isolante. O TreeSHAP avalia os caminhos condicionados reais de treinamento sem sintetizar amostras fora da distribuição (\textit{out-of-distribution}).
+2. \textbf{Tempo de Execução:} Enquanto o KernelSHAP levaria horas para calcular atribuições para 900 amostras com 16 atributos, o TreeSHAP executa em menos de 5 segundos via C++.
+3. \textbf{Axiomas Garantidos:} O LIME não satisfaz nem o axioma da Eficiência nem o da Consistência; apenas o TreeSHAP garante a fidelidade matemática aos valores de Shapley.
+
+\subsection{Confronto Físico-Químico com Normas: O Significado das Discrepâncias}
+
+A Tabela~\ref{tab:limiares_confronto} reproduz os limiares extraídos do seu modelo confrontados com as normas:
+
+\begin{table}[H]
+\centering
+\caption{Confronto entre Limiares Aprendidos pelo TreeSHAP e Normas Técnicas.}
+\label{tab:limiares_confronto}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Parâmetro Químico} & \textbf{Falha Alvo} & \textbf{Limiar Normativo} & \textbf{Limiar Marginal Extraído} \\
+\midrule
+Percentual $\% \text{C}_2\text{H}_4$ ($\text{C}_2\text{H}_4/\text{TH}$) & D1 & $< 23\%$ (Duval 1) & Faixa entre $20\%$ e $25\%$ \\
+Percentual $\% \text{C}_2\text{H}_2$ ($\text{C}_2\text{H}_2/\text{TH}$) & D1 & $\ge 13\%$ (Duval 1) & $\approx 8{,}0\%$ \\
+Percentual $\% \text{C}_2\text{H}_2$ ($\text{C}_2\text{H}_2/\text{TH}$) & D2 & $\ge 13\%$ ou $29\%$ & $\approx 8{,}6\%$ \\
+Razão $\text{C}_2\text{H}_4/\text{C}_2\text{H}_6$ & T3 & $> 4{,}0$ (IEC 60599) & $\approx 2{,}97$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Como justificar essas discrepâncias na banca:}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Convergência Perfeita em $\% \text{C}_2\text{H}_4$ ($20\% - 25\%$):} Mostra que o modelo reproduziu autonomamente a fronteira de $23\%$ que delimita a transição de descargas elétricas para falhas com envolvimento térmico no Triângulo de Duval.
+  \item \textbf{Limiares Mais Baixos em Acetileno ($8{,}0\%$ vs $13\%$) e na Razão $\text{C}_2\text{H}_4/\text{C}_2\text{H}_6$ ($2{,}97$ vs $4{,}0$):} As normas internacionais foram calibradas de forma ultra-conservadora na década de 1970/1990 para evitar falsos alarmes em inspeções manuais esparsas. Em transformadores reais com laudos de campo certificados, o modelo detectou descargas e sobreaquecimentos severos incipientes antes de os gases atingirem os cortes rígidos normativos. Além disso, o limiar de $\Phi_{i, i} = 0$ indica o ponto em que a variável começa a contribuir positivamente, atuando em conjunto com outros gases, e não como uma regra de corte disjuntiva única.
+\end{itemize}
+
+\subsection{A Descoberta da Migração de Crédito e o Fim da Hipótese Temporal}
+
+No Track A, a grande pergunta de pesquisa era: \textit{a previsão dos gases futuros via LSTM melhora o diagnóstico de defeitos do transformador?}
+
+A análise empírica oficial (Tabela~\ref{tab:track_a_ablacao} do TCC) mostrou que o modelo C1 (híbrido IGA com LSTM, 8 atributos) obteve $F_1$-macro de $0{,}8909 \pm 0{,}0011$, enquanto a referência fixa sem LSTM C5a (9 atributos) obteve $0{,}8855 \pm 0{,}0029$, e o modelo completo C2 (17 atributos) atingiu $0{,}8911 \pm 0{,}0034$. No teste pareado por \textit{bootstrap} (5.000 iterações), a diferença C2 vs. C5a foi de apenas $\Delta F_1 = +0{,}0056$ ($p = 0{,}2384$, não significativa), e C1 vs. C2 foi de $-0{,}0003$ ($p = 0{,}9956$). A Figura 7 do TCC e a análise de TreeSHAP revelaram a causa exata desse comportamento:
+\begin{itemize}[leftmargin=*]
+  \item Ao analisar as previsões gêmeas de hidrogênio ($\text{H}_{2, \text{h14}}$ e $\text{H}_{2, \text{h28}}$), o IGA descartou o gás medido atual $\text{H}_{2, \text{obs}}$ e reteve as duas projeções.
+  \item Entre sementes de treinamento distintas, a importância individual oscilou bruscamente (na Seed 42, $65{,}5\%$ do peso foi para h14 e $34{,}5\%$ para h28; na Seed 456, a divisão foi de $68{,}1\%$ e $31{,}9\%$).
+  \item \textbf{Contudo, a soma do impacto de hidrogênio permaneceu rigorosamente constante: $0{,}4734 \pm 0{,}0131$.}
+\end{itemize}
+Isso comprova que a inclusão das projeções da LSTM não inseriu informação ortogonal discriminativa nova sobre o estado de defeito do transformador, mas apenas provocou uma redistribuição estocástica de crédito nos nós das árvores entre atributos colineares.
+
+\subsection{Auditoria de Vulnerabilidades Técnicas perante a Banca}
+
+\begin{defensebox}[Como Responder aos Pontos Mais Delicados do Projeto]
+\textbf{1. O trabalho não demonstra previsão temporal de transição de falhas:}
+Cada uma das 3.000 séries temporais do Track A mantém o mesmo rótulo de defeito durante todos os 420 instantes. O trabalho prevê a evolução física das concentrações de gases, e não o momento exato de transição de estado normal para falha. Na defesa, afirme: \textit{``Reconhecemos explicitamente essa limitação na Seção 5.3. A base de dados adotada não continha séries com transição incipiente espontânea de classes. O que nosso trabalho comprovou foi a viabilidade da cadeia híbrida acoplada e a inércia dos gases dissolvidos.''}
+
+\textbf{2. Assimetria no treinamento híbrido (Vazamento parcial da LSTM):}
+A LSTM gerou projeções para treinar o XGBoost usando os mesmos dados em que foi treinada. Na defesa, afirme: \textit{``Os 900 transformadores de teste permaneceram absolutamente blindados e intocados. Essa assimetria interna de desenvolvimento foi documentada com transparência na Seção 3.6.1 e Seção 5.3 como uma diretriz para adoção futura de K-fold stacking estrito.''}
+\end{defensebox}
+
+---
+
+\section{Pilar 4: Sabatina da Banca (Arguição de Alta Dificuldade)}
+
+Aqui estão três perguntas de alta complexidade conceitual e técnica, formuladas sob a ótica de examinadores rigorosos, com suas respectivas defesas ideais.
+
+\subsection{Pergunta 1 (Examinador Especialista em Teoria de Aprendizado e XAI)}
+\textit{``O cálculo dos valores de Shapley clássicos possui complexidade combinatória $\mathcal{O}(M 2^M)$, o que inviabilizaria sua aplicação para vetores com dezenas de atributos. Como o algoritmo TreeSHAP consegue calcular as atribuições exatas em tempo polinomial $\mathcal{O}(T L D^2)$? E qual a implicação matemática de calcular os valores de Shapley no espaço de log-odds (margens lineares) em vez do espaço de probabilidades da Softmax?''}
+
+\subsubsection{Resposta Ideal de Defesa:}
+``Professor, o avanço matemático fundamental do TreeSHAP decorre da exploração direta da estrutura topológica das Árvores de Decisão (CART) que formam o XGBoost. 
+
+No KernelSHAP clássico, estimar a função de valor $v(S) = \mathbb{E}[f(\mathbf{x}) \mid \mathbf{X}_S = \mathbf{x}_S]$ exige criar máscaras binárias sobre todas as $2^M$ coalizões possíveis e amostrar dados do conjunto de fundo (\textit{background}). O TreeSHAP, por outro lado, calcula essa esperança condicional em uma única passada recursiva pela árvore. Como cada nó interno realiza um teste sobre uma única variável particionando o espaço em duas regiões mutuamente exclusivas, a esperança condicional para atributos ausentes $N \setminus S$ pode ser computada ponderando recursivamente os nós filhos pela proporção de instâncias de treinamento que fluem por cada ramo (\textit{cobertura do nó}). Lundberg et al. demonstraram que esse rastreamento pode ser mantido em uma estrutura que escala com a profundidade máxima da árvore $D$ e o número de folhas $L$. Para um ensemble com $T$ estimadores, o custo global é reduzido para $\mathcal{O}(T L D^2)$, o que torna o cálculo exato e determinístico em poucos segundos.
+
+Quanto à segunda parte da sua pergunta, a escolha da escala é um divisor de águas matemático. No XGBoost multi-classe com objetivo \texttt{multi:softprob}, o ensemble de árvores produz uma margem linear contínua $\hat{y}_{i, c} \in \mathbb{R}$ para cada classe, que é posteriormente mapeada em probabilidade pela função Softmax $p_{i, c} = \exp(\hat{y}_{i, c}) / \sum \exp(\hat{y}_{i, k})$. 
+
+Se calculássemos o SHAP diretamente sobre a probabilidade $p_{i, c}$, violaríamos o axioma da \textbf{Eficiência de Shapley}, porque a Softmax introduz um acoplamento não-linear global entre todas as classes no denominador, gerando saturação e distorcendo as contribuições aditivas. Ao operarmos no espaço de \textbf{\textit{log-odds}} (as margens lineares antes da Softmax), a aditividade local é matematicamente exata:
+$$f_c(\mathbf{x}_i) = \phi_0^{(c)} + \sum_{j=1}^M \phi_j^{(c)}(\mathbf{x}_i)$$
+Isso garante que cada valor de Shapley $\phi_j^{(c)}$ represente exatamente o deslocamento aditivo em unidades logarítmicas de evidência que a variável $j$ exerceu a favor ou contra a hipótese de falha da classe $c$, permitindo que nós confrontemos esses efeitos com os limiares físicos normativos.''\vspace{0.3cm}
+
+\subsection{Pergunta 2 (Examinador do Setor Elétrico / Normatização Técnica)}
+\textit{``A Tabela 14 do seu trabalho confronta os limiares extraídos pelo TreeSHAP com os limites normativos da IEC 60599 e do Triângulo de Duval. O modelo aprendeu um limiar de corte de aproximadamente $2{,}97$ para a razão $\text{C}_2\text{H}_4/\text{C}_2\text{H}_6$ na classe de falhas térmicas T3, enquanto a IEC 60599 fixa rigidamente $> 4{,}0$. Além disso, para descargas D1 e D2, o teor de acetileno aprendido foi de $\approx 8{,}0\%$, contra $13\%$ da norma. O seu modelo está subdimensionado e propenso a emitir alarmes falsos prematuros ou as normas internacionais estão equivocadas?''}
+
+\subsubsection{Resposta Ideal de Defesa:}
+``Essa divergência aparente reflete a diferença conceitual profunda entre um \textbf{limiar de corte regulatório determinístico} e um \textbf{ponto de transição marginal probabilístico}.
+
+As normas técnicas internacionais, como a IEC 60599 e o Triângulo 1 de Duval, foram desenvolvidas e consolidadas nas décadas de 1970 a 1990 com base em critérios empíricos conservadores. O objetivo dessas normas era permitir que operadores humanos em subestações tomassem decisões visuais a partir de laudos esparsos de cromatografia anual, estabelecendo limiares elevados (como $\text{C}_2\text{H}_4/\text{C}_2\text{H}_6 > 4{,}0$ e $\% \text{C}_2\text{H}_2 \ge 13\%$) para evitar ao máximo paradas programadas desnecessárias em frotas de transformadores estáveis.
+
+No entanto, o XGBoost otimizado por IGA foi treinado sobre transformadores reais de campo contendo inspeções e diagnósticos físicos validados. A análise da matriz de interações do TreeSHAP, ao isolar o efeito principal $\Phi_{i, i}$, não busca uma regra de corte disjuntiva única. O ponto $\Phi_{i, i} = 0$ indica o momento exato em que a presença daquele gás passa a atuar como uma evidência favorável à falha na pontuação linear do modelo. 
+
+Nos dados empíricos de campo, um transformador com razão $\text{C}_2\text{H}_4/\text{C}_2\text{H}_6 = 3{,}2$ já apresenta um processo incipiente e inequívoco de pirólise severa do óleo isolante na faixa de transição para alta temperatura ($> 700^\circ\text{C}$). Se nos apegássemos rigidamente ao corte de $4{,}0$ da IEC, esse transformador seria classificado como T2 (falha média) ou cairia em zona indefinida, retardando a manutenção preventiva. Da mesma forma, transformadores com $8{,}0\%$ a $9{,}0\%$ de acetileno já possuíam laudo comprovado de micro-arcos e descargas elétricas no óleo, o que o modelo capturou com fidelidade ao acoplar o efeito do acetileno com as razões de etano e etileno. 
+
+Portanto, o modelo não está emitindo alarmes falsos; ele é estatisticamente mais sensível e dinâmico que os cortes normativos estáticos, antecipando o diagnóstico de degradação incipiente sem violar a física da decomposição molecular dos hidrocarbonetos.''\vspace{0.3cm}
+
+\subsection{Pergunta 3 (Examinador Crítico de Desenho Metodológico)}
+\textit{``No Track A, cada uma das 3.000 séries temporais mantém rigorosamente o mesmo rótulo de falha ao longo de todos os 420 passos de tempo. Se o transformador nunca muda de estado durante a série temporal, como o trabalho pode sustentar que realizou a `previsão de falhas com antecedência de 14 e 28 dias'? O que foi previsto não foram apenas os gases futuros através de uma regressão cega, sem comprovação de que o sistema anteciparia o surgimento de uma falha real?''}
+
+\subsubsection{Resposta Ideal de Defesa:}
+``Agradeço imensamente por esta pergunta, Professor, pois ela toca no núcleo metodológico mais importante do nosso trabalho e reflete a postura de transparência e rigor que adotamos no texto.
+
+O senhor está coberto de razão em sua observação: o nosso trabalho \textbf{não realizou a previsão temporal de eventos de transição de falha}. Nós não acompanhamos um transformador que operava normalmente no instante $t=0$ e que veio a desenvolver uma falha térmica no instante $t=420$. Cada série temporal do Track A pertence a um transformador cujo estado de integridade era estático ao longo de todo o período monitorado. Essa limitação está expressamente reconhecida e detalhada na Seção 3.2.1 e na Seção 5.3 da dissertação.
+
+O que a nossa arquitetura implementou e avaliou foi uma **cadeia de inferência desacoplada em dois estágios**:
+\begin{enumerate}[leftmargin=*]
+  \item No primeiro estágio, uma rede neural recorrente LSTM multivariada realiza a previsão das trajetórias futuras das concentrações dos 4 gases monitorados no Track A ($\text{H}_2, \text{CO}, \text{C}_2\text{H}_4, \text{C}_2\text{H}_2$) nos horizontes de 14 e 28 passos à frente ($h=14$ e $h=28$, equivalentes a 7 e 14 dias).
+  \item No segundo estágio, o classificador XGBoost mapeia o perfil dos atributos estáticos e projetados para o estado de integridade associado ao equipamento.
+\end{enumerate}
+
+O achado científico fundamental do nosso trabalho no Track A foi justamente colocar à prova a premissa de que a adição de projeções temporais de gases traria ganhos diagnósticos expressivos. Conforme demonstramos experimentalmente:
+\begin{itemize}[leftmargin=*]
+  \item O modelo C1 (híbrido com LSTM, 8 atributos) obteve $F_1$-macro de $0{,}8909 \pm 0{,}0011$, enquanto a referência estática pura C5a (9 atributos observados, sem LSTM) obteve $0{,}8855 \pm 0{,}0029$, e o modelo completo C2 (17 atributos) obteve $0{,}8911 \pm 0{,}0034$. No teste pareado por \textit{bootstrap}, a diferença não é estatisticamente significativa ($p = 0{,}2384$).
+  \item A análise de SHAP comprovou que os gases dissolvidos no óleo isolante possuem elevadíssima inércia química. As previsões geradas pela LSTM para $h=14$ e $h=28$ apresentaram correlação superior a 0,99 com as leituras do tempo presente ($r > 0{,}997$), fazendo com que o XGBoost apenas dividisse o crédito preditivo entre variáveis gêmeas sem obter nenhuma informação discriminativa ortogonal nova.
+\end{itemize}
+
+Assim, em vez de vender uma ilusão de previsão antecipada que os dados não sustentavam, o nosso trabalho contribui para a literatura ao demonstrar de forma quantitativa e explicável via TreeSHAP que, em séries cromatográficas com dinâmica lenta e rótulo fixo, o investimento computacional em modelos preditivos temporais complexos é injustificado frente a classificadores tabulares estáticos bem regularizados.''\vspace{0.4cm}
+
+\noindent\rule{\textwidth}{1.2pt}
+\begin{center}
+  \small\textbf{\textsf{\color{NavyBlue}Fim do Módulo 5 | Arquitetura Híbrida Completa Dominada para a Defesa de TCC}}
+\end{center}
+
+\end{document}

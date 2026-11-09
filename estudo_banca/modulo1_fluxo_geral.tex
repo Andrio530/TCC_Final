@@ -1,0 +1,550 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{lmodern}
+\usepackage[margin=2.2cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsfonts,mathtools}
+\usepackage{booktabs,tabularx,array,longtable,multirow}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage[most,breakable,skins]{tcolorbox}
+\usepackage[colorlinks=true,linkcolor=MidnightBlue,citecolor=MidnightBlue,urlcolor=MidnightBlue]{hyperref}
+
+% Cores personalizadas
+\definecolor{NavyBlue}{RGB}{16, 44, 87}
+\definecolor{MidnightBlue}{RGB}{24, 43, 73}
+\definecolor{DarkSlateGray}{RGB}{38, 70, 83}
+\definecolor{TealAccent}{RGB}{42, 157, 143}
+\definecolor{WarningRed}{RGB}{180, 40, 40}
+\definecolor{CardBg}{RGB}{248, 249, 250}
+\definecolor{CodeBg}{RGB}{244, 245, 247}
+\definecolor{BorderColor}{RGB}{218, 224, 233}
+\definecolor{MathHighlight}{RGB}{235, 243, 250}
+
+% Configuração de cabeçalho e rodapé
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textbf{\textsf{TCC Engenharia da Computação | Unisinos}}}
+\fancyhead[R]{\small\textsf{Módulo 1: Fluxo Geral da Arquitetura Híbrida}}
+\fancyfoot[L]{\small\textsf{Material de Preparação para Banca de Defesa}}
+\fancyfoot[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.6pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Configuração de listagem de código
+\lstset{
+  language=Python,
+  backgroundcolor=\color{CodeBg},
+  basicstyle=\ttfamily\footnotesize\color{black},
+  keywordstyle=\bfseries\color{NavyBlue},
+  commentstyle=\itshape\color{DarkSlateGray!80},
+  stringstyle=\color{TealAccent!90!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  stepnumber=1,
+  numbersep=8pt,
+  frame=single,
+  frameround=tttt,
+  rulecolor=\color{BorderColor},
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=4,
+  captionpos=b
+}
+
+% Caixas temáticas (tcolorbox)
+\newtcolorbox{mathBox}[1]{
+  enhanced,
+  breakable,
+  colback=MathHighlight,
+  colframe=NavyBlue,
+  arc=3mm,
+  boxrule=1pt,
+  title=\textbf{\textsf{#1}},
+  coltitle=white,
+  fonttitle=\small\sffamily,
+  attach boxed title to top left={yshift=-2mm,xshift=4mm},
+  boxed title style={colback=NavyBlue,arc=1.5mm},
+  before skip=12pt,
+  after skip=12pt
+}
+
+\newtcolorbox{codeBox}[1]{
+  enhanced,
+  breakable,
+  colback=CardBg,
+  colframe=DarkSlateGray,
+  arc=3mm,
+  boxrule=0.8pt,
+  title=\textbf{\textsf{#1}},
+  coltitle=white,
+  fonttitle=\small\sffamily,
+  attach boxed title to top left={yshift=-2mm,xshift=4mm},
+  boxed title style={colback=DarkSlateGray,arc=1.5mm},
+  before skip=12pt,
+  after skip=12pt
+}
+
+\newtcolorbox{decisionBox}[1]{
+  enhanced,
+  breakable,
+  colback=CardBg,
+  colframe=TealAccent!80!black,
+  arc=3mm,
+  boxrule=1pt,
+  title=\textbf{\textsf{#1}},
+  coltitle=white,
+  fonttitle=\small\sffamily,
+  attach boxed title to top left={yshift=-2mm,xshift=4mm},
+  boxed title style={colback=TealAccent!80!black,arc=1.5mm},
+  before skip=12pt,
+  after skip=12pt
+}
+
+\newtcolorbox{boardQuestion}[1]{
+  enhanced,
+  breakable,
+  colback=CardBg,
+  colframe=WarningRed,
+  arc=3mm,
+  boxrule=1pt,
+  title=\textbf{\textsf{Pergunta Crítica da Banca: #1}},
+  coltitle=white,
+  fonttitle=\small\sffamily,
+  attach boxed title to top left={yshift=-2mm,xshift=4mm},
+  boxed title style={colback=WarningRed,arc=1.5mm},
+  before skip=12pt,
+  after skip=6pt
+}
+
+\newtcolorbox{boardAnswer}{
+  enhanced,
+  breakable,
+  colback=CardBg,
+  colframe=MidnightBlue,
+  arc=3mm,
+  boxrule=1pt,
+  title=\textbf{\textsf{Gabarito Técnico Ideal de Resposta (Blindagem de Banca)}},
+  coltitle=white,
+  fonttitle=\small\sffamily,
+  attach boxed title to top left={yshift=-2mm,xshift=4mm},
+  boxed title style={colback=MidnightBlue,arc=1.5mm},
+  before skip=6pt,
+  after skip=14pt
+}
+
+\begin{document}
+
+% -------------------------------------------------------------------------
+% CABEÇALHO DO DOCUMENTO
+% -------------------------------------------------------------------------
+\begin{center}
+  {\large\textbf{\textsf{UNIVERSIDADE DO VALE DO RIO DOS SINOS (UNISINOS)}}}\\[0.2cm]
+  {\normalsize\textbf{\textsf{CURSO DE ENGENHARIA DA COMPUTAÇÃO}}}\\[0.4cm]
+  {\LARGE\textbf{\textcolor{NavyBlue}{\textsf{GUIA DE DOMÍNIO TÉCNICO E DEFESA DE BANCA}}}}\\[0.2cm]
+  {\Large\textbf{\textsf{MÓDULO 1: Fluxo Geral da Arquitetura Híbrida}}}\\[0.2cm]
+  {\normalsize\textsf{Integração Sistêmica: Séries Temporais (LSTM) $\longrightarrow$ Otimização Conjunta (IGA) $\longrightarrow$ Diagnóstico (XGBoost) $\longrightarrow$ Interpretabilidade (TreeSHAP)}}\\[0.4cm]
+  \rule{\textwidth}{1pt}\\[0.2cm]
+  \small\textbf{Candidato:} Andrio Gabriel Epping \quad$|$\quad \textbf{Papel:} Orientador Técnico \& Examinador Rigoroso de Banca \quad$|$\quad \textbf{Data:} Novembro de 2026
+\end{center}
+\vspace{0.4cm}
+
+% -------------------------------------------------------------------------
+% INTRODUÇÃO DO MÓDULO
+% -------------------------------------------------------------------------
+\section*{Apresentação do Módulo de Treinamento}
+Este guia foi estruturado para fornecer o domínio completo, analítico e irrefutável do funcionamento global do sistema inteligente desenvolvido no Trabalho de Conclusão de Curso (TCC). O foco reside em conectar rigorosamente o formalismo matemático, o fluxo de tensores e matrizes no código-fonte em Python, as justificativas de projeto e a blindagem contra as arguições mais hostis que uma banca examinadora de Engenharia da Computação pode apresentar.
+
+A arquitetura opera em dois eixos complementares de investigação:
+\begin{enumerate}[leftmargin=1.5cm,label=\textbf{\Roman*.}]
+  \item \textbf{Track A (Dinâmico / Preditivo):} Avaliação da incorporação de projeções multi-horizonte de gases dissolvidos geradas por Rede Neural Recorrente LSTM na classificação de falhas operacionais em séries temporais sintéticas (base Katser et al., 2021).
+  \item \textbf{Track B (Estático / Otimizado):} Mineração de padrões em dados cromatográficos reais com severo desbalanceamento de classes, combinando seleção estrita de atributos e calibração de hiperparâmetros por Algoritmo Genético Aprimorado (IGA), sobreamostragem termodinamicamente consistente (\textit{CustomSMOTE}) e indução por Gradient Boosting (XGBoost).
+\end{enumerate}
+
+\vspace{0.3cm}
+\tableofcontents
+\vspace{0.5cm}
+\newpage
+
+% =========================================================================
+% PILAR 1: FUNDAMENTAÇÃO MATEMÁTICA E TEÓRICA
+% =========================================================================
+\section{Pilar 1: Fundamentação Matemática e Teórica}
+
+\subsection{Visão Panorâmica e Teoria de Acoplamento Modular}
+O problema central de diagnóstico e prognóstico em Transformadores de Potência a partir da Análise de Gases Dissolvidos (DGA -- \textit{Dissolved Gas Analysis}) envolve duas naturezas distintas de sinais:
+\begin{itemize}
+  \item \textbf{Natureza Dinâmica:} A evolução estocástica das concentrações gasosas $x_d(t)$ no tempo, influenciada pela temperatura interna, carregamento e dinâmica de circulação do óleo mineral isolante.
+  \item \textbf{Natureza Físico-Química e Termodinâmica:} A geração preferencial de espécies químicas específicas (cinética de quebra de ligações moleculares de hidrocarbonetos e celulose), governada pelas faixas de temperatura ou intensidade da energia de descarga.
+\end{itemize}
+
+Para tratar essa dualidade, a arquitetura proposta rejeita a abordagem de ``caixa-preta monolítica'' e adota um desacoplamento em módulos funcionais especializados:
+\begin{equation}
+  \mathcal{M}_{\text{global}} = \mathcal{G}_{\text{TreeSHAP}} \circ \mathcal{C}_{\text{XGBoost}} \circ \Phi_{\text{IGA}} \circ \left( \mathcal{T}_{\text{FeatureEng}} \oplus \mathcal{F}_{\text{LSTM}} \right)
+\end{equation}
+
+\subsection{Modelagem Matemática do Track A (Predição Temporal e Diagnóstico)}
+\label{sec:mat_track_a}
+
+\begin{mathBox}{Equacionamento das Séries Temporais e Janelamento (Track A)}
+Seja $\mathcal{S}^{(i)} = \{ \mathbf{x}_1^{(i)}, \mathbf{x}_2^{(i)}, \dots, \mathbf{x}_T^{(i)} \}$ a $i$-ésima série temporal multivariada contínua, onde $T = 420$ instantes amostrais (com período de amostragem $\Delta t = 12\text{ horas}$, totalizando 210 dias de monitoramento). Cada vetor de estado no instante $t$ é definido por:
+\begin{equation}
+  \mathbf{x}_t^{(i)} = \begin{bmatrix} x_{t, \text{H}_2}^{(i)} & x_{t, \text{CO}}^{(i)} & x_{t, \text{C}_2\text{H}_4}^{(i)} & x_{t, \text{C}_2\text{H}_2}^{(i)} \end{bmatrix}^\top \in \mathbb{R}^D, \quad D=4
+\end{equation}
+
+\textbf{1. Janelamento Deslizante com Memória Passada ($w=50$):}\\
+Para capturar dependências temporais sem instabilidade numérica, define-se um operador de atraso que extrai tensores de entrada $\mathbf{W}_t^{(i)} \in \mathbb{R}^{w \times D}$:
+\begin{equation}
+  \mathbf{W}_t^{(i)} = \begin{bmatrix} \mathbf{x}_{t-w+1}^{(i)\top} \\ \mathbf{x}_{t-w+2}^{(i)\top} \\ \vdots \\ \mathbf{x}_t^{(i)\top} \end{bmatrix} \in \mathbb{R}^{50 \times 4}, \quad \forall t \in [w, T-1]
+\end{equation}
+
+\textbf{2. Otimização da Rede LSTM (One-Step-Ahead):}\\
+O modelo paramétrico $f_{\theta_{\text{LSTM}}}: \mathbb{R}^{w \times D} \to \mathbb{R}^D$ é ajustado sobre o conjunto de treino $\mathcal{D}_{\text{train}}$ minimizando a perda quadrática média (MSE) multivariada:
+\begin{equation}
+  \mathcal{L}_{\text{MSE}}(\theta_{\text{LSTM}}) = \frac{1}{|\mathcal{D}_{\text{train}}|} \sum_{i \in \mathcal{D}_{\text{train}}} \frac{1}{T - w} \sum_{t=w}^{T-1} \frac{1}{D} \sum_{d=1}^D \left( x_{t+1, d}^{(i)} - \hat{x}_{t+1, d}^{(i)} \right)^2
+\end{equation}
+onde $\hat{\mathbf{x}}_{t+1}^{(i)} = f_{\theta_{\text{LSTM}}}(\mathbf{W}_t^{(i)})$.
+
+\textbf{3. Projeção Recursiva Multi-Horizonte ($h \in \{14, 28\}$):}\\
+A predição recursiva no horizonte final de monitoramento $t = T$ é governada pela equação de recorrência:
+\begin{equation}
+  \hat{\mathbf{x}}_{T+k}^{(i)} = f_{\theta_{\text{LSTM}}}\left( \left[ \hat{\mathbf{x}}_{T+k-w}^{(i)}, \dots, \hat{\mathbf{x}}_{T+k-1}^{(i)} \right] \right), \quad k = 1, 2, \dots, h
+\end{equation}
+em que valores com índice $t \le T$ utilizam dados reais observados $\mathbf{x}_t^{(i)}$ e valores com $t > T$ utilizam as estimativas recursivas prévias $\hat{\mathbf{x}}_t^{(i)}$.
+\end{mathBox}
+
+A partir dessas predições, constrói-se o \textbf{vetor tabular de atributos do Track A} $\mathbf{z}^{(i)} \in \mathbb{R}^{17}$:
+\begin{equation}
+  \mathbf{z}^{(i)} = \left[ \mathbf{z}_{\text{obs}}^{(i)\top}, \; \mathbf{z}_{\text{razoes}}^{(i)\top}, \; \mathbf{z}_{\text{lstm}}^{(i)\top} \right]^\top
+\end{equation}
+cujos três subvetores são formados estritamente por:
+\begin{itemize}
+  \item \textbf{Grupo 1 (Snapshot Atual, 4 atributos):} $\mathbf{z}_{\text{obs}}^{(i)} = \mathbf{x}_T^{(i)} = [x_{T, \text{H}_2}^{(i)}, x_{T, \text{CO}}^{(i)}, x_{T, \text{C}_2\text{H}_4}^{(i)}, x_{T, \text{C}_2\text{H}_2}^{(i)}]^\top$.
+  \item \textbf{Grupo 2 (Razões Físico-Químicas e Somas Parciais, 5 atributos):}
+  \begin{equation}
+    \mathbf{z}_{\text{razoes}}^{(i)} = \begin{bmatrix}
+      \dfrac{\text{C}_2\text{H}_2}{\text{C}_2\text{H}_4}, & 
+      \dfrac{\text{H}_2}{\text{C}_2\text{H}_2}, & 
+      \text{TH}_{\text{katser}}, & 
+      \dfrac{\text{C}_2\text{H}_2}{\text{TH}_{\text{katser}}}, & 
+      \dfrac{\text{C}_2\text{H}_4}{\text{TH}_{\text{katser}}}
+    \end{bmatrix}^\top
+  \end{equation}
+  onde $\text{TH}_{\text{katser}} = \text{C}_2\text{H}_4 + \text{C}_2\text{H}_2$ representa a soma dos hidrocarbonetos combustíveis disponíveis nesta base.
+  \item \textbf{Grupo 3 (Previsões Futuras da LSTM, 8 atributos):} Concentrações projetadas para 7 dias ($h=14$) e 14 dias ($h=28$):
+  \begin{equation}
+    \mathbf{z}_{\text{lstm}}^{(i)} = \left[ \hat{\mathbf{x}}_{T+14}^{(i)\top}, \; \hat{\mathbf{x}}_{T+28}^{(i)\top} \right]^\top \in \mathbb{R}^8
+  \end{equation}
+\end{itemize}
+
+\subsection{Modelagem Matemática do Track B (Alta Dimensionalidade Estática)}
+\label{sec:mat_track_b}
+
+No Track B, cada transformador é descrito por um vetor estático de concentrações em ppm $\mathbf{g}^{(i)} \in \mathbb{R}^5$ contendo todos os gases canônicos: $[\text{H}_2, \text{CH}_4, \text{C}_2\text{H}_6, \text{C}_2\text{H}_4, \text{C}_2\text{H}_2]^\top$.
+
+\begin{mathBox}{Formulação do Espaço de Atributos do Track B ($\mathbf{v}^{(i)} \in \mathbb{R}^{19}$)}
+A engenharia de atributos expande os 5 gases para um espaço de 19 dimensões governado por normas internacionais:
+\begin{enumerate}
+  \item \textbf{Grupo 1 (Gases Brutos, 5 atributos):} $\mathbf{g}^{(i)} = [x_{\text{H}_2}, x_{\text{CH}_4}, x_{\text{C}_2\text{H}_6}, x_{\text{C}_2\text{H}_4}, x_{\text{C}_2\text{H}_2}]^\top$.
+  \item \textbf{Grupo 2 (Razões Normatizadas IEC 60599 / Rogers / Doernenburg, 5 atributos):}
+  \begin{equation}
+    \mathbf{r}_{\text{norm}}^{(i)} = \begin{bmatrix}
+      \dfrac{\text{CH}_4}{\text{H}_2}, &
+      \dfrac{\text{C}_2\text{H}_2}{\text{C}_2\text{H}_4}, &
+      \dfrac{\text{C}_2\text{H}_4}{\text{C}_2\text{H}_6}, &
+      \dfrac{\text{C}_2\text{H}_2}{\text{CH}_4}, &
+      \dfrac{\text{C}_2\text{H}_2}{\text{C}_2\text{H}_6}
+    \end{bmatrix}^\top
+  \end{equation}
+  \item \textbf{Grupo 2B (Variáveis de Duval e Frações de Hidrocarbonetos, 9 atributos):}
+  \begin{align}
+    \text{TH} &= \text{CH}_4 + \text{C}_2\text{H}_4 + \text{C}_2\text{H}_2 \quad \text{(Gases constituintes do Triângulo de Duval 1)} \\
+    \text{TH}_1 &= \text{TH} + \text{C}_2\text{H}_6 \quad \text{(Totalidade dos hidrocarbonetos combustíveis)}
+  \end{align}
+  compostos pelas coordenadas baricêntricas e percentuais relativos:
+  \begin{equation}
+    \mathbf{u}_{\text{Duval}}^{(i)} = \begin{bmatrix} 
+      \dfrac{\text{CH}_4}{\text{TH}}, & \dfrac{\text{C}_2\text{H}_4}{\text{TH}}, & \dfrac{\text{C}_2\text{H}_2}{\text{TH}}, &
+      \dfrac{\text{CH}_4}{\text{TH}_1}, & \dfrac{\text{C}_2\text{H}_6}{\text{TH}_1}, & \dfrac{\text{C}_2\text{H}_4}{\text{TH}_1}, & \dfrac{\text{C}_2\text{H}_2}{\text{TH}_1}
+    \end{bmatrix}^\top \in \mathbb{R}^7
+  \end{equation}
+\end{enumerate}
+O vetor completo é a união dos subespaços: $\mathbf{v}^{(i)} = [\mathbf{g}^{(i)\top}, \mathbf{r}_{\text{norm}}^{(i)\top}, \text{TH}, \text{TH}_1, \mathbf{u}_{\text{Duval}}^{(i)\top}]^\top \in \mathbb{R}^{19}$.
+\end{mathBox}
+
+\subsection{Formulação do Algoritmo Genético Aprimorado (IGA)}
+O IGA resolve o problema de otimização combinatória e contínua simultânea: encontrar a máscara ótima de seleção de atributos $\mathbf{m} \in \{0, 1\}^D$ e o vetor ótimo de hiperparâmetros do XGBoost $\boldsymbol{\gamma} \in \mathbb{R}^K$.
+
+\begin{mathBox}{Estrutura Cromossômica e Função de Aptidão (Fitness)}
+O cromossomo individual $\mathbf{c} \in \mathbb{R}^{D + K}$ é formalizado por uma concatenação híbrida:
+\begin{equation}
+  \mathbf{c} = \begin{bmatrix} \mathbf{m} \\ \boldsymbol{\gamma} \end{bmatrix} = \begin{bmatrix} m_1, \dots, m_D, \; \gamma_1, \dots, \gamma_K \end{bmatrix}^\top
+\end{equation}
+onde:
+\begin{itemize}
+  \item $m_j \in \{0.0, 1.0\}$ representa a inclusão ($1.0$) ou exclusão ($0.0$) da $j$-ésima coluna.
+  \item $\gamma_k \in [0.0, 1.0]$ é o valor contínuo normalizado do $k$-ésimo hiperparâmetro do XGBoost.
+\end{itemize}
+
+\textbf{Mapeamento Linear Afim dos Hiperparâmetros:}\\
+Cada $\gamma_k$ é decodificado para sua escala física nativa $\theta_k$ através da transformação afim:
+\begin{equation}
+  \theta_k = \theta_k^{\min} + \gamma_k \cdot (\theta_k^{\max} - \theta_k^{\min}), \quad \theta_k \in \mathbb{Z} \iff \text{tipo}(\theta_k) = \text{inteiro}
+\end{equation}
+
+\textbf{Função de Aptidão (Fitness Objetivo):}\\
+A aptidão é calculada via Validação Cruzada Estratificada com $K_{\text{cv}} = 5$ dobras sobre o treino:
+\begin{equation}
+  \mathcal{F}(\mathbf{c}) = \frac{1}{K_{\text{cv}}} \sum_{k=1}^{K_{\text{cv}}} F_{1, \text{macro}}^{(k)}(\mathbf{X}_{\text{train}}[:, \mathbf{m}], \; \mathbf{y}_{\text{train}}; \; \boldsymbol{\theta}(\boldsymbol{\gamma}))
+\end{equation}
+onde o $F_{1, \text{macro}}$ penaliza uniformemente o erro em classes minoritárias:
+\begin{equation}
+  F_{1, \text{macro}} = \frac{1}{C} \sum_{c=1}^C \frac{2 \cdot \text{Precision}_c \cdot \text{Recall}_c}{\text{Precision}_c + \text{Recall}_c}
+\end{equation}
+\end{mathBox}
+
+\subsection{Indução do Classificador XGBoost Multi-Classe}
+O classificador final é um conjunto aditivo de $M$ árvores de decisão CART:
+\begin{equation}
+  \hat{y}_{i, c} = \sum_{m=1}^M f_m^{(c)}(\mathbf{x}_i \odot \mathbf{m})
+\end{equation}
+onde $\odot$ denota o produto de Hadamard (filtragem de atributos pela máscara binária). As probabilidades a posteriori de cada uma das $C$ classes de falha são dadas pela função de ativação Softmax:
+\begin{equation}
+  P(y_i = c \mid \mathbf{x}_i) = \frac{\exp(\hat{y}_{i, c})}{\sum_{k=1}^C \exp(\hat{y}_{i, k})}
+\end{equation}
+e a predição pontual é obtida por $\hat{c} = \arg\max_{c \in \{1, \dots, C\}} P(y_i = c \mid \mathbf{x}_i)$.
+
+\vspace{0.4cm}
+% =========================================================================
+% PILAR 2: RASTREAMENTO NO CÓDIGO (LINHA A LINHA)
+% =========================================================================
+\section{Pilar 2: Rastreamento no Código (Linha a Linha)}
+
+A Tabela~\ref{tab:mapa_arquivos} detalha a correspondência entre os módulos teóricos e a implementação no repositório \texttt{tcc-transformer-fault}.
+
+\begin{table}[htbp]
+  \centering\small
+  \caption{Mapeamento dos Componentes do Sistema no Código-Fonte.}
+  \label{tab:mapa_arquivos}
+  \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash\ttfamily\footnotesize}p{5.5cm} >{\raggedright\arraybackslash}X}
+    \toprule
+    \textbf{Componente} & \textbf{Arquivo no Repositório} & \textbf{Funções e Classes Principais} \\
+    \midrule
+    Janelamento & src/preprocessing/ windowing.py & \texttt{create\_sliding\_windows()}, \texttt{train\_val\_test\_split()} \\
+    Modelo e Treino LSTM & src/lstm/model.py, trainer.py & \texttt{build\_lstm\_model()}, \texttt{LSTMTrainer.fit()} \\
+    Engenharia Track A & src/feature\_engineering/ build\_katser\_features.py & \texttt{prever\_gases\_futuros()}, \texttt{calcular\_razoes()} \\
+    Engenharia Track B & src/feature\_engineering/ build\_classification\_features.py & \texttt{calcular\_razoes\_gases()}, \texttt{calcular\_th\_features()} \\
+    Cromossomo IGA & src/iga\_xgboost/ cromossomo.py & \texttt{gerar\_cromossomo()}, \texttt{decodificar()}, \texttt{validar()} \\
+    Motor IGA & src/iga\_xgboost/iga.py & \texttt{IGA.\_avaliar()}, \texttt{IGA.\_selecionar()}, \texttt{IGA.evoluir()} \\
+    Amostrador Sintético & src/iga\_xgboost/ train\_classification.py & \texttt{CustomSMOTE.\_fit\_resample()} \\
+    Ablação e Bootstrap & src/evaluation/ fase55\_track\_a.py, fase55\_track\_b.py & \texttt{bootstrap\_modelos()}, \texttt{comparar\_pareado()} \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Rastreamento da Inferência Recursiva da LSTM (Track A)}
+O arquivo \texttt{src/feature\_engineering/build\_katser\_features.py} implementa a projeção multi-passo:
+
+\begin{lstlisting}
+def prever_gases_futuros(modelo, janela_norm: np.ndarray, h: int) -> np.ndarray:
+    """Previsao recursiva: aplica a LSTM h vezes em autoregressao."""
+    janela_atual = janela_norm.copy()  # Shape: (50, 4)
+
+    for _ in range(h):
+        # Tensor 3D de entrada exigido pelo Keras: (batch_size, timesteps, features)
+        x_input = janela_atual[np.newaxis, :, :]               # Shape: (1, 50, 4)
+        proximo = modelo.predict(x_input, verbose=0)[0]        # Shape: (4,)
+        # Deslocamento temporal: descarta t-w+1 e anexa estimativa t+1
+        janela_atual = np.vstack([janela_atual[1:], proximo])  # Shape: (50, 4)
+
+    return proximo  # Retorna estritamente o vetor predito no horizonte h: shape (4,)
+\end{lstlisting}
+
+\begin{codeBox}{Evolução Dimensional das Estruturas de Dados no Track A}
+\begin{itemize}
+  \item \textbf{Série Temporal Bruta:} $\mathbf{X}_{\text{raw}} \in \mathbb{R}^{2100 \times 420 \times 4}$ (2100 transformadores no treino, 420 horas, 4 gases).
+  \item \textbf{Janela de Entrada da LSTM:} $\mathbf{W} \in \mathbb{R}^{1 \times 50 \times 4}$.
+  \item \textbf{Vetor de Características por Transformador:} Concatena 4 observados $+ 5$ razões $+ 4$ preditos ($h=14$) $+ 4$ preditos ($h=28$) $\to \mathbf{z} \in \mathbb{R}^{17}$.
+  \item \textbf{Cromossomo do IGA no Track A:} 17 genes binários $+ 9$ genes contínuos $\to \mathbf{c} \in \mathbb{R}^{26}$.
+\end{itemize}
+\end{codeBox}
+
+\subsection{Rastreamento da Função de Aptidão e Pipeline do IGA}
+Em \texttt{src/iga\_xgboost/iga.py}, a função \texttt{\_avaliar()} integra o XGBoost e o controle estrito de particionamento:
+
+\begin{lstlisting}
+def _avaliar(self, cromossomo: np.ndarray) -> float:
+    if not validar(cromossomo, self.track):
+        return 0.0
+
+    features_ativas, hparams = decodificar(cromossomo, self.track)
+    idx_features = [self.features.index(f) for f in features_ativas]
+    
+    # O seletor opera DENTRO do pipeline de cada dobra de CV
+    selector = FunctionTransformer(lambda X, idx=idx_features: X[:, idx])
+
+    clf = XGBClassifier(
+        **hparams,
+        tree_method="hist",
+        eval_metric="mlogloss",
+        random_state=self.seed,
+        n_jobs=1,
+        verbosity=0,
+    )
+
+    if self.usar_smote:
+        sampler = self.smote_sampler if self.smote_sampler is not None \
+                  else SMOTE(random_state=self.seed, k_neighbors=self.smote_k_neighbors)
+        # Pipeline do Imbalanced-Learn: o sampler e o seletor respeitam a divisao
+        pipeline = ImbPipeline([
+            ("smote", sampler),
+            ("select", selector),
+            ("clf", clf),
+        ])
+    else:
+        pipeline = ImbPipeline([("select", selector), ("clf", clf)])
+
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=self.seed)
+    scores = cross_val_score(
+        pipeline, self.X_train, self.y_train,
+        cv=cv, scoring="f1_macro", n_jobs=-1
+    )
+    return float(np.clip(scores.mean(), 0.0, 1.0))
+\end{lstlisting}
+
+\subsection{Rastreamento do CustomSMOTE com Consistência Física}
+Em \texttt{src/iga\_xgboost/train\_classification.py}, a classe \texttt{CustomSMOTE} resolve o problema de interpolação não-física:
+
+\begin{lstlisting}
+class CustomSMOTE(SMOTE):
+    def _fit_resample(self, X, y):
+        # 1. Sobreamostragem sintetica restrita aos 5 gases cromatograficos originais
+        X_gases = X[:, :5]
+        X_res_gases, y_res = super()._fit_resample(X_gases, y)
+        
+        # 2. Desnormalizacao reversa para o espaco fisico (ppm)
+        X_raw_gases = desnormalizar(X_res_gases)
+        
+        # 3. Recalculo analitico estrito das 14 variaveis fisico-quimicas derivadas
+        df_rec = montar_features_completas(X_raw_gases)  # 5 gases + 5 razoes + 9 Duval
+        
+        # 4. Reaplicacao da normalizacao log1p + MinMaxScaler fitada no treino
+        X_res_final = aplicar_scaler_treino(df_rec)
+        return X_res_final, y_res  # Matriz resultante consistente: shape (N_sint, 19)
+\end{lstlisting}
+
+\vspace{0.4cm}
+% =========================================================================
+% PILAR 3: DECISÕES DE PROJETO E NUANCES DO TRABALHO
+% =========================================================================
+\section{Pilar 3: Decisões de Projeto e Nuances do Meu Trabalho}
+
+\subsection{A Separação em Dois Tracks de Pesquisa}
+\begin{decisionBox}{Por que dividir o TCC em Track A e Track B?}
+A literatura acadêmica de DGA sofre de uma assimetria severa:
+\begin{itemize}
+  \item Bases temporais contínuas (como Katser et al., 2021) são geradas sinteticamente por equações diferenciais acopladas, possuindo apenas 4 gases ($\text{H}_2, \text{CO}, \text{C}_2\text{H}_4, \text{C}_2\text{H}_2$), o que impede a aplicação dos métodos clássicos completos (como Triângulo de Duval 1, que exige $\text{CH}_4$, e razão IEC $\text{C}_2\text{H}_4/\text{C}_2\text{H}_6$, que exige $\text{C}_2\text{H}_6$).
+  \item Bases reais históricas de concessionárias (como a compilação chinesa/IEC/IEEE de Wu et al., 2021) contêm os 5 gases completos e falhas de campo reais catalogadas, porém são registros pontuais (\textit{snapshots} estáticos), sem acompanhamento cronológico horário.
+\end{itemize}
+\textbf{Decisão de Engenharia:} Separar metodologicamente a validação. O Track A avalia o ganho da predição dinâmica em séries temporais, enquanto o Track B valida a otimização multiobjetivo IGA-XGBoost frente às normas internacionais da indústria em dados reais.
+\end{decisionBox}
+
+\subsection{O ``Resultado Negativo'' no Track A: Rigor e Mérito Científico}
+\begin{decisionBox}{A LSTM melhora o diagnóstico final no Track A?}
+\textbf{Fato Empírico Demonstrado no TCC (Tabela 6 e 7):}\\
+A rede LSTM obteve desempenho preditivo quase perfeito ($R^2 = 0{,}9979$ em $h=14$ e $R^2 = 0{,}9970$ em $h=28$). Contudo, o classificador XGBoost atingiu:
+\begin{itemize}
+  \item $F_{1, \text{macro}} = 0{,}7604$ utilizando as 17 features (com previsões da LSTM).
+  \item $F_{1, \text{macro}} = 0{,}7602$ utilizando apenas 9 features (sem previsões da LSTM).
+  \item Diferença estatística: $\Delta F_1 = +0{,}0002$ (Intervalo de Confiança 95\%: $[-0{,}0087; +0{,}0091]$).
+\end{itemize}
+\textbf{Razão Física e Algorítmica da Redundância:}\\
+Nas séries da base Katser, os transformadores mantêm regimes estacionários dentro do horizonte de 420 horas (o rótulo da falha é invariante). Consequentemente, as projeções futuras $\hat{\mathbf{x}}_{T+h}$ apresentam correlação linear quase perfeita ($r > 0{,}997$) com as concentrações atuais observadas $\mathbf{x}_T$. No espaço tabular, adicionar projeções colineares não fornece nenhum ganho de Informação Mútua $I(X; Y)$, tornando os atributos preditivos dispensáveis para o particionamento das árvores de decisão.
+
+\textbf{Posicionamento perante a Banca:} Esse resultado é um dos maiores méritos de engenharia do trabalho. Ele comprova que a metodologia foi aplicada com rigor estatístico absoluto (testes pareados, bootstrap e ablação), demonstrando honestidade científica ao evidenciar que a sofisticação temporal é redundante quando a série não apresenta transição ativa de estado.
+\end{decisionBox}
+
+\subsection{Redução de Dimensionalidade pelo IGA no Track B}
+No Track A (cenário C1), o IGA selecionou um subconjunto enxuto de 8 variáveis dentre as 17 candidatas (redução dimensional de 53\%), enquanto no Track B (cenário C3) o algoritmo selecionou 16 das 19 variáveis candidatas (descartando apenas $\text{C}_2\text{H}_2$ bruto, $\text{C}_2\text{H}_2/\text{CH}_4$ e $\% \text{CH}_4/\text{TH}_1$):
+\begin{equation}
+  \mathbf{m}^*_{\text{Track B}} = \left\{ \text{H}_2, \; \text{CH}_4, \; \text{C}_2\text{H}_4, \; \text{C}_2\text{H}_2, \; \frac{\text{C}_2\text{H}_2}{\text{C}_2\text{H}_4}, \; \text{TH}, \; \frac{\text{C}_2\text{H}_4}{\text{TH}}, \; \frac{\text{C}_2\text{H}_2}{\text{TH}} \right\}
+\end{equation}
+\textbf{Impacto Prático na Engenharia:}\\
+O modelo descartou 11 variáveis redundantes (incluindo $\text{C}_2\text{H}_6$ e frações de $\text{TH}_1$) e preservou o desempenho diagnóstico ($F_1 \approx 0{,}8909$), empatando com o baseline de 16 features de Wu et al. (2021) ($F_1 = 0{,}8897$). Em termos industriais, operar com 8 atributos em vez de 19 reduz a propagação de erro de medição cromatográfica e barateia o custo computacional de monitoramento em subestações.
+
+\subsection{Nuances e Alinhamento Texto-Código}
+\begin{itemize}
+  \item \textbf{CustomSMOTE per-fold:} No código (\texttt{iga.py}, linhas 150--156), o \texttt{CustomSMOTE} foi inserido dentro do \texttt{ImbPipeline}, garantindo que a geração sintética é executada estritamente no subconjunto de treino de cada dobra, sem vazamento para o fold de validação.
+  \item \textbf{Deduplicação de Amostras:} A base original continha duplicatas perfeitas que inflavam artificialmente a acurácia para $\approx 99\%$. O trabalho expurgou essas duplicatas, reduzindo o conjunto para 295 instantes únicos de teste, estabelecendo um patamar estatístico reprodutível e realista ($F_1 \approx 0{,}89$).
+\end{itemize}
+
+\vspace{0.4cm}
+% =========================================================================
+% PILAR 4: SABATINA DA BANCA (3 PERGUNTAS DIFÍCEIS E GABARITOS)
+% =========================================================================
+\section{Pilar 4: Sabatina da Banca (3 Perguntas Difíceis e Gabaritos)}
+
+\begin{boardQuestion}{1. Ausência de Dinâmica de Transição no Track A}
+\textit{“O título e a introdução do seu trabalho prometem a predição dinâmica de falhas em transformadores. No entanto, ao analisar a base Katser no Track A, verifica-se que cada uma das 3.000 séries temporais mantém exatamente o mesmo rótulo de falha do primeiro ao último dos 420 passos de tempo. O equipamento não evolui de sadio para defeituoso. Você não está prevendo a ocorrência de uma falha futura; você está prevendo a concentração física de gases de um equipamento que já se encontra em estado de falha estacionário. Isso não invalida a premissa de `predição de falhas' do seu TCC?”}
+\end{boardQuestion}
+
+\begin{boardAnswer}
+\textbf{Estratégia de Resposta:}\\
+Acolha a observação com firmeza técnica, valide a precisão do examinador e demonstre a contribuição metodológica real do trabalho:
+
+\begin{enumerate}[leftmargin=0.8cm]
+  \item \textbf{Concordância e Delimitação Conceitual:} ``A observação da banca é absolutamente precisa. Existe uma distinção técnica fundamental entre a detecção precoce de \textit{transição de estado} (quando um transformador opera em regime normal e subitamente desenvolve uma falha térmica ou elétrica) e o \textit{diagnóstico dinâmico baseado em prognóstico de variáveis físicas}. As bases de dados públicas disponíveis mundialmente em DGA temporal (como o benchmark Katser et al., 2021) não contêm transições de rótulo: os regimes de falha foram simulados como condições de contorno fixas em modelos termodinâmicos acoplados.''
+  \item \textbf{A Hipótese que foi Efetivamente Testada:} ``O que o nosso trabalho formulou e investigou formalmente foi a hipótese de acoplamento da literatura moderna: \textit{`A extrapolação temporal dos gases via LSTM fornece ganho discriminativo antecipado ao classificador XGBoost?'} Nossa resposta experimental foi honesta e rigorosa: \textbf{não fornece}. Como as séries estão em regime operacional estacionário, as projeções da LSTM em $h=14$ e $h=28$ possuem correlação linear com as medições atuais de $r > 0{,}997$.''
+  \item \textbf{O Mérito da Engenharia:} ``Em vez de mascarar essa colinearidade para inflar métricas, o trabalho realizou o estudo completo de ablação (experimentos C1, C5a, C5b e C6), provando estatisticamente via bootstrap pareado que $\Delta F_1 = +0{,}0002$ ($p > 0{,}05$). Portanto, a arquitetura modular está plenamente formulada, validada e funcional para ser implantada em bases com transição ativa, e nossa pesquisa evitou que a comunidade industrial adote modelos recorrentes caros onde a persistência temporal já basta.''
+\end{enumerate}
+\end{boardAnswer}
+
+\begin{boardQuestion}{2. Decisão Arquitetural: Integração em Dois Estágios vs. Deep Learning End-to-End}
+\textit{“Por que você optou por uma arquitetura híbrida em dois estágios desacoplados (onde a LSTM prevê gases, extraem-se features tabulares estáticas e o XGBoost classifica), em vez de construir uma rede neural recorrente de ponta a ponta (como uma LSTM com camadas densas e softmax na saída, um modelo ConvLSTM ou uma InceptionTime)? O seu modelo não perdeu representações latentes ricas ao descartar o estado oculto da LSTM ($h_T$)? Por que envolver o XGBoost?”}
+\end{boardQuestion}
+
+\begin{boardAnswer}
+\textbf{Estratégia de Resposta:}\\
+Sustente sua escolha em três pilares: física do problema, explicabilidade industrial com garantia axiomática e superioridade do Gradient Boosting em dados tabulares heterogêneos.
+
+\begin{enumerate}[leftmargin=0.8cm]
+  \item \textbf{Semântica Física vs. Espaço Latente Abstrato:} ``O vetor de estado intermediário gerado pela nossa LSTM possui significado físico direto: concentrações de gases em partes por milhão (ppm) no horizonte futuro. Se treinássemos uma LSTM \textit{end-to-end} para emitir o diagnóstico diretamente a partir de seu estado oculto $h_T \in \mathbb{R}^k$, perderíamos a capacidade de inspecionar fisicamente o que o modelo projetou. Na operação de uma concessionária de energia, o engenheiro de proteção precisa saber não apenas o diagnóstico, mas se a taxa diária de acúmulo de $\text{C}_2\text{H}_2$ ultrapassou os limites estipulados pela norma IEC 60599.''
+  \item \textbf{Garantia Axiomática de Explicabilidade via TreeSHAP:} ``O XGBoost permite a aplicação do algoritmo TreeSHAP com complexidade polinomial exata $\mathcal{O}(T L D^2)$, onde $T$ é o número de árvores, $L$ o número de folhas e $D$ a profundidade máxima. O TreeSHAP garante propriedades matemáticas inegociáveis de cooperação teórica de jogos: Eficiência Local, Simetria, Monotonicidade e Aditividade. Para redes neurais recorrentes contínuas, os métodos de atribuição (como Integrated Gradients ou DeepSHAP) dependem de baselines empíricos e sofrem instabilidade numérica severa frente a ruídos de entrada.''
+  \item \textbf{Performance Superior do Gradient Boosting em Dados Tabulares:} ``O estado da arte empírico (conforme benchmarks consolidados de Grinsztajn et al., 2022) demonstra que árvores de decisão impulsionadas por gradiente superam redes neurais profundas quando os atributos apresentam heterogeneidade de escalas e correlações não-lineares arbitrárias, como ocorre com as razões de gases de DGA.''
+\end{enumerate}
+\end{boardAnswer}
+
+\begin{boardQuestion}{3. Validação Cruzada do IGA e Risco de Vazamento de Seleção (Selection Bias)}
+\textit{“No Track B, o IGA utilizou uma validação cruzada estratificada de 5 dobras para guiar a evolução genética e selecionar o subconjunto ótimo de 8 atributos e os melhores hiperparâmetros. Mais adiante, na Seção 4.3, você reporta uma validação cruzada repetida $5 \times 5$ (25 dobras) para diagnosticar a estabilidade do modelo, mas mantém as 8 variáveis e os hiperparâmetros fixados previamente. Isso não configura viés de seleção (selection leakage)? Por que você não implementou uma Validação Cruzada Aninhada (Nested Cross-Validation) completa?”}
+\end{boardQuestion}
+
+\begin{boardAnswer}
+\textbf{Estratégia de Resposta:}\\
+Demonstre domínio metodológico avançado de aprendizado de máquina, reconhecendo o trade-off computacional e comprovando que o teste final independente nunca foi violado.
+
+\begin{enumerate}[leftmargin=0.8cm]
+  \item \textbf{Isolamento Estrito do Conjunto de Teste Independente:} ``O primeiro aspecto que blinda a integridade científica do trabalho é que a busca do IGA foi realizada \textbf{exclusivamente sobre o conjunto de desenvolvimento/treino}. O conjunto de teste independente (composto pelas 295 amostras deduplicadas) jamais foi tocado pelo algoritmo genético, nem para guiar a seleção de atributos, nem para afinar hiperparâmetros. A avaliação final no teste reflete uma generalização autêntica.''
+  \item \textbf{Transparência Metodológica no Texto do TCC:} ``Na Seção 3.6.3 do TCC, nós declaramos explicitamente que a validação cruzada repetida $5 \times 5$ avalia a estabilidade estocástica do pipeline com a configuração previamente identificada pelo IGA, e não o ciclo de seleção re-executado em cada repetição. Essa distinção foi documentada com total honestidade técnica.''
+  \item \textbf{Inviabilidade Computacional da Validação Cruzada Aninhada Integral:} ``Uma Validação Cruzada Aninhada completa exigiria re-executar o IGA no loop externo. Conforme definido em \texttt{src/config.py} e na Seção 3.6 do TCC, o IGA foi configurado com população de $P = 50$ indivíduos por até $G = 100$ gerações (com critério de parada em 20 gerações sem melhoria), utilizando 5 dobras internas. Em um cenário completo, cada execução do IGA treina e avalia:
+  \begin{equation}
+    N_{\text{treinos}} = 50 \times 100 \times 5 = 25.000 \text{ modelos XGBoost}
+  \end{equation}
+  Se aninhássemos essa busca evolutiva nas 25 dobras da validação cruzada externa ($5 \times 5$), seriam necessários até $25 \times 25.000 = 625.000$ treinamentos completos de XGBoost, tornando o custo computacional absolutamente proibitivo sem alterar a conclusão fundamental: o modelo simplifica a arquitetura mantendo desempenho estatisticamente robusto.''
+\end{enumerate}
+\end{boardAnswer}
+
+\vspace{0.6cm}
+\begin{center}
+  \rule{0.6\textwidth}{0.8pt}\\[0.2cm]
+  \small\textbf{\textsf{Fim do Módulo 1 -- Bons Estudos para a Defesa de TCC!}}
+\end{center}
+
+\end{document}
+

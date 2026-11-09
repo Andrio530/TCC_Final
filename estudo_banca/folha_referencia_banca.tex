@@ -1,0 +1,333 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazilian]{babel}
+\usepackage{lmodern}
+\usepackage[margin=1.6cm,top=2.0cm,bottom=2.0cm]{geometry}
+\usepackage{amsmath,amssymb,amsfonts,mathtools}
+\usepackage{booktabs,tabularx,array,longtable,multirow}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{fancyhdr}
+\usepackage[most,breakable,skins]{tcolorbox}
+\usepackage[colorlinks=true,linkcolor=NavyBlue,citecolor=NavyBlue,urlcolor=NavyBlue]{hyperref}
+
+% Cores institucionais
+\definecolor{NavyBlue}{RGB}{16, 44, 87}
+\definecolor{MidnightBlue}{RGB}{24, 43, 73}
+\definecolor{DarkSlateGray}{RGB}{38, 70, 83}
+\definecolor{TealAccent}{RGB}{42, 157, 143}
+\definecolor{AlertRed}{RGB}{180, 40, 40}
+\definecolor{LightBg}{RGB}{246, 248, 250}
+\definecolor{MathBg}{RGB}{235, 243, 250}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\footnotesize\textbf{\textsf{FOLHA DE REFERÊNCIA DEFINITIVA DE BANCA (MASTER CHEAT SHEET)}}}
+\fancyhead[R]{\footnotesize\textsf{Andrio Gabriel Epp | TCC Engenharia da Computação (Unisinos)}}
+\fancyfoot[L]{\footnotesize\textsf{Arquitetura Híbrida: LSTM + IGA + XGBoost + TreeSHAP}}
+\fancyfoot[R]{\footnotesize\textbf{\thepage}}
+\renewcommand{\headrulewidth}{0.6pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+\newtcolorbox{summarybox}[1][]{
+  breakable,
+  colback=LightBg,
+  colframe=NavyBlue,
+  fonttitle=\bfseries\sffamily\color{white},
+  coltitle=white,
+  boxrule=0.7pt,
+  arc=2mm,
+  title=#1,
+  left=6pt,right=6pt,top=4pt,bottom=4pt
+}
+
+\newtcolorbox{eqbox}[1][]{
+  breakable,
+  colback=MathBg,
+  colframe=MidnightBlue,
+  fonttitle=\bfseries\sffamily\color{white},
+  coltitle=white,
+  boxrule=0.7pt,
+  arc=2mm,
+  title=#1,
+  left=6pt,right=6pt,top=4pt,bottom=4pt
+}
+
+\newtcolorbox{defensecard}[1][]{
+  breakable,
+  colback=TealAccent!6,
+  colframe=TealAccent!85!black,
+  fonttitle=\bfseries\sffamily\color{white},
+  coltitle=white,
+  boxrule=0.7pt,
+  arc=2mm,
+  title=#1,
+  left=6pt,right=6pt,top=4pt,bottom=4pt
+}
+
+\begin{document}
+
+\begin{center}
+  {\Large \textbf{\textsf{\color{NavyBlue}FOLHA DE REFERÊNCIA OFICIAL PARA A DEFESA DE TCC}}}\\[0.15cm]
+  {\normalsize \textsf{\color{DarkSlateGray}Consolidação de Números Oficiais, Dimensões de Tensores, Hiperparâmetros, Equações e Argumentos de Defesa}}\\[0.1cm]
+  \rule{\textwidth}{1.2pt}
+\end{center}
+\vspace{-0.3cm}
+
+% =========================================================================
+% SEÇÃO 1: QUADRO COMPARATIVO DOS DOIS EIXOS (TRACK A vs TRACK B)
+% =========================================================================
+\section*{1. Panorama Oficial das Bases de Dados e Eixos Experimentais}
+
+\begin{table}[H]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\textwidth}{l X X}
+\toprule
+\textbf{Dimensão / Critério} & \textbf{Eixo Track A (Hibridização Temporal)} & \textbf{Eixo Track B (Diagnóstico Multiclasse IEC)} \\
+\midrule
+\textbf{Fonte Oficial} & Katser et al. (2022) -- Skoltech / Rosatom & Li et al. (2019) / DGALab (Ibrahim et al., 2018) \\
+\textbf{Natureza dos Dados} & Séries temporais de sensores \textit{online} ($\Delta t = 12\text{h}$) & Medições pontuais estáticas (campo, lab e literatura) \\
+\textbf{Escala Original} & Pré-normalizada na origem (ordem de $10^{-3}$) & Concentrações absolutas em $\text{ppm}$ \\
+\textbf{Gases Monitorados} & \textbf{4 gases:} $\text{H}_2, \text{CO}, \text{C}_2\text{H}_4, \text{C}_2\text{H}_2$ & \textbf{5 gases:} $\text{H}_2, \text{CH}_4, \text{C}_2\text{H}_6, \text{C}_2\text{H}_4, \text{C}_2\text{H}_2$ \\
+\textbf{Auditoria / Limpeza} & Sem duplicatas (3.000 séries de $T=420$ passos = 210 dias) & De 2.321 brutas $\to$ removidas \textbf{359} ($15{,}5\%$: 303 réplicas idênticas + 56 conflitos de rótulo) $\to$ \textbf{1.962 únicas} \\
+\textbf{Divisão de Dados} & \textbf{3.000 total:} \textbf{2.100} desenv. ($70\%$) e \textbf{900} teste ($30\%$). Na LSTM: \textbf{1.785} treino ($85\%$) e \textbf{315} val. ($15\%$) & \textbf{1.962 total (70/15/15):} \textbf{1.372} treino ($70\%$), \textbf{295} validação ($15\%$) e \textbf{295} teste independente ($15\%$). Desenv. CV $= 1.667$ \\
+\textbf{Classes Operacionais} & \textbf{4 classes:} Normal, PD, D1, T1 (rótulo constante nos 420 passos) & \textbf{7 classes IEC 60599:} Normal, PD, D1, D2, T1, T2, T3 \\
+\textbf{Suporte no Teste} & \textbf{900 total:} 731 Normal, 38 PD, 49 D1, 82 T1 & \textbf{295 total:} 106 Normal e \textbf{189 falhas} (17 PD, 41 D1, 33 D2, 16 T1, 16 T2, 66 T3) \\
+\textbf{Normalização} & Min-Max por gás ajustada nas 1.785 séries de treino & Razões calculadas em ppm bruto $\to \ln(x+1) \to \text{Min-Max}$ \\
+\textbf{Desbalanceamento} & \texttt{sample\_weight} analítico: $w_c = N / (C \cdot N_c)$ & \texttt{CustomSMOTE} ($k=5$) nos 5 gases brutos + recálculo físico \\
+\textbf{Ordem no Pipeline} & \texttt{[("select", selector), ("clf", clf)]} & \texttt{[("smote", sampler), ("select", selector), ("clf", clf)]} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% =========================================================================
+% SEÇÃO 2: ESPAÇO DE ATRIBUTOS E SELEÇÃO PELO IGA
+% =========================================================================
+\section*{2. Engenharia de Atributos e Seleção Dimensional pelo IGA}
+
+\begin{summarybox}[Atributos Candidatos vs. Subconjuntos Selecionados pelo IGA]
+\footnotesize
+\begin{itemize}[leftmargin=0.5cm, itemsep=2pt]
+  \item \textbf{Track A -- 17 Candidatos (\texttt{FEATURES\_TRACK\_A}):}
+  \begin{itemize}[leftmargin=0.4cm]
+    \item \textit{Grupo 1 (4 gases observados em $t=420$):} $\text{H}_{2,\text{obs}}, \text{CO}_{\text{obs}}, \text{C}_2\text{H}_{4,\text{obs}}, \text{C}_2\text{H}_{2,\text{obs}}$.
+    \item \textit{Grupo 2 (5 derivados):} $\text{C}_2\text{H}_2/\text{C}_2\text{H}_4$, $\text{H}_2/\text{C}_2\text{H}_2$, $\text{TH}_{\text{katser}} = \text{C}_2\text{H}_4 + \text{C}_2\text{H}_2$, $\text{C}_2\text{H}_2/\text{TH}_{\text{katser}}$, $\text{C}_2\text{H}_4/\text{TH}_{\text{katser}}$.
+    \item \textit{Grupo 3 (8 previsões LSTM):} $\text{H}_2, \text{CO}, \text{C}_2\text{H}_4, \text{C}_2\text{H}_2$ projetados para $h=14$ (1 semana) e $h=28$ (2 semanas).
+    \item \textbf{Selecionados em C1 pelo IGA (8 de 17 $\to$ redução de 53\%):} $\mathbf{\text{CO}_{\text{obs}}}$, $\mathbf{\text{H}_2/\text{C}_2\text{H}_2}$, $\mathbf{\text{C}_2\text{H}_2/\text{TH}_{\text{katser}}}$, $\mathbf{\text{C}_2\text{H}_4/\text{TH}_{\text{katser}}}$, $\mathbf{\text{H}_{2,\text{h14}}}$, $\mathbf{\text{H}_{2,\text{h28}}}$, $\mathbf{\text{C}_2\text{H}_{4,\text{h28}}}$ e $\mathbf{\text{C}_2\text{H}_{2,\text{h28}}}$. (Descartou $\text{H}_{2,\text{obs}}$ em favor de $\text{H}_{2,\text{h14}}$ e $\text{H}_{2,\text{h28}}$).
+  \end{itemize}
+  \item \textbf{Track B -- 19 Candidatos (\texttt{FEATURES\_TRACK\_B}):}
+  \begin{itemize}[leftmargin=0.4cm]
+    \item \textit{Grupo 1 (5 gases brutos):} $\text{H}_2, \text{CH}_4, \text{C}_2\text{H}_6, \text{C}_2\text{H}_4, \text{C}_2\text{H}_2$.
+    \item \textit{Grupo 2 (5 razões IEC/Doernenburg/Wu):} $\text{CH}_4/\text{H}_2$, $\text{C}_2\text{H}_2/\text{C}_2\text{H}_4$, $\text{C}_2\text{H}_4/\text{C}_2\text{H}_6$, $\text{C}_2\text{H}_2/\text{CH}_4$, $\text{C}_2\text{H}_2/\text{C}_2\text{H}_6$.
+    \item \textit{Grupo 2B (2 somas + 7 proporções):} $\text{TH} = \text{CH}_4 + \text{C}_2\text{H}_4 + \text{C}_2\text{H}_2$, $\text{TH}_1 = \text{TH} + \text{C}_2\text{H}_6$; proporções sobre $\text{TH}$ ($\%\text{CH}_4, \%\text{C}_2\text{H}_4, \%\text{C}_2\text{H}_2$) e sobre $\text{TH}_1$ ($\%\text{CH}_4, \%\text{C}_2\text{H}_6, \%\text{C}_2\text{H}_4, \%\text{C}_2\text{H}_2$).
+    \item \textbf{Selecionados em C3 pelo IGA (16 de 19):} Descartou apenas \textbf{3 variáveis}: $\mathbf{\text{C}_2\text{H}_2}$ \textbf{bruto}, $\mathbf{\text{C}_2\text{H}_2/\text{CH}_4}$ e $\mathbf{\%\text{CH}_4/\text{TH}_1}$.
+    \item \textbf{Modelo M3 (Wu et al., 2021):} Parte de 18 candidatos (sem $\text{C}_2\text{H}_2/\text{CH}_4$) $\to$ IGA selecionou \textbf{14 atributos}.
+  \end{itemize}
+\end{itemize}
+\end{summarybox}
+
+% =========================================================================
+% SEÇÃO 3: RESULTADOS EXPERIMENTAIS OFICIAIS (TABELAS DO TCC)
+% =========================================================================
+\section*{3. Números Oficiais de Desempenho Experimental}
+
+\subsection*{3.1 Módulo de Previsão Temporal LSTM (Track A -- 900 Séries de Teste, 5 Sementes)}
+\begin{table}[H]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccc | ccccc}
+\toprule
+\multicolumn{4}{c|}{\textbf{Desempenho em Um Passo ($h=1$, 333.000 janelas)}} & \multicolumn{5}{c}{\textbf{Degradação Multi-Horizonte Recursiva (5 seeds, 200 séries/seed)}} \\
+\midrule
+\textbf{Gás} & \textbf{MAE ($\times 10^{-5}$)} & \textbf{RMSE ($\times 10^{-4}$)} & \textbf{$R^2$ ($h=1$)} & \textbf{Horizonte} & \textbf{Tempo} & \textbf{$R^2$ Persist.} & \textbf{$R^2$ LSTM} & \textbf{MAE\% LSTM} \\
+\midrule
+$\text{H}_2$ & $1{,}44 \pm 0{,}13$ & $0{,}18 \pm 0{,}02$ & $0{,}9995$ & $h=1$ & $12\text{h}$ & $1{,}0000$ & $0{,}9996$ & $0{,}90\%$ \\
+$\text{CO}$ & $16{,}15 \pm 2{,}72$ & $2{,}06 \pm 0{,}31$ & $0{,}9997$ & $h=14$ & $1\text{ sem}$ & $0{,}9970$ & $\mathbf{0{,}9979}$ & $2{,}05\%$ \\
+$\text{C}_2\text{H}_4$ & $4{,}58 \pm 0{,}59$ & $0{,}58 \pm 0{,}07$ & $0{,}9996$ & $h=28$ & $2\text{ sem}$ & $0{,}9886$ & $\mathbf{0{,}9928}$ & $3{,}76\%$ \\
+$\text{C}_2\text{H}_2$ & $0{,}19 \pm 0{,}01$ & $0{,}02 \pm 0{,}01$ & $0{,}9996$ & $h=98$ & $7\text{ sem}$ & $0{,}8940$ & $\mathbf{0{,}8846}^*$ & $14{,}96\%$ \\
+\textbf{Média} & $\mathbf{5{,}59 \pm 0{,}74}$ & $\mathbf{1{,}07 \pm 0{,}15}$ & $\mathbf{0{,}9996}$ & $h=112$ & $8\text{ sem}$ & $0{,}8696$ & $0{,}8380^{**}$ & $17{,}68\%$ \\
+\bottomrule
+\multicolumn{9}{l}{\scriptsize $^*h=98$ (7 semanas) é o horizonte máximo operacional uniforme ($R^2 \ge 0{,}80$ em todos os gases, $\text{H}_2 = 0{,}8483$). Em $^{**}h=112$, $\text{H}_2$ cai para $0{,}7877 < 0{,}80$.}
+\end{tabular}%
+}
+\end{table}
+
+\subsection*{3.2 Resultados de Classificação e Ablação no Track A ($N=900$ Teste, 5.000 Bootstraps)}
+\begin{table}[H]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccc | lccc}
+\toprule
+\textbf{Configuração} & \textbf{Atrib. ($p$)} & \textbf{$F_1$-macro Teste} & \textbf{Desvio ($\sigma$)} & \textbf{IC 95\% Bootstrap} & \textbf{Contraste Pareado} & \textbf{$\Delta F_1$} & \textbf{Valor $p$} & \textbf{Signif.} \\
+\midrule
+\textbf{C2:} Ref. fixa com LSTM & 17 & $\mathbf{0{,}8911}$ & $0{,}0034$ & $[0{,}8574; 0{,}9229]$ & C2 vs. C5a (efeito LSTM fixo) & $+0{,}0056$ & $0{,}2384$ & Não sig. \\
+\textbf{C1:} IGA com LSTM & \textbf{8} & $\mathbf{0{,}8909}$ & $0{,}0011$ & $[0{,}8549; 0{,}9230]$ & C2 vs. C6 (todos vs. só LSTM) & $+0{,}0023$ & $0{,}6604$ & Não sig. \\
+\textbf{C6:} Ref. fixa só LSTM & 8 & $0{,}8888$ & $0{,}0011$ & $[0{,}8547; 0{,}9212]$ & C1 vs. C2 (IGA vs. 17 atrib.) & $-0{,}0003$ & $0{,}9956$ & Não sig. \\
+\textbf{C5a:} Ref. fixa sem LSTM & 9 & $\mathbf{0{,}8855}$ & $0{,}0029$ & $[0{,}8507; 0{,}9177]$ & C1 vs. C5b (efeito LSTM no IGA) & $+0{,}0112$ & $0{,}3308$ & Não sig. \\
+\textbf{C5b:} IGA sem LSTM & 8 & $0{,}8796$ & $0{,}0051$ & $[0{,}8469; 0{,}9110]$ & C5b vs. C5a (IGA vs. fixo s/ LSTM) & $-0{,}0059$ & $0{,}5412$ & Não sig. \\
+\textbf{C1 s/ LSTM} (pós-hoc) & 4 & $0{,}8280$ & $0{,}0030$ & $[0{,}7876; 0{,}8656]$ & \multicolumn{4}{l}{\scriptsize \textbf{Correlação Obs vs. LSTM:} $r > 0{,}997$ ($r^2 > 0{,}994$) em todos os gases!} \\
+\bottomrule
+\multicolumn{9}{l}{\scriptsize \textbf{Desempenho por Classe em C1 (Teste $N=900$):} Normal: $709/731$ (recall $97{,}0\%$, $F_1=0{,}979$) | PD: $34/38$ (recall $89{,}5\%$, $F_1=0{,}895$) | D1: $47/49$ (recall $95{,}9\%$, $F_1=0{,}904$) | T1: $67/82$ ($81{,}7\%$, $F_1=0{,}779$).}
+\end{tabular}%
+}
+\end{table}
+
+\subsection*{3.3 Resultados Multiclasse no Track B ($N=295$ Teste Global 7 Classes | $N=189$ Falhas 6 Classes | CV $5\times 5$)}
+\begin{table}[H]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Modelo / Método Avaliado} & \textbf{Atributos} & \textbf{$F_1$ Teste (7 classes)} & \textbf{IC 95\% (7 classes)} & \textbf{$F_1$ Falhas (6 classes)} & \textbf{IC 95\% (6 classes)} & \textbf{$F_1$ CV $5\times 5$ (25 folds)} \\
+\midrule
+\textbf{C3: IGA-XGBoost (Proposto)} & \textbf{16} & $\mathbf{0{,}7970}$ & $[0{,}7392; 0{,}8515]$ & $\mathbf{0{,}8000}$ & $[0{,}7323; 0{,}8578]$ & $0{,}7516 \pm 0{,}0281$ \\
+\textbf{C4: XGBoost Ref. Fixa} & 19 & $0{,}7843$ & $[0{,}7259; 0{,}8376]$ & $0{,}7780$ & $[0{,}7100; 0{,}8395]$ & $0{,}7616 \pm 0{,}0226$ \\
+\textbf{M3: Wu et al. (2021) + IGA} & 14 & $0{,}7829$ & $[0{,}7261; 0{,}8376]$ & $0{,}7845$ & $[0{,}7175; 0{,}8448]$ & $0{,}7654 \pm 0{,}0252$ \\
+\textbf{M2: Triângulo 1 de Duval} & 3 gases & $0{,}3634$ & $[0{,}3101; 0{,}4135]$ & $0{,}4499$ & $[0{,}3815; 0{,}5157]$ & -- (93,1\% fora de DT) \\
+\textbf{M1: Razões IEC 60599} & 5 gases & $0{,}2569$ & $[0{,}1944; 0{,}3143]$ & $0{,}3301$ & $[0{,}2519; 0{,}4020]$ & -- (57,1\% conclusivos) \\
+\textbf{Linha de Base (5 gases brutos)} & 5 & $0{,}7250$ & $[0{,}6587; 0{,}7851]$ & -- & -- & $0{,}7082$ \\
+\bottomrule
+\multicolumn{7}{l}{\scriptsize \textbf{Contrastes Bootstrap Track B:} C3 vs. M3: $\Delta F_1 = +0{,}0141$ ($[-0{,}0054; +0{,}0368]$, $p = 0{,}1824$, NS) | C3 vs. C4: $\Delta F_1 = +0{,}0127$ ($[-0{,}0211; +0{,}0490]$, $p = 0{,}4680$, NS).}
+\end{tabular}%
+}
+\end{table}
+
+% =========================================================================
+% SEÇÃO 4: HIPERPARÂMETROS E DIMENSÕES DE TENSORES
+% =========================================================================
+\section*{4. Hiperparâmetros Calibrados e Rastreamento Dimensional de Tensores}
+
+\begin{table}[H]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccc | lll}
+\toprule
+\multicolumn{5}{c|}{\textbf{Hiperparâmetros do Classificador XGBoost}} & \multicolumn{3}{c}{\textbf{Configuração da LSTM e do IGA}} \\
+\midrule
+\textbf{Parâmetro} & \textbf{Busca IGA} & \textbf{Fixo (C2/C4)} & \textbf{Track A (C1)} & \textbf{Track B (C3)} & \textbf{Componente} & \textbf{Parâmetro} & \textbf{Valor Oficial} \\
+\midrule
+\texttt{learning\_rate} ($\eta$) & $[0{,}01; 0{,}30]$ & $0{,}10$ & $\mathbf{0{,}1282}$ & $\mathbf{0{,}0596}$ & \textbf{LSTM} & Arquitetura & 2 camadas $\times$ 64 unid. \\
+\texttt{max\_depth} ($D$) & $[3; 12]$ & $6$ & $\mathbf{12}$ & $\mathbf{12}$ & \textbf{LSTM} & Janela / Saída & $w=50$ passos $\to 4$ gases \\
+\texttt{n\_estimators} ($T$) & $[50; 500]$ & $100$ & $\mathbf{422}$ & $\mathbf{342}$ & \textbf{LSTM} & Dropout / LR & $0{,}20$ / Adam ($\text{lr}=10^{-3}$) \\
+\texttt{subsample} & $[0{,}50; 1{,}00]$ & $0{,}90$ & $\mathbf{1{,}0000}$ & $\mathbf{0{,}9654}$ & \textbf{LSTM} & Batch / Épocas & $1.024$ / Paciência 15 ($\approx 16$ ép.) \\
+\texttt{colsample\_bytree} & $[0{,}30; 1{,}00]$ & $1{,}00$ & $\mathbf{0{,}9453}$ & $\mathbf{0{,}3433}$ & \textbf{IGA} & População / Ger. & $P = 50$ / $G_{\max} = 100$ (pac. 20) \\
+\texttt{gamma} ($\gamma$) & $[0{,}00; 5{,}00]$ & $0{,}00$ & $\mathbf{0{,}0000}$ & $\mathbf{1{,}4356}$ & \textbf{IGA} & Crossover ($P_c$) & $0{,}90$ (Unif. bin. + BLX-$0{,}5$) \\
+\texttt{min\_child\_weight} & $[1; 10]$ & $1$ & $\mathbf{3}$ & $\mathbf{3}$ & \textbf{IGA} & Mutação ($P_m$) & $0{,}10$ (Bit-flip + Gauss $\sigma=0{,}1$) \\
+\texttt{reg\_alpha} ($\alpha$, $L_1$) & $[0{,}00; 1{,}00]$ & $0{,}00$ & $\mathbf{0{,}1054}$ & $\mathbf{0{,}3182}$ & \textbf{IGA} & Seleção / Elitismo & Torneio $k=3$ / Elitismo $= 2$ \\
+\texttt{reg\_lambda} ($\lambda$, $L_2$) & $[0{,}00; 5{,}00]$ & $1{,}00$ & $\mathbf{1{,}5461}$ & $\mathbf{3{,}9425}$ & \textbf{IGA} & Viés Inicial IEC & $P(\text{razão IEC}=1) = 0{,}80$ (demais $0{,}5$) \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[H]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.12}
+\begin{tabularx}{\textwidth}{l l l X}
+\toprule
+\textbf{Módulo} & \textbf{Tensor / Estrutura} & \textbf{Shape Exato (Dimensões)} & \textbf{Significado Físico e Algorítmico no Código} \\
+\midrule
+\textbf{LSTM} & Séries Brutas Track A & Treino $(1785, 420, 4)$ | Val $(315, 420, 4)$ | Teste $(900, 420, 4)$ & $N_{\text{séries}} \times 420$ passos de $12\text{h} \times 4$ gases ($\text{H}_2, \text{CO}, \text{C}_2\text{H}_4, \text{C}_2\text{H}_2$) \\
+\textbf{LSTM} & Janelas Deslizantes ($w=50$) & Treino $(660450, 50, 4)$ | Val $(116550, 50, 4)$ | Teste $(333000, 50, 4)$ & $N_{\text{séries}} \times (420 - 50) = N_{\text{séries}} \times 370$ janelas por partição \\
+\textbf{LSTM} & Estados Internos / Saída & $\mathbf{h}_t, \mathbf{c}_t \in \mathbb{R}^{B \times 64}$ (Camadas 1 e 2) $\to \hat{\mathbf{y}} \in \mathbb{R}^{B \times 4}$ & Lote $B=1024$; camada densa linear projeta os 4 gases em $t+1$ \\
+\textbf{IGA} & Cromossomo Bipartido $\mathbf{c}$ & Track A: $(26,)$ $[17\text{ bin} + 9\text{ real}]$ | Track B: $(28,)$ $[19\text{ bin} + 9\text{ real}]$ & Máscara booleana de seleção + hiperparâmetros normalizados em $[0,1]$ \\
+\textbf{XGBoost} & Matrizes Track A (C2 / C1) & Treino: $(2100, 17) \to (2100, 8)$ | Teste: $(900, 17) \to (900, 8)$ & Snapshot em $t=420$ + razões + projeções LSTM ($h=14, 28$) \\
+\textbf{XGBoost} & Matrizes Track B (C4 / C3) & Treino: $(1372, 19) \to (1372, 16)$ | Val: $(295, 16)$ | Teste: $(295, 16)$ & Pós-\texttt{CustomSMOTE} no treino: classes minoritárias igualadas à majoritária \\
+\textbf{TreeSHAP} & \texttt{contribs} (\textit{log-odds}) & Track A C1: $(900, 4, 9)$ | Track B C3: $(295, 7, 17)$ & $(N_{\text{teste}}, K, p+1)$: $p$ valores de Shapley $\phi_j^{(c)}$ + última coluna $\phi_0^{(c)}$ \\
+\textbf{TreeSHAP} & \texttt{interactions} ($\Phi_{i, j}$) & Track B C3: $(295, 7, 17, 17)$ $\to$ Diagonal \texttt{shap\_main}: $(295,)$ & Diagonal $\Phi_{j,j}^{(c)}$ isola o efeito principal univariado sem sinergias \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% =========================================================================
+% SEÇÃO 5: FORMULÁRIO MATEMÁTICO ESSENCIAL (AS 12 EQUAÇÕES DA BANCA)
+% =========================================================================
+\section*{5. Formulário Matemático Essencial (As Equações-Chave do Projeto)}
+
+\begin{eqbox}[Equações Fundamentais de Todos os Módulos]
+\footnotesize
+\textbf{1. Transformação Logarítmica, Min-Max e Ponderação (Módulo 1):}
+$$x_{\log} = \ln(x + 1), \quad x_{\text{norm}} = \frac{x_{\log} - x_{\min,\text{treino}}}{x_{\max,\text{treino}} - x_{\min,\text{treino}}}, \quad w_c = \frac{N}{C \cdot N_c} \text{ (Track A)}, \quad \mathbf{g}_{\text{sint}} = \mathbf{g}_i + \lambda(\mathbf{g}_{\text{viz}} - \mathbf{g}_i) \xrightarrow{\text{recálculo}} 19\text{ atrib. (Track B)}$$
+
+\textbf{2. Dinâmica Celular da LSTM e Extrapolação Recursiva (Módulo 2):}
+$$\mathbf{f}_t = \sigma(\mathbf{W}_f \mathbf{x}_t + \mathbf{U}_f \mathbf{h}_{t-1} + \mathbf{b}_f), \quad \mathbf{i}_t = \sigma(\mathbf{W}_i \mathbf{x}_t + \mathbf{U}_i \mathbf{h}_{t-1} + \mathbf{b}_i), \quad \tilde{\mathbf{c}}_t = \tanh(\mathbf{W}_c \mathbf{x}_t + \mathbf{U}_c \mathbf{h}_{t-1} + \mathbf{b}_c)$$
+$$\mathbf{c}_t = \mathbf{f}_t \odot \mathbf{c}_{t-1} + \mathbf{i}_t \odot \tilde{\mathbf{c}}_t, \quad \mathbf{o}_t = \sigma(\mathbf{W}_o \mathbf{x}_t + \mathbf{U}_o \mathbf{h}_{t-1} + \mathbf{b}_o), \quad \mathbf{h}_t = \mathbf{o}_t \odot \tanh(\mathbf{c}_t), \quad \mathbf{X}_{t+1}^{(w)} = \big[\mathbf{x}_{t-w+2}, \dots, \mathbf{x}_t, \hat{\mathbf{y}}_{t+1}\big]$$
+
+\textbf{3. Decodificação Afim e Cruzamento BLX-$\alpha$ do IGA (Módulo 3):}
+$$\theta_k = \text{clip}\big(a_k + g_k (b_k - a_k), \, a_k, \, b_k\big), \quad I_k = [c_{\min} - \alpha \Delta_k, \, c_{\max} + \alpha \Delta_k] \text{ com } \Delta_k = |p_{1,k} - p_{2,k}|, \quad \text{Fitness}(\mathbf{c}) = \frac{1}{5}\sum_{k=1}^5 F_{1,\text{macro}}^{(k)}$$
+
+\textbf{4. Objetivo Regularizado de 2ª Ordem, Peso Foliar e Ganho de Divisão do XGBoost (Módulo 4):}
+$$\tilde{\mathcal{L}}^{(t)} \approx \sum_{i=1}^n \left[ g_i f_t(\mathbf{x}_i) + \frac{1}{2} h_i f_t^2(\mathbf{x}_i) \right] + \gamma T_L + \frac{1}{2}\lambda \sum_{j=1}^{T_L} w_j^2 + \alpha \sum_{j=1}^{T_L} |w_j|, \quad g_{i,c} = p_{i,c} - y_{i,c}, \quad h_{i,c} = p_{i,c}(1 - p_{i,c}) \in (0, 0{,}25]$$
+$$w_j^* = -\frac{\operatorname{sign}(G_j)\max(0, |G_j| - \alpha)}{H_j + \lambda} \quad \big(\text{sem } L_1: w_j^* = -\frac{G_j}{H_j + \lambda}\big), \quad \text{Gain} = \frac{1}{2}\left[\frac{G_L^2}{H_L + \lambda} + \frac{G_R^2}{H_R + \lambda} - \frac{(G_L + G_R)^2}{H_L + H_R + \lambda}\right] - \gamma$$
+
+\textbf{5. Valores de Shapley, Aditividade em \textit{Log-Odds}, Interações e Coordenadas de Duval (Módulo 5):}
+$$\phi_i(v) = \sum_{S \subseteq N \setminus \{i\}} \frac{|S|!(|N|-|S|-1)!}{|N|!}\big[v(S \cup \{i\}) - v(S)\big], \quad f_c(\mathbf{x}_i) = \phi_0^{(c)} + \sum_{j=1}^p \phi_j^{(c)}(\mathbf{x}_i), \quad \phi_i^{(c)} = \underbrace{\Phi_{i,i}^{(c)}}_{\text{Efeito Principal}} + \sum_{j \neq i} \Phi_{i,j}^{(c)}$$
+$$x_{\text{Duval}} = \frac{0{,}5 \cdot (2 \cdot \%\text{C}_2\text{H}_4 + \%\text{CH}_4)}{100}, \quad y_{\text{Duval}} = \frac{\frac{\sqrt{3}}{2} \cdot \%\text{CH}_4}{100} \quad \text{com } \text{TH} = \text{CH}_4 + \text{C}_2\text{H}_4 + \text{C}_2\text{H}_2$$
+\end{eqbox}
+
+% =========================================================================
+% SEÇÃO 6: INTERPRETABILIDADE TREESHAP E AUDITORIA NORMATIVA
+% =========================================================================
+\section*{6. Síntese da Auditoria Normativa e Interpretabilidade Físico-Química (Fase 6)}
+
+\begin{table}[H]
+\centering\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{p{3.6cm} c c c X}
+\toprule
+\textbf{Parâmetro Químico} & \textbf{Alvo} & \textbf{Norma} & \textbf{TreeSHAP ($\Phi_{i,i}=0$)} & \textbf{Interpretação Física e Argumento de Defesa} \\
+\midrule
+$\% \text{C}_2\text{H}_4$ ($\text{C}_2\text{H}_4/\text{TH}$) & D1 & $< 23\%$ (Duval) & \textbf{20\% a 25\%} & \textbf{Convergência exata:} o modelo aprendeu sozinho a fronteira de $23\%$ que separa descargas puras de falhas térmicas. \\
+$\% \text{C}_2\text{H}_2$ ($\text{C}_2\text{H}_2/\text{TH}$) & D1 & $\ge 13\%$ (Duval) & $\mathbf{\approx 8{,}0\%}$ & \textbf{Maior sensibilidade:} detecta descargas reais de campo antes do corte conservador de $13\%$ fixado na norma. \\
+$\% \text{C}_2\text{H}_2$ ($\text{C}_2\text{H}_2/\text{TH}$) & D2 & $\ge 13\% / 29\%$ & $\mathbf{\approx 8{,}6\%}$ & Idem: $\Phi_{i,i}=0$ marca o início da contribuição aditiva positiva em conjunto com outras razões, não um corte isolado. \\
+Razão $\text{C}_2\text{H}_4/\text{C}_2\text{H}_6$ & T3 & $> 4{,}0$ (IEC) & $\mathbf{\approx 2{,}97}$ & Na base real, a mediana de $\text{C}_2\text{H}_4/\text{C}_2\text{H}_6$ em T3 é $0{,}25$; o modelo compensa usando $\% \text{C}_2\text{H}_6/\text{TH}_1$ e antecipa a pirólise. \\
+\bottomrule
+\multicolumn{5}{p{0.97\textwidth}}{\scriptsize \textbf{Estabilidade do Ranking SHAP:} Correlação de postos de Spearman entre as 5 sementes no Track B (C3) foi $\mathbf{\rho = 0{,}9541}$ (muito acima do critério $\rho > 0{,}80$). \textbf{Estudo de Caso Local (Waterfall Amostra 11):} Rótulo original de campo era D1, mas XGBoost previu D2 ($f(x) = 2{,}214$ vs. $\phi_0 = 0{,}153$) devido a $\% \text{C}_2\text{H}_4 = 37{,}7\% > 23\%$ ($+0{,}23$) e $\% \text{C}_2\text{H}_2 \approx 42\%$. Pela própria geometria canônica do Triângulo 1 de Duval, a amostra cai na zona D2 $\to$ o modelo corrigiu uma inconsistência de laudo da base!}
+\end{tabularx}
+\end{table}
+
+% =========================================================================
+% SEÇÃO 7: MATRIZ DE DEFESA RÁPIDA PARA AS 8 PERGUNTAS CRÍTICAS DA BANCA
+% =========================================================================
+\section*{7. Guia Rápido de Respostas para as 8 Perguntas Mais Difíceis da Banca}
+
+\begin{defensecard}[Argumentos Técnicos Prontos para Sustentação Oral]
+\footnotesize
+\begin{enumerate}[leftmargin=0.5cm, itemsep=3pt]
+  \item \textbf{``Por que a LSTM não melhorou o diagnóstico no Track A ($\Delta F_1 = +0{,}0056$, $p = 0{,}2384$)? O trabalho falhou?''}\\
+  \textit{Defesa:} Não falhou; um resultado negativo rigorosamente comprovado é uma contribuição científica valiosa. As séries industriais de Katser possuem altíssima inércia temporal: o baseline de persistência ($\hat{y}_{t+h} = y_t$) já atinge $R^2 = 0{,}9970$ em 1 semana e $0{,}9886$ em 2 semanas. A correlação entre o gás observado e a projeção da LSTM supera $r = 0{,}997$. O TreeSHAP provou o fenômeno de \textbf{migração de crédito}: no modelo C1, o crédito oscila entre $\text{H}_{2,\text{h14}}$ ($65{,}9\%$) e $\text{H}_{2,\text{h28}}$ ($34{,}1\%$) entre sementes, mas a soma permanece cravada em $0{,}4734 \pm 0{,}0131$. Logo, para diagnóstico de estado atual em regime lento, um modelo estático enxuto (C5a, $F_1 = 0{,}8855$) dispensa o custo computacional da LSTM.
+
+  \item \textbf{``Vocês afirmam prever falhas com antecedência, mas os rótulos do Track A são constantes nos 420 passos!''}\\
+  \textit{Defesa:} Declaramos explicitamente nas Seções 3.1, 3.2.1 e 5.3 que o Track A \textbf{não avalia transição de estado ou tempo até a falha} (\textit{Remaining Useful Life}), pois não existe base pública de DGA com séries transicionando espontaneamente do estado normal para falha. O que avaliamos foi se a extrapolação futura das concentrações gasosas auxiliaria a discriminar o estado operacional associado à série. Como trabalho futuro (Seção 5.4), propomos aplicar a LSTM para prever o instante em que a curva de gases cruzará os limites de alarme em ppm.
+
+  \item \textbf{``Houve vazamento de dados (\textit{data leakage}) ao gerar previsões da LSTM no treino do XGBoost?''}\\
+  \textit{Defesa:} As 900 séries de teste permaneceram \textbf{100\% isoladas e intocadas} durante todo o treinamento da LSTM, do IGA e dos scalers. Reconhecemos na Seção 3.6.1 e na Seção 5.3 que, dentro das 2.100 séries de desenvolvimento, as previsões da LSTM para treinar o XGBoost vieram das mesmas séries que treinaram a LSTM (não foi \textit{out-of-fold}). Contudo, mesmo nesse cenário otimista para a LSTM no treino, ela não trouxe ganho estatístico no teste independente, reforçando ainda mais a nossa conclusão de redundância temporal.
+
+  \item \textbf{``Por que o desempenho no Track B estacionou em $F_1 \approx 0{,}7970$ (teste) e $0{,}75-0{,}76$ (CV), enquanto artigos como Wu et al. (2021) reportam $> 99\%$?''}\\
+  \textit{Defesa:} Dois motivos fundamentais: (1) Artigos que reportam $99\%$ avaliam partições minúsculas (Wu et al. usaram apenas 25 amostras de teste!) ou não removem duplicatas. Na nossa auditoria, descobrimos que $15{,}5\%$ da base pública (359 de 2.321) eram cópias idênticas ou conflitantes; sem deduplicação prévia, cópias caem no treino e no teste inflando artificialmente o $F_1$. (2) Há um \textbf{teto empírico imposto pelos dados}: a base reúne laudos heterogêneos com forte sobreposição física (ex.: na classe T3, a mediana de $\text{C}_2\text{H}_4/\text{C}_2\text{H}_6$ é $0{,}25$, quando a IEC exige $> 4{,}0$), o que levou os próprios criadores da base (Li et al., 2019) a proporem lógica difusa.
+
+  \item \textbf{``Como uma árvore com \texttt{max\_depth = 12} ($2^{12} = 4.096$ folhas potenciais) não sofreu overfitting severo nas 1.372 amostras de treino do Track B?''}\\
+  \textit{Defesa:} Porque \texttt{max\_depth = 12} é apenas um teto teórico, e o IGA compensou essa profundidade com uma \textbf{tríade agressiva de regularização}: (1) \texttt{colsample\_bytree = 0,3433} (cada árvore só enxerga $\approx 5$ dos 16 atributos, descorrelacionando o ensemble como uma Random Forest); (2) \texttt{reg\_lambda = 3,9425} (forte amortecimento Ridge $L_2$ no denominador do peso foliar $w_j^* = -G_j / (H_j + 3{,}9425)$); e (3) \texttt{gamma = 1,4356} e \texttt{min\_child\_weight = 3} (poda severa que exige suporte mínimo de $\approx 12$ amostras incertas por folha, visto que $h_{i,c} \le 0{,}25$).
+
+  \item \textbf{``Por que a Validação Cruzada Repetida $5 \times 5$ (25 dobras) não re-executou o IGA dentro de cada dobra?''}\\
+  \textit{Defesa:} Por inviabilidade computacional documentada na Seção 3.6.3: uma única corrida do IGA ($P=50, G=100, K=5$) treina até $25.000$ modelos XGBoost; aninhar isso nas 25 dobras exigiria $625.000$ treinamentos. Por isso, a CV $5\times 5$ (sem SMOTE e com atributos fixos) foi usada estritamente como diagnóstico de estabilidade paramétrica sobre as 1.667 amostras de desenvolvimento, enquanto a prova isenta de viés de seleção é garantida pelo conjunto de teste independente ($N=295$), que jamais foi visto pelo IGA.
+
+  \item \textbf{``Por que calcular as razões antes do log/Min-Max e colocar o \texttt{CustomSMOTE} antes do \texttt{select} no Pipeline?''}\\
+  \textit{Defesa:} Porque razões molares ($\text{C}_2\text{H}_2/\text{C}_2\text{H}_4$) são grandezas estequiométricas adimensionais definidas na escala física em ppm ($\ln(a+1)/\ln(b+1) \neq a/b$). E no \texttt{ImbPipeline}, o \texttt{CustomSMOTE} precisa vir antes do \texttt{select} porque ele fatia as 5 primeiras colunas ($\mathbf{X}[:, :5]$, gases brutos), interpola os vizinhos no espaço físico e recalcula analiticamente as 14 razões/proporções antes que o seletor do IGA filtre o subconjunto de 16 variáveis.
+
+  \item \textbf{``Por que o TreeSHAP é calculado na escala de \textit{log-odds} (margens brutas) e não em probabilidades?''}\\
+  \textit{Defesa:} Porque a função Softmax ($p_{i,c} = e^{f_c} / \sum_k e^{f_k}$) é altamente não-linear e acopla todas as classes no denominador. Na escala de probabilidades, a soma dos efeitos marginais não iguala a predição. Na escala linear das árvores (\textit{log-odds}), o Axioma da Eficiência de Shapley é matematicamente exato: $\sum_{j=1}^p \phi_j^{(c)} + \phi_0^{(c)} = f_c(\mathbf{x}_i)$, verificado em código com tolerância $< 10^{-4}$.
+\end{enumerate}
+\end{defensecard}
+
+\end{document}

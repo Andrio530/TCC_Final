@@ -1,0 +1,527 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{lmodern}
+\usepackage[margin=2.2cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsfonts,mathtools}
+\usepackage{booktabs,tabularx,array,longtable,multirow}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage[most,breakable,skins]{tcolorbox}
+\usepackage[colorlinks=true,linkcolor=MidnightBlue,citecolor=MidnightBlue,urlcolor=MidnightBlue]{hyperref}
+
+% Cores personalizadas
+\definecolor{NavyBlue}{RGB}{16, 44, 87}
+\definecolor{MidnightBlue}{RGB}{24, 43, 73}
+\definecolor{DarkSlateGray}{RGB}{38, 70, 83}
+\definecolor{TealAccent}{RGB}{42, 157, 143}
+\definecolor{WarningRed}{RGB}{180, 40, 40}
+\definecolor{CardBg}{RGB}{248, 249, 250}
+\definecolor{CodeBg}{RGB}{244, 245, 247}
+\definecolor{BorderColor}{RGB}{218, 224, 233}
+\definecolor{MathHighlight}{RGB}{235, 243, 250}
+
+% Configuração de cabeçalho e rodapé
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textbf{\textsf{TCC Engenharia da Computação | Unisinos}}}
+\fancyhead[R]{\small\textsf{Módulo 4: Classificador XGBoost}}
+\fancyfoot[L]{\small\textsf{Material de Preparação para Banca de Defesa}}
+\fancyfoot[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.6pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Configuração de código Python
+\lstset{
+  language=Python,
+  backgroundcolor=\color{CodeBg},
+  basicstyle=\ttfamily\footnotesize\color{black},
+  keywordstyle=\bfseries\color{NavyBlue},
+  commentstyle=\itshape\color{DarkSlateGray!80},
+  stringstyle=\color{TealAccent!90!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  stepnumber=1,
+  numbersep=8pt,
+  frame=single,
+  frameround=tttt,
+  rulecolor=\color{BorderColor},
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=4,
+  captionpos=b
+}
+
+% Caixas temáticas (tcolorbox)
+\newtcolorbox{mathBox}[1]{
+  enhanced,
+  breakable,
+  colback=MathHighlight,
+  colframe=NavyBlue,
+  arc=3mm,
+  boxrule=1pt,
+  title=\textbf{\textsf{#1}},
+  coltitle=white,
+  fonttitle=\small\sffamily,
+  attach boxed title to top left={yshift=-2mm,xshift=4mm},
+  boxed title style={colback=NavyBlue,arc=1.5mm},
+  before skip=12pt,
+  after skip=12pt
+}
+
+\newtcolorbox{codeBox}[1]{
+  enhanced,
+  breakable,
+  colback=CardBg,
+  colframe=DarkSlateGray,
+  arc=3mm,
+  boxrule=0.8pt,
+  title=\textbf{\textsf{#1}},
+  coltitle=white,
+  fonttitle=\small\sffamily,
+  attach boxed title to top left={yshift=-2mm,xshift=4mm},
+  boxed title style={colback=DarkSlateGray,arc=1.5mm},
+  before skip=12pt,
+  after skip=12pt
+}
+
+\newtcolorbox{decisionBox}[1]{
+  enhanced,
+  breakable,
+  colback=CardBg,
+  colframe=TealAccent!80!black,
+  arc=3mm,
+  boxrule=1pt,
+  title=\textbf{\textsf{#1}},
+  coltitle=white,
+  fonttitle=\small\sffamily,
+  attach boxed title to top left={yshift=-2mm,xshift=4mm},
+  boxed title style={colback=TealAccent!80!black,arc=1.5mm},
+  before skip=12pt,
+  after skip=12pt
+}
+
+\newtcolorbox{boardQuestion}[1]{
+  enhanced,
+  breakable,
+  colback=CardBg,
+  colframe=WarningRed,
+  arc=3mm,
+  boxrule=1pt,
+  title=\textbf{\textsf{Pergunta Crítica da Banca: #1}},
+  coltitle=white,
+  fonttitle=\small\sffamily,
+  attach boxed title to top left={yshift=-2mm,xshift=4mm},
+  boxed title style={colback=WarningRed,arc=1.5mm},
+  before skip=12pt,
+  after skip=6pt
+}
+
+\newtcolorbox{boardAnswer}{
+  enhanced,
+  breakable,
+  colback=CardBg,
+  colframe=MidnightBlue,
+  arc=3mm,
+  boxrule=1pt,
+  title=\textbf{\textsf{Gabarito Técnico Ideal de Resposta (Blindagem de Banca)}},
+  coltitle=white,
+  fonttitle=\small\sffamily,
+  attach boxed title to top left={yshift=-2mm,xshift=4mm},
+  boxed title style={colback=MidnightBlue,arc=1.5mm},
+  before skip=6pt,
+  after skip=14pt
+}
+
+\begin{document}
+
+% -------------------------------------------------------------------------
+% CABEÇALHO DO DOCUMENTO
+% -------------------------------------------------------------------------
+\begin{center}
+  {\large\textbf{\textsf{UNIVERSIDADE DO VALE DO RIO DOS SINOS (UNISINOS)}}}\\[0.2cm]
+  {\normalsize\textbf{\textsf{CURSO DE ENGENHARIA DA COMPUTAÇÃO}}}\\[0.4cm]
+  {\LARGE\textbf{\textcolor{NavyBlue}{\textsf{GUIA DE DOMÍNIO TÉCNICO E DEFESA DE BANCA}}}}\\[0.2cm]
+  {\Large\textbf{\textsf{MÓDULO 4: Classificador XGBoost (Extreme Gradient Boosting)}}}\\[0.2cm]
+  {\normalsize\textsf{Função Objetivo Regularizada $\longrightarrow$ Expansão de Taylor de $2^{\text{a}}$ Ordem $\longrightarrow$ Score de Similaridade $\longrightarrow$ Cálculo do Gain}}\\[0.4cm]
+  \rule{\textwidth}{1pt}\\[0.2cm]
+  \small\textbf{Candidato:} Andrio Gabriel Epping \quad$|$\quad \textbf{Papel:} Orientador Técnico \& Examinador Rigoroso de Banca \quad$|$\quad \textbf{Data:} Novembro de 2026
+\end{center}
+\vspace{0.3cm}
+
+% -------------------------------------------------------------------------
+% APRESENTAÇÃO DO MÓDULO
+% -------------------------------------------------------------------------
+\section*{Apresentação do Módulo de Treinamento}
+Este guia é dedicado ao domínio matemático, algorítmico e computacional do \textbf{Módulo 4: Classificador XGBoost (Extreme Gradient Boosting)}, o motor de indução e tomada de decisão diagnóstica utilizado em ambos os eixos (Track A e Track B) do Trabalho de Conclusão de Curso (TCC).
+
+O foco deste documento é capacitar o estudante a deduzir analiticamente todas as etapas teóricas do XGBoost: a expansão de Taylor de segunda ordem da função de perda, a dedução do peso ótimo das folhas ($w_j^*$), o cálculo do Score de Similaridade, a fórmula formal do Ganho de Partição (\textit{Gain}) com custo de complexidade $\gamma$, o tratamento multiclasse via Softmax Cross-Entropy com cálculo exato do vetor gradiente ($g_i$) e hessiana ($h_i$), o manuseio de desbalanceamento por \texttt{sample\_weight} e \texttt{CustomSMOTE}, bem como os hiperparâmetros ótimos identificados pelo IGA e as respostas ideais para a sabatina da banca examinadora.
+
+\vspace{0.2cm}
+\tableofcontents
+\vspace{0.4cm}
+\newpage
+
+% =========================================================================
+% PILAR 1: FUNDAMENTAÇÃO MATEMÁTICA E TEÓRICA
+% =========================================================================
+\section{Pilar 1: Fundamentação Matemática e Teórica}
+
+\subsection{O Modelo Aditivo de Boosting e Representação de Árvores}
+O algoritmo XGBoost (\textit{Extreme Gradient Boosting}) baseia-se no princípio do aprendizado em conjunto aditivo (\textit{Additive Ensemble Learning}). Dado um conjunto de treinamento $\mathcal{D} = \{(\mathbf{x}_i, y_i)\}_{i=1}^n$, com $n$ amostras, $\mathbf{x}_i \in \mathbb{R}^p$ atributos e rótulos $y_i \in \{0, \dots, C-1\}$, a previsão do modelo após a inclusão de $M$ árvores de decisão CART (\textit{Classification and Regression Trees}) é expressa por:
+\begin{equation}
+  \hat{y}_i^{(M)} = \sum_{m=1}^M f_m(\mathbf{x}_i), \quad f_m \in \mathcal{F}
+  \label{eq:additive_model}
+\end{equation}
+onde $\mathcal{F} = \{ f(\mathbf{x}) = w_{q(\mathbf{x})} \}$ representa o espaço funcional de árvores de decisão.
+
+Cada árvore $f_m(\mathbf{x})$ é caracterizada por duas estruturas formais:
+\begin{enumerate}
+  \item \textbf{Função de Mapeamento Estrutural ($q$):} $q: \mathbb{R}^p \to \{1, \dots, T_L\}$, que direciona a instância $\mathbf{x}$ até o índice de uma folha terminal específica;
+  \item \textbf{Vetor de Pesos das Folhas ($\mathbf{w}$):} $\mathbf{w} = [w_1, w_2, \dots, w_{T_L}]^\top \in \mathbb{R}^{T_L}$, onde $w_j$ é a pontuação numérica contínua (*logit*) atribuída a todas as amostras que caem na folha $j$.
+\end{enumerate}
+
+\subsection{Função Objetivo Global Regularizada}
+Em cada iteração $t \in \{1, \dots, M\}$ do processo de \textit{gradient boosting}, uma nova árvore $f_t(\mathbf{x})$ é inserida com o objetivo de minimizar a perda residual acumulada somada a termos explícitos de penalização da complexidade estrutural da árvore recém-criada:
+\begin{equation}
+  \mathcal{L}^{(t)} = \sum_{i=1}^n l\left(y_i, \; \hat{y}_i^{(t-1)} + f_t(\mathbf{x}_i)\right) + \Omega(f_t)
+  \label{eq:xgb_obj_regularizada}
+\end{equation}
+onde $l(y, \hat{y})$ é a função de perda convexa e diferenciável.
+
+O termo de regularização $\Omega(f_t)$, introduzido por Chen \& Guestrin (2016) para controlar o compromisso entre viés e variância, é formalizado por:
+\begin{equation}
+  \Omega(f_t) = \gamma T_L + \frac{1}{2} \lambda \sum_{j=1}^{T_L} w_j^2 + \alpha \sum_{j=1}^{T_L} |w_j|
+  \label{eq:omega_reg}
+\end{equation}
+\begin{itemize}
+  \item $\gamma$ (\texttt{gamma}): Custo de penalização por cada folha adicional criada na árvore, atuando diretamente como limiar de poda;
+  \item $\lambda$ (\texttt{reg\_lambda}): Fator de regularização $L_2$ (Ridge) sobre as magnitudes dos pesos das folhas, impedindo pontuações extremas e reduzindo a variância;
+  \item $\alpha$ (\texttt{reg\_alpha}): Fator de regularização $L_1$ (Lasso) sobre os pesos das folhas, induzindo esparsidade ao zerar o peso de folhas com baixo suporte estatístico.
+\end{itemize}
+
+\subsection{Aproximação de Segunda Ordem por Série de Taylor}
+Diferentemente do Gradient Boosting clássico de Friedman (que utiliza apenas aproximação de primeira ordem via descida do gradiente), o XGBoost emprega a expansão em Série de Taylor de segunda ordem da função de perda em torno da previsão do passo anterior $\hat{y}_i^{(t-1)}$:
+\begin{equation}
+  l\left(y_i, \; \hat{y}_i^{(t-1)} + f_t(\mathbf{x}_i)\right) \approx l\left(y_i, \hat{y}_i^{(t-1)}\right) + g_i f_t(\mathbf{x}_i) + \frac{1}{2} h_i f_t^2(\mathbf{x}_i)
+  \label{eq:taylor_expansion}
+\end{equation}
+onde $g_i$ (Gradiente) e $h_i$ (Hessiana) são definidos como:
+\begin{equation}
+  g_i = \left[ \frac{\partial l(y_i, \hat{y})}{\partial \hat{y}} \right]_{\hat{y} = \hat{y}_i^{(t-1)}}, \qquad h_i = \left[ \frac{\partial^2 l(y_i, \hat{y})}{\partial \hat{y}^2} \right]_{\hat{y} = \hat{y}_i^{(t-1)}}
+  \label{eq:grad_hess}
+\end{equation}
+
+Como o termo $l(y_i, \hat{y}_i^{(t-1)})$ é uma constante na iteração $t$ (não depende de $f_t$), ele pode ser removido da otimização, resultando na \textbf{função objetivo simplificada de segunda ordem}:
+\begin{equation}
+  \tilde{\mathcal{L}}^{(t)} = \sum_{i=1}^n \left[ g_i f_t(\mathbf{x}_i) + \frac{1}{2} h_i f_t^2(\mathbf{x}_i) \right] + \gamma T_L + \frac{1}{2} \lambda \sum_{j=1}^{T_L} w_j^2 + \alpha \sum_{j=1}^{T_L} |w_j|
+  \label{eq:obj_simplificada}
+\end{equation}
+
+\subsection{Dedução Analítica do Peso Ótimo Foliar e Score de Similaridade}
+Definindo $I_j = \{ i \in \{1, \dots, n\} \mid q(\mathbf{x}_i) = j \}$ como o conjunto de instâncias mapeadas para a folha terminal $j$, pode-se agrupar a soma sobre instâncias $i$ em uma soma sobre as folhas $j \in \{1, \dots, T_L\}$, já que $f_t(\mathbf{x}_i) = w_j, \forall i \in I_j$:
+\begin{equation}
+  \tilde{\mathcal{L}}^{(t)} = \sum_{j=1}^{T_L} \left[ \left( \sum_{i \in I_j} g_i \right) w_j + \frac{1}{2} \left( \sum_{i \in I_j} h_i + \lambda \right) w_j^2 + \alpha |w_j| \right] + \gamma T_L
+\end{equation}
+
+Definindo as quantidades agregadas do nó folha $j$:
+\begin{equation}
+  G_j = \sum_{i \in I_j} g_i, \qquad H_j = \sum_{i \in I_j} h_i
+  \label{eq:G_H_agregados}
+\end{equation}
+
+\begin{mathBox}{Dedução do Peso Ótimo Foliar ($w_j^*$)}
+Considerando a regularização $L_2$ pura ($\alpha = 0$), a função objetivo para a folha $j$ é uma parábola estritamente convexa em relação a $w_j$:
+\begin{equation}
+  J(w_j) = G_j w_j + \frac{1}{2} (H_j + \lambda) w_j^2
+\end{equation}
+Derivando em relação a $w_j$ e igualando a zero:
+\begin{equation}
+  \frac{\partial J(w_j)}{\partial w_j} = G_j + (H_j + \lambda) w_j = 0 \implies \mathbf{w}_j^* = -\frac{G_j}{H_j + \lambda}
+  \label{eq:peso_otimo_l2}
+\end{equation}
+Quando a regularização Lasso $L_1$ está ativa ($\alpha > 0$), a solução é obtida pelo operador de encolhimento suave (\textit{Soft-Thresholding}):
+\begin{equation}
+  \mathbf{w}_j^* = -\frac{\operatorname{sign}(G_j) \cdot \max(0, \; |G_j| - \alpha)}{H_j + \lambda}
+  \label{eq:peso_otimo_l1_l2}
+\end{equation}
+\end{mathBox}
+
+Substituindo o peso ótimo $w_j^*$ de volta na Equação~(\ref{eq:obj_simplificada}) (para $\alpha = 0$), obtém-se o valor ótimo da função objetivo para uma dada estrutura de árvore $q$:
+\begin{equation}
+  \tilde{\mathcal{L}}^*(q) = -\frac{1}{2} \sum_{j=1}^{T_L} \frac{G_j^2}{H_j + \lambda} + \gamma T_L
+  \label{eq:score_arvore}
+\end{equation}
+O termo $\dfrac{G_j^2}{H_j + \lambda}$ é formalmente denominado **Score de Similaridade** (\textit{Similarity Score}) da folha $j$. Ele quantifica a redução do erro residual ponderada pela curvatura (hessiana) das amostras que residem naquela folha.
+
+\subsection{Cálculo Exato do Ganho de Partição (Split Finding Gain)}
+Na construção das árvores, o algoritmo avalia a divisão de um nó pai $I$ em dois nós filhos: $I_L$ (esquerdo) e $I_R$ (direito), onde $I = I_L \cup I_R$. Pela conservação dos gradientes:
+\begin{equation}
+  G = G_L + G_R, \qquad H = H_L + H_R
+\end{equation}
+
+\begin{mathBox}{Equação do Ganho de Divisão de Nós (\textit{Gain})}
+O ganho obtido pela partição é a diferença entre a impureza do nó pai e a soma das impurezas dos filhos, descontado o custo de criar uma nova folha ($\gamma$):
+\begin{equation}
+  \text{Gain} = \frac{1}{2} \left[ \underbrace{\frac{G_L^2}{H_L + \lambda}}_{\text{Similaridade Filho Esq.}} + \underbrace{\frac{G_R^2}{H_R + \lambda}}_{\text{Similaridade Filho Dir.}} - \underbrace{\frac{(G_L + G_R)^2}{H_L + H_R + \lambda}}_{\text{Similaridade Nó Pai}} \right] - \gamma
+  \label{eq:xgb_gain}
+\end{equation}
+\textbf{Critério de Poda Estrutural Automática:}\\
+Se $\text{Gain} \le 0$, a divisão não é realizada (ou é podada recursivamente no processo de pós-poda). O parâmetro $\gamma$ funciona exatamente como um limiar de corte de significância estatística de segunda ordem.
+\end{mathBox}
+
+\subsection{Formulação Multiclasse com Softmax Cross-Entropy}
+Nos Tracks A (4 classes) e B (7 classes), o problema de diagnóstico é multiclasse. O XGBoost utiliza a função de perda Multi-Logloss (\texttt{eval\_metric="mlogloss"}). Para cada amostra $i$, o modelo produz um vetor de pontuações brutas $\hat{\mathbf{y}}_i = [\hat{y}_{i, 0}, \dots, \hat{y}_{i, C-1}]^\top$.
+
+As probabilidades a posteriori são obtidas pela função Softmax:
+\begin{equation}
+  p_{i, c} = P(y_i = c \mid \mathbf{x}_i) = \frac{\exp(\hat{y}_{i, c})}{\sum_{k=0}^{C-1} \exp(\hat{y}_{i, k})}, \quad c \in \{0, \dots, C-1\}
+  \label{eq:softmax}
+\end{equation}
+A função de perda Cross-Entropy de uma amostra $i$ com rótulo real codificado em \textit{one-hot} $\mathbf{y}_i = [y_{i, 0}, \dots, y_{i, C-1}]^\top$ é:
+\begin{equation}
+  l(\mathbf{y}_i, \hat{\mathbf{y}}_i) = -\sum_{c=0}^{C-1} y_{i, c} \ln(p_{i, c})
+\end{equation}
+
+\begin{mathBox}{Gradiente e Hessiana na Classificação Multiclasse}
+O vetor gradiente de primeira ordem para a classe $c$ é dado pela diferença entre a probabilidade estimada e o rótulo real:
+\begin{equation}
+  g_{i, c} = \frac{\partial l}{\partial \hat{y}_{i, c}} = p_{i, c} - y_{i, c} \in [-1, \; 1]
+  \label{eq:gradiente_multiclasse}
+\end{equation}
+A derivada de segunda ordem (Hessiana) expressa a curvatura da função de perda:
+\begin{equation}
+  h_{i, c} = \frac{\partial^2 l}{\partial \hat{y}_{i, c}^2} = p_{i, c} (1 - p_{i, c}) \in \left[0, \; \frac{1}{4}\right]
+  \label{eq:hessiana_multiclasse}
+\end{equation}
+\textbf{Propriedade Crítica da Hessiana:}\\
+Quando o modelo possui alta incerteza sobre a classe ($p_{i, c} \approx 0{,}50$), a hessiana atinge seu valor máximo ($h_{i, c} = 0{,}25$), conferindo grande estabilidade ao denominador $H_j + \lambda$. Quando o modelo já tem certeza quase absoluta ($p_{i, c} \to 1$ ou $p_{i, c} \to 0$), a hessiana aproxima-se de zero ($h_{i, c} \to 0$), demonstrando que essas amostras não contribuem com nova curvatura para a divisão.
+\end{mathBox}
+
+\subsection{Ponderação por \texttt{sample\_weight}}
+Quando uma amostra $i$ possui um peso diferenciado $w_i > 0$ atribuído para balanceamento de classes:
+\begin{equation}
+  g_{i, c}^{\text{pond}} = w_i \cdot g_{i, c}, \qquad h_{i, c}^{\text{pond}} = w_i \cdot h_{i, c}
+  \label{eq:sample_weight_math}
+\end{equation}
+As instâncias de classes minoritárias (como PD ou T1) recebem pesos multiplicativos mais altos, elevando sua contribuição tanto no numerador $G_j$ quanto no denominador $H_j$, forçando o algoritmo a criar ramificações específicas para capturá-las.
+
+\vspace{0.4cm}
+% =========================================================================
+% PILAR 2: RASTREAMENTO NO CÓDIGO (LINHA A LINHA)
+% =========================================================================
+\section{Pilar 2: Rastreamento no Código (Linha a Linha)}
+
+\subsection{Treinamento do XGBoost no Track A (\texttt{src/iga\_xgboost/train\_hybrid.py})}
+O treinamento do modelo no Track A com os 4 gases e classes Katser:
+
+\begin{lstlisting}
+def _treinar_xgboost(
+    X_train: np.ndarray,
+    y_train: np.ndarray,
+    hparams: dict,
+    seed: int,
+    sample_weight: np.ndarray | None = None,
+) -> XGBClassifier:
+    """Treina um XGBClassifier com os parametros decodificados pelo IGA."""
+    modelo = XGBClassifier(
+        **hparams,
+        tree_method="hist",          # Algoritmo de quantizacao em histogramas
+        eval_metric="mlogloss",      # Perda multiclasse cross-entropy
+        random_state=seed,           # Reprodutibilidade estrita
+        n_jobs=-1,                   # Paralelizacao total de CPU
+        verbosity=0,
+    )
+    modelo.fit(X_train, y_train, sample_weight=sample_weight)
+    return modelo
+\end{lstlisting}
+
+\subsection{Rastreamento no Track B (\texttt{src/iga\_xgboost/train\_classification.py})}
+No Track B, o classificador gerencia 7 classes da norma IEC 60599:
+
+\begin{lstlisting}
+LABEL_MAP_B: dict[str, int] = {
+    "Normal": 0, "PD": 1, "D1": 2, "D2": 3, "T1": 4, "T2": 5, "T3": 6,
+}
+
+def treinar_modelo_final(
+    X_train: np.ndarray,
+    y_train: np.ndarray,
+    hparams: dict,
+    features_selecionadas: list[str],
+    seed: int = RANDOM_SEED,
+) -> XGBClassifier:
+    clf = XGBClassifier(
+        **hparams,
+        tree_method="hist",
+        eval_metric="mlogloss",
+        random_state=seed,
+        n_jobs=-1,
+        verbosity=0,
+    )
+    clf.fit(X_train, y_train)
+    return clf
+\end{lstlisting}
+
+\subsection{Tabela de Shapes e Fluxo de Tensores no XGBoost}
+A Tabela~\ref{tab:xgb_shapes} detalha a passagem de dados na entrada e saída do classificador.
+
+\begin{table}[htbp]
+  \centering\small
+  \caption{Evolução Dimensional das Matrizes no Classificador XGBoost.}
+  \label{tab:xgb_shapes}
+  \begin{tabularx}{\textwidth}{l p{4.5cm} l X}
+    \toprule
+    \textbf{Variável / Matriz} & \textbf{Origem no Código} & \textbf{Dimensões (Shape)} & \textbf{Descrição no Problema} \\
+    \midrule
+    \texttt{X\_train} (Track A C2) & \texttt{katser\_features\_train.csv} & $(1785, 17)$ & 1.785 transformadores $\times$ 17 atributos \\
+    \texttt{X\_train} (Track A C1) & Filtrado por $\mathbf{m}^*_{\text{IGA}}$ & $(1785, 8)$ & 1.785 transformadores $\times$ 8 atributos ótimos \\
+    \texttt{y\_train} (Track A) & \texttt{LABEL\_MAP\_A} & $(1785,)$ & Rótulos inteiros $\{0, 1, 2, 3\}$ \\
+    \texttt{X\_test} (Track A) & \texttt{katser\_features\_test.csv} & $(900, 17)$ ou $(900, 8)$ & 900 transformadores de teste independente \\
+    \texttt{X\_train} (Track B C3) & \texttt{china\_features\_train.csv} & $(1372, 19)$ ou $(1372, 16)$ & 1.372 instâncias de treino brutas / filtradas \\
+    \texttt{X\_train\_smote} (Track B) & Saída do \texttt{CustomSMOTE} & $(N_{\text{smote}}, 19)$ & Treino sobreamostrado para classes raras \\
+    \texttt{X\_test} (Track B) & \texttt{china\_features\_test.csv} & $(295, 19)$ ou $(295, 16)$ & 295 amostras reais deduplicadas de teste \\
+    \texttt{predict\_proba()} & Invocação do modelo treinado & $(N_{\text{teste}}, C)$ & Matriz de probabilidades Softmax por classe \\
+    \texttt{predict()} & $\arg\max_c p_{i, c}$ & $(N_{\text{teste}},)$ & Diagnóstico pontual predito como inteiro \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\vspace{0.4cm}
+% =========================================================================
+% PILAR 3: DECISÕES DE PROJETO E NUANCES DO TRABALHO
+% =========================================================================
+\section{Pilar 3: Decisões de Projeto e Nuances do Meu Trabalho}
+
+\subsection{Por que XGBoost e não Random Forest, LightGBM ou Redes Neurais?}
+\begin{decisionBox}{Justificativa da Seleção do XGBoost}
+\begin{enumerate}[leftmargin=0.8cm]
+  \item \textbf{Desempenho Comprovado em Dados Tabulares Heterogêneos:} Conforme demonstrado empiricamente por Grinsztajn et al. (2022), ensembles impulsionados por gradiente superam redes neurais profundas (MLP, ResNet tabular) em dados tabulares onde atributos possuem escalas físicas heterogêneas e distribuições fortemente assimétricas (como ppm de gases e razões estequiométricas).
+  \item \textbf{Cálculo Exato e Rápido de Shapley via TreeSHAP:} O algoritmo TreeSHAP (Lundberg et al., 2020) opera com complexidade polinomial $\mathcal{O}(M L d_{\max}^2)$ sobre árvores de decisão. Para modelos de caixa-preta como redes neurais ou SVM com kernel RBF, o cálculo de SHAP depende do KernelSHAP, cuja amostragem de Monte Carlo é exponencial e instável.
+  \item \textbf{Algoritmo \texttt{tree\_method="hist"}:} O particionamento baseado em histogramas discretiza as variáveis contínuas em até 256 caixas (\textit{bins}). Isso reduz a complexidade de busca de divisão de nós de $\mathcal{O}(n \cdot p \log n)$ para $\mathcal{O}(n_{\text{bins}} \cdot p)$, permitindo que o IGA execute dezenas de milhares de dobras de treinamento em tempo hábil.
+\end{enumerate}
+\end{decisionBox}
+
+\subsection{Hiperparâmetros Finais Encontrados pelo IGA e o Efeito de Regularização}
+A Tabela~\ref{tab:xgb_hparams_comparados} compara os hiperparâmetros de referência fixa com os ótimos descobertos pelo IGA no Track A e Track B.
+
+\begin{table}[htbp]
+  \centering\small
+  \caption{Comparação dos Hiperparâmetros do XGBoost: Default vs. Otimizados pelo IGA.}
+  \label{tab:xgb_hparams_comparados}
+  \begin{tabularx}{\textwidth}{l c c c X}
+    \toprule
+    \textbf{Hiperparâmetro} & \textbf{Default (C2/C4)} & \textbf{Track A IGA (C1)} & \textbf{Track B IGA (C3)} & \textbf{Papel Teórico e Efeito Prático} \\
+    \midrule
+    \texttt{learning\_rate} ($\eta$) & 0,10 & 0,128 & 0,0596 & Passo de encolhimento; valor menor no Track B evita sobreajuste \\
+    \texttt{max\_depth} ($d_{\max}$) & 6 & 12 & 12 & Profundidade máxima; permite capturar interações entre 3+ gases \\
+    \texttt{n\_estimators} ($M$) & 100 & 422 & 342 & Número de árvores sequenciais na convergência do resíduo \\
+    \texttt{subsample} ($s_{\text{row}}$) & 0,90 & 1,00 & 0,965 & Amostragem estocástica de linhas por árvore \\
+    \texttt{colsample\_bytree} ($s_{\text{col}}$) & 1,00 & 0,945 & \textbf{0,343} & Amostragem de apenas 34\% das colunas no Track B (alta diversidade) \\
+    \texttt{gamma} ($\gamma$) & 0,00 & 0,00 & \textbf{1,436} & Custo de divisão; poda ramos com ganho de similaridade modesto \\
+    \texttt{min\_child\_weight} ($w_{\text{ch}}$) & 1 & 3 & 3 & Soma mínima de hessiana na folha; protege contra folhas espúrias \\
+    \texttt{reg\_alpha} ($\alpha$) & 0,00 & 0,105 & 0,318 & Regularização $L_1$ Lasso; zera pesos irrelevantes \\
+    \texttt{reg\_lambda} ($\lambda$) & 1,00 & 1,546 & \textbf{3,942} & Regularização $L_2$ Ridge forte; amortece a alta profundidade \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\textbf{Análise Crítica de Engenharia:}\\
+Um questionamento óbvio é por que o IGA selecionou profundidade $d_{\max} = 12$ no Track B se o dataset contém apenas 1.372 amostras de treino (sendo classes como T1 e T2 com menos de 80 amostras). A resposta teórica é que o modelo não sofreu sobreajuste porque o IGA \textbf{compensou a profundidade com forte regularização Ridge ($\lambda = 3{,}94$), penalização de nós ($\gamma = 1{,}44$) e subamostragem extrema de colunas ($s_{\text{col}} = 0{,}34$)}. Cada árvore só enxerga cerca de um terço dos atributos por divisão, atuando de forma similar a uma floresta aleatória regularizada com capacidade de modelar interações termodinâmicas profundas.
+
+\subsection{Estratégias de Tratamento do Desbalanceamento: \texttt{sample\_weight} vs. SMOTE}
+\begin{decisionBox}{Por que usar abordagens diferentes para lidar com o desbalanceamento?}
+\begin{itemize}
+  \item \textbf{No Track A (Uso de \texttt{sample\_weight}):} A base Katser possui $2.100$ séries no treino, com desbalanceamento moderado (a classe majoritária Normal possui $\approx 80\%$, mas as minoritárias PD, D1 e T1 possuem dezenas de amostras). O XGBoost gerencia essa proporção perfeitamente multiplicando os gradientes e hessianas pelo peso da classe ($w_c = N / (C \cdot N_c)$) via \texttt{sample\_weight}, evitando gerar dados sintéticos em séries temporais dinâmicas.
+  \item \textbf{No Track B (Uso de \texttt{CustomSMOTE}):} A base de teste deduplicada contém apenas 16 amostras de T1 e 16 amostras de T2. Com um suporte amostral tão diminuto, o \texttt{sample\_weight} puro provocaria alta instabilidade (uma única amostra de T1 teria peso excessivo, dominando a Hessiana $H_j$ e gerando árvores com alta variância). O \texttt{CustomSMOTE} sintetizou novos vetores diretamente no espaço dos 5 gases brutos e recalculou as 14 variáveis derivadas, densificando o suporte estocástico das classes raras.
+\end{itemize}
+\end{decisionBox}
+
+\vspace{0.4cm}
+% =========================================================================
+% PILAR 4: SABATINA DA BANCA (3 PERGUNTAS DIFÍCEIS E GABARITOS)
+% =========================================================================
+\section{Pilar 4: Sabatina da Banca (3 Perguntas Difíceis e Gabaritos)}
+
+\begin{boardQuestion}{1. Dedução dos Gradientes e Hessianas da Perda Multi-Logloss}
+\textit{“Na regressão com perda quadrática (MSE), a Hessiana é uma constante trivial ($h_i = 1$). No entanto, o seu XGBoost foi configurado com a perda multiclasse Softmax (\texttt{eval\_metric="mlogloss"}). Mostre matematicamente como se calculam o gradiente $g_{i, c}$ e a hessiana $h_{i, c}$ a partir da função de perda Cross-Entropy multiclasse. O que acontece com a Hessiana quando o classificador tem quase 100\% de certeza sobre uma classe ($p_{i, c} \to 1$) ou quando considera a classe quase impossível ($p_{i, c} \to 0$)? Como isso afeta o cálculo do Ganho de Partição?”}
+\end{boardQuestion}
+
+\begin{boardAnswer}
+\textbf{Estratégia de Resposta:}\\
+Apresente a dedução clássica da entropia cruzada com Softmax e evidencie a interpretação da curvatura na convergência:
+
+\begin{enumerate}[leftmargin=0.8cm]
+  \item \textbf{Dedução do Gradiente de Primeira Ordem ($g_{i, c}$):} ``Seja a perda de entropia cruzada para uma instância $i$ com vetor \textit{one-hot} real $\mathbf{y}_i$:
+  \begin{equation}
+    l(\mathbf{y}_i, \hat{\mathbf{y}}_i) = -\sum_{k=0}^{C-1} y_{i, k} \ln(p_{i, k}), \quad p_{i, k} = \frac{e^{\hat{y}_{i, k}}}{\sum_{j} e^{\hat{y}_{i, j}}}
+  \end{equation}
+  Pela regra da cadeia da derivada do Softmax ($\frac{\partial p_{i, k}}{\partial \hat{y}_{i, c}} = p_{i, c}(\delta_{k, c} - p_{i, k})$), a derivada parcial em relação ao logit da classe $c$ resulta em:
+  \begin{equation}
+    g_{i, c} = \frac{\partial l}{\partial \hat{y}_{i, c}} = -\sum_{k=0}^{C-1} y_{i, k} \frac{1}{p_{i, k}} \frac{\partial p_{i, k}}{\partial \hat{y}_{i, c}} = p_{i, c} \left( \sum_{k} y_{i, k} \right) - y_{i, c} = \mathbf{p_{i, c} - y_{i, c}}
+  \end{equation}
+  O gradiente é exatamente o resíduo da probabilidade prevista em relação ao rótulo real.''
+  \item \textbf{Dedução da Hessiana de Segunda Ordem ($h_{i, c}$):} ``Derivando o gradiente $g_{i, c}$ novamente em relação a $\hat{y}_{i, c}$:
+  \begin{equation}
+    h_{i, c} = \frac{\partial g_{i, c}}{\partial \hat{y}_{i, c}} = \frac{\partial (p_{i, c} - y_{i, c})}{\partial \hat{y}_{i, c}} = \mathbf{p_{i, c} (1 - p_{i, c})}
+  \end{equation}
+  \item \textbf{Comportamento nos Casos Limites e Impacto no Ganho:}
+  \begin{itemize}
+    \item Quando o modelo já tem certeza absoluta ($p_{i, c} \to 1$ para a classe verdadeira ou $p_{i, c} \to 0$ para uma classe errônea), o produto $p_{i, c}(1 - p_{i, c}) \to 0$, fazendo com que a hessiana $h_{i, c}$ convirja para zero.
+    \item Na fórmula do Ganho ($\text{Gain}$), o denominador é $H + \lambda$. Se todas as amostras de uma folha já estiverem classificadas com alta confiança ($p \to 1$), $H_j \approx 0$ e $G_j \approx 0$, resultando em $\text{Gain} \le 0$ após a subtração de $\gamma$. Isso impede que o XGBoost gaste divisões desnecessárias refinando amostras já perfeitamente resolvidas, concentrando as novas árvores exclusivamente nos transformadores com diagnósticos incertos ou fronteiriços.''
+  \end{itemize}
+\end{enumerate}
+\end{boardAnswer}
+
+\begin{boardQuestion}{2. Profundidade 12 com 1.372 Amostras de Treino (295 de Teste): Como Evitar Overfitting?}
+\textit{“Na Tabela do TCC, o modelo IGA do Track B (C3) opera com profundidade máxima $d_{\max} = 12$. Uma árvore binária com profundidade 12 pode gerar teoricamente até $2^{12} = 4.096$ folhas terminais. Considerando que o conjunto de treino deduplicado contém 1.372 amostras (e o teste 295), essa árvore teria mais folhas potenciais do que o número total de amostras disponíveis! Na teoria estatística, isso é o cenário clássico de sobreajuste catastrófico (\textit{memorização de dados}). Como o seu modelo obteve $F_1 = 0{,}7970$ no teste ($0{,}8000$ nas 6 classes de falha) e não memorizou o treino? Demonstre formalmente quais mecanismos matemáticos impediram esse colapso.”}
+\end{boardQuestion}
+
+\begin{boardAnswer}
+\textbf{Estratégia de Resposta:}\\
+Explique a interação tripla entre os mecanismos de regularização do XGBoost ($\gamma$, $\lambda$, $w_{\text{child}}$ e $s_{\text{col}}$) que limitam a expansão efetiva da árvore muito antes do teto teórico:
+
+\begin{enumerate}[leftmargin=0.8cm]
+  \item \textbf{A Profundidade $d_{\max}$ é Apenas um Limite Superior (Teto), Não uma Obrigação:} ``O parâmetro \texttt{max\_depth=12} define apenas a profundidade máxima permitida, mas a árvore não é construída como uma árvore binária completa de 4.096 folhas. Três restrições matemáticas impediram que ela atingisse essa dimensão:
+  \begin{enumerate}
+    \item \textbf{Penalização de Custo por Folha ($\gamma = 1{,}436$):} Uma nova partição só é aceita se o ganho de impureza superar $\gamma$ ($\text{Gain} > 1{,}436$). Como demonstrado na Equação~(\ref{eq:xgb_gain}), divisões que separam apenas 1 ou 2 amostras ruidosas geram ganhos próximos de zero e são eliminadas pelo algoritmo na etapa de poda reversa (\textit{pruning}).
+    \item \textbf{Peso Mínimo Foliar (\texttt{min\_child\_weight = 3}):} Uma folha só pode ser criada se a soma de suas hessianas for no mínimo 3 ($\sum_{i \in I_j} h_i \ge 3$). Como a hessiana máxima de uma amostra multiclasse é $h \le 0{,}25$, uma folha exige o suporte equivalente acumulado de pelo menos 12 instâncias incertas, tornando impossível criar folhas com 1 ou 2 amostras isoladas.
+    \item \textbf{Subamostragem Drástica de Colunas ($s_{\text{col}} = 0{,}343$):} A cada nó, o XGBoost sorteia estocasticamente apenas $34\%$ das variáveis disponíveis (cerca de 5 ou 6 atributos dos 16 selecionados). Isso descorrelaciona as árvores, simulando a injeção de diversidade de uma floresta aleatória e impedindo que atributos com picos de ruído dominem todas as ramificações.
+  \end{enumerate}
+  \item \textbf{Regularização Ridge Amortecedora ($\lambda = 3{,}942$):} O peso ótimo da folha é $w_j^* = -G_j / (H_j + 3{,}942)$. A adição desse termo de quase 4 unidades no denominador amortece o \textit{logit} de saída, garantindo que mesmo folhas profundas recebam pontuações pequenas que só alteram a probabilidade final de forma gradual e ponderada pela taxa de aprendizado suave ($\eta = 0{,}0596$).''
+\end{enumerate}
+\end{boardAnswer}
+
+\begin{boardQuestion}{3. A Diferença entre \texttt{sample\_weight} e SMOTE na Otimização do XGBoost}
+\textit{“Por que no Track A você utilizou a ponderação por instâncias (\texttt{sample\_weight}), enquanto no Track B você desenvolveu uma classe própria de sobreamostragem sintética (\texttt{CustomSMOTE})? Qual é a diferença teórica de otimização na expansão de Taylor do XGBoost entre reponderar instâncias existentes e gerar pontos sintéticos no espaço dos gases?”}
+\end{boardQuestion}
+
+\begin{boardAnswer}
+\textbf{Estratégia de Resposta:}\\
+Demonstre domínio sobre como pesos afetam o cálculo de derivadas e justifique a escolha pela densidade geométrica das classes no espaço de dados:
+
+\begin{enumerate}[leftmargin=0.8cm]
+  \item \textbf{O Efeito do \texttt{sample\_weight} na Otimização de Segunda Ordem:} ``Ao atribuir um peso $w_i > 1$ a uma instância de classe minoritária, a função de perda sofre uma homotetia local: $g_i^{\text{pond}} = w_i \cdot g_i$ e $h_i^{\text{pond}} = w_i \cdot h_i$. No cálculo do peso da folha:
+  \begin{equation}
+    w_j^* = -\frac{\sum_{i} w_i g_i}{\sum_{i} w_i h_i + \lambda}
+  \end{equation}
+  O \texttt{sample\_weight} aumenta o peso do erro daquela amostra nas decisões de divisão, mas \textbf{não altera a geometria do suporte amostral}. Ele apenas diz ao algoritmo para não errar aquele ponto específico.''
+  \item \textbf{A Fragilidade do \texttt{sample\_weight} com Classes Extremamente Raras (Track B):} ``No Track B, classes como T1 e T2 possuem apenas 16 amostras de teste. Se utilizássemos apenas \texttt{sample\_weight}, o peso atribuído a cada ponto seria gigantesco. Se uma única dessas 16 amostras contiver um erro de sensor cromatográfico ou estiver na fronteira geométrica de Duval, ela exercerá uma força desproporcional sobre o gradiente $G_j$, distorcendo a árvore inteira para acomodar um ponto ruidoso (alta variância).''
+  \item \textbf{A Vantagem do \texttt{CustomSMOTE} no Track B:} ``O \texttt{CustomSMOTE} interpola os $k=5$ vizinhos mais próximos no espaço contínuo dos gases brutos, criando uma \textbf{densificação contínua da variedade riemanniana da classe} ($\text{manifold}$). Isso fornece ao XGBoost múltiplos exemplos interpolados, permitindo que as árvores aprendam uma fronteira de partição suave e estável em vez de criar um nó folha agudo em torno de um único ponto real com peso artificialmente inflado. Já no Track A, como a base possui $2.100$ séries completas e suporte estatístico suficiente, o \texttt{sample\_weight} foi suficiente e evitou gerar séries temporais sintéticas que poderiam violar a física de difusão contínua.''
+\end{enumerate}
+\end{boardAnswer}
+
+\vspace{0.6cm}
+\begin{center}
+  \rule{0.6\textwidth}{0.8pt}\\[0.2cm]
+  \small\textbf{\textsf{Fim do Módulo 4 -- Domínio Pleno do Classificador XGBoost para a Banca!}}
+\end{center}
+
+\end{document}

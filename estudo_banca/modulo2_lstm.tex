@@ -1,0 +1,575 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{lmodern}
+\usepackage[margin=2.2cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsfonts,mathtools}
+\usepackage{booktabs,tabularx,array,longtable,multirow}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage[most,breakable,skins]{tcolorbox}
+\usepackage[colorlinks=true,linkcolor=MidnightBlue,citecolor=MidnightBlue,urlcolor=MidnightBlue]{hyperref}
+
+% Cores personalizadas para o material de estudo
+\definecolor{NavyBlue}{RGB}{16, 44, 87}
+\definecolor{MidnightBlue}{RGB}{24, 43, 73}
+\definecolor{DarkSlateGray}{RGB}{38, 70, 83}
+\definecolor{TealAccent}{RGB}{42, 157, 143}
+\definecolor{WarningRed}{RGB}{180, 40, 40}
+\definecolor{CardBg}{RGB}{248, 249, 250}
+\definecolor{CodeBg}{RGB}{244, 245, 247}
+\definecolor{BorderColor}{RGB}{218, 224, 233}
+\definecolor{MathHighlight}{RGB}{235, 243, 250}
+
+% Configuração de cabeçalho e rodapé
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textbf{\textsf{TCC Engenharia da Computação | Unisinos}}}
+\fancyhead[R]{\small\textsf{Módulo 2: Rede Neural Recorrente LSTM}}
+\fancyfoot[L]{\small\textsf{Material de Preparação para Banca de Defesa}}
+\fancyfoot[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0.6pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Configuração de listagem de código Python
+\lstset{
+  language=Python,
+  backgroundcolor=\color{CodeBg},
+  basicstyle=\ttfamily\footnotesize\color{black},
+  keywordstyle=\bfseries\color{NavyBlue},
+  commentstyle=\itshape\color{DarkSlateGray!80},
+  stringstyle=\color{TealAccent!90!black},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  stepnumber=1,
+  numbersep=8pt,
+  frame=single,
+  frameround=tttt,
+  rulecolor=\color{BorderColor},
+  breaklines=true,
+  breakatwhitespace=true,
+  showstringspaces=false,
+  tabsize=4,
+  captionpos=b
+}
+
+% Caixas temáticas (tcolorbox)
+\newtcolorbox{mathBox}[1]{
+  enhanced,
+  breakable,
+  colback=MathHighlight,
+  colframe=NavyBlue,
+  arc=3mm,
+  boxrule=1pt,
+  title=\textbf{\textsf{#1}},
+  coltitle=white,
+  fonttitle=\small\sffamily,
+  attach boxed title to top left={yshift=-2mm,xshift=4mm},
+  boxed title style={colback=NavyBlue,arc=1.5mm},
+  before skip=12pt,
+  after skip=12pt
+}
+
+\newtcolorbox{codeBox}[1]{
+  enhanced,
+  breakable,
+  colback=CardBg,
+  colframe=DarkSlateGray,
+  arc=3mm,
+  boxrule=0.8pt,
+  title=\textbf{\textsf{#1}},
+  coltitle=white,
+  fonttitle=\small\sffamily,
+  attach boxed title to top left={yshift=-2mm,xshift=4mm},
+  boxed title style={colback=DarkSlateGray,arc=1.5mm},
+  before skip=12pt,
+  after skip=12pt
+}
+
+\newtcolorbox{decisionBox}[1]{
+  enhanced,
+  breakable,
+  colback=CardBg,
+  colframe=TealAccent!80!black,
+  arc=3mm,
+  boxrule=1pt,
+  title=\textbf{\textsf{#1}},
+  coltitle=white,
+  fonttitle=\small\sffamily,
+  attach boxed title to top left={yshift=-2mm,xshift=4mm},
+  boxed title style={colback=TealAccent!80!black,arc=1.5mm},
+  before skip=12pt,
+  after skip=12pt
+}
+
+\newtcolorbox{boardQuestion}[1]{
+  enhanced,
+  breakable,
+  colback=CardBg,
+  colframe=WarningRed,
+  arc=3mm,
+  boxrule=1pt,
+  title=\textbf{\textsf{Pergunta Crítica da Banca: #1}},
+  coltitle=white,
+  fonttitle=\small\sffamily,
+  attach boxed title to top left={yshift=-2mm,xshift=4mm},
+  boxed title style={colback=WarningRed,arc=1.5mm},
+  before skip=12pt,
+  after skip=6pt
+}
+
+\newtcolorbox{boardAnswer}{
+  enhanced,
+  breakable,
+  colback=CardBg,
+  colframe=MidnightBlue,
+  arc=3mm,
+  boxrule=1pt,
+  title=\textbf{\textsf{Gabarito Técnico Ideal de Resposta (Blindagem de Banca)}},
+  coltitle=white,
+  fonttitle=\small\sffamily,
+  attach boxed title to top left={yshift=-2mm,xshift=4mm},
+  boxed title style={colback=MidnightBlue,arc=1.5mm},
+  before skip=6pt,
+  after skip=14pt
+}
+
+\begin{document}
+
+% -------------------------------------------------------------------------
+% CABEÇALHO DO DOCUMENTO
+% -------------------------------------------------------------------------
+\begin{center}
+  {\large\textbf{\textsf{UNIVERSIDADE DO VALE DO RIO DOS SINOS (UNISINOS)}}}\\[0.2cm]
+  {\normalsize\textbf{\textsf{CURSO DE ENGENHARIA DA COMPUTAÇÃO}}}\\[0.4cm]
+  {\LARGE\textbf{\textcolor{NavyBlue}{\textsf{GUIA DE DOMÍNIO TÉCNICO E DEFESA DE BANCA}}}}\\[0.2cm]
+  {\Large\textbf{\textsf{MÓDULO 2: Rede Neural Recorrente LSTM (Estágio 1 - Track A)}}}\\[0.2cm]
+  {\normalsize\textsf{Portas Forget, Input e Output $\longrightarrow$ Atualização da Célula $\longrightarrow$ Janelamento Temporal $\longrightarrow$ Inferência Recursiva Multi-Horizonte}}\\[0.4cm]
+  \rule{\textwidth}{1pt}\\[0.2cm]
+  \small\textbf{Candidato:} Andrio Gabriel Epping \quad$|$\quad \textbf{Papel:} Orientador Técnico \& Examinador Rigoroso de Banca \quad$|$\quad \textbf{Data:} Novembro de 2026
+\end{center}
+\vspace{0.3cm}
+
+% -------------------------------------------------------------------------
+% APRESENTAÇÃO DO MÓDULO
+% -------------------------------------------------------------------------
+\section*{Apresentação do Módulo de Treinamento}
+Este guia constitui o material de domínio aprofundado do \textbf{Módulo 2: Rede Neural Recorrente LSTM (Long Short-Term Memory)}, correspondente ao Estágio 1 do pipeline do Track A do Trabalho de Conclusão de Curso (TCC).
+
+O objetivo deste módulo é garantir que o candidato compreenda, com precisão matemática irrepreensível, como cada porta lógica regula o fluxo de gradientes e preserva a memória do óleo isolante, como o janelamento temporal contínuo foi implementado em Python sobre tensores tridimensionais, quais são as dimensões exatas de pesos e parâmetros treináveis, por que a comparação com a persistência ingênua esclarece o comportamento dos dados, e como responder com segurança inabalável às arguições mais rigorosas da banca examinadora.
+
+\vspace{0.2cm}
+\tableofcontents
+\vspace{0.4cm}
+\newpage
+
+% =========================================================================
+% PILAR 1: FUNDAMENTAÇÃO MATEMÁTICA E TEÓRICA
+% =========================================================================
+\section{Pilar 1: Fundamentação Matemática e Teórica}
+
+\subsection{A Limitação das RNNs Simples e o Mecanismo de Portas da LSTM}
+As redes neurais recorrentes convencionais (Vanilla RNN) processam sequências temporais aplicando uma transformação estritamente não-linear recorrente a cada passo de tempo $t$:
+\begin{equation}
+  \mathbf{h}_t = \tanh\left( \mathbf{W}_x \mathbf{x}_t + \mathbf{W}_h \mathbf{h}_{t-1} + \mathbf{b} \right)
+\end{equation}
+onde $\mathbf{x}_t \in \mathbb{R}^D$ é o vetor de entrada no instante $t$ e $\mathbf{h}_t \in \mathbb{R}^H$ é o estado oculto.
+
+Durante o treinamento pelo algoritmo de Retropropagação no Tempo (\textit{Backpropagation Through Time} -- BPTT), o gradiente da função de perda $\mathcal{L}$ em relação ao estado oculto inicial $\mathbf{h}_1$ envolve o produto encadeado da matriz Jacobiana:
+\begin{equation}
+  \frac{\partial \mathcal{L}}{\partial \mathbf{h}_1} = \frac{\partial \mathcal{L}}{\partial \mathbf{h}_T} \prod_{k=2}^T \frac{\partial \mathbf{h}_k}{\partial \mathbf{h}_{k-1}} = \frac{\partial \mathcal{L}}{\partial \mathbf{h}_T} \prod_{k=2}^T \operatorname{diag}\left(1 - \tanh^2(\cdot)\right) \mathbf{W}_h^\top
+\end{equation}
+Se o maior autovalor de $\mathbf{W}_h$ for inferior a 1, os autovalores do produto aproximam-se de zero exponencialmente com o aumento do horizonte temporal $T$ ($\lambda^T \to 0$), provocando o \textbf{desaparecimento do gradiente} (\textit{vanishing gradient}) e tornando a rede incapaz de aprender dependências temporais longas (superiores a 10--15 passos). Se for maior que 1, ocorre a explosão do gradiente.
+
+A arquitetura \textit{Long Short-Term Memory} (Hochreiter \& Schmidhuber, 1997; Graves, 2013) soluciona essa deficiência ao introduzir um canal linear aditivo dedicado -- o \textbf{Estado da Célula} ($\mathbf{C}_t \in \mathbb{R}^H$) -- regulado por três mecanismos de portas não-lineares baseados na função sigmoide logísitica:
+\begin{equation}
+  \sigma(z) = \frac{1}{1 + e^{-z}} \in (0, 1)
+\end{equation}
+
+\subsection{Equacionamento Algébrico das Portas e Atualização Celular}
+A cada instante de tempo $t \in \{1, \dots, w\}$ dentro da janela de entrada, a célula LSTM recebe o vetor de gases atual $\mathbf{x}_t \in \mathbb{R}^D$ ($D=4$) e o vetor de estado oculto do passo anterior $\mathbf{h}_{t-1} \in \mathbb{R}^H$ ($H=64$). O fluxo de informação obedece ao seguinte sistema de equações:
+
+\begin{mathBox}{Sistema de Equações Fundamentais da Célula LSTM}
+\textbf{1. Porta de Esquecimento (\textit{Forget Gate}):}
+\begin{equation}
+  \mathbf{f}_t = \sigma\left( \mathbf{W}_f \mathbf{x}_t + \mathbf{U}_f \mathbf{h}_{t-1} + \mathbf{b}_f \right) \in (0, 1)^H
+  \label{eq:forget_gate}
+\end{equation}
+\textbf{2. Porta de Entrada (\textit{Input Gate}):}
+\begin{equation}
+  \mathbf{i}_t = \sigma\left( \mathbf{W}_i \mathbf{x}_t + \mathbf{U}_i \mathbf{h}_{t-1} + \mathbf{b}_i \right) \in (0, 1)^H
+  \label{eq:input_gate}
+\end{equation}
+\textbf{3. Vetor de Estado Candidato (\textit{Candidate Cell State}):}
+\begin{equation}
+  \tilde{\mathbf{C}}_t = \tanh\left( \mathbf{W}_c \mathbf{x}_t + \mathbf{U}_c \mathbf{h}_{t-1} + \mathbf{b}_c \right) \in (-1, 1)^H
+  \label{eq:candidate_gate}
+\end{equation}
+\textbf{4. Atualização do Estado da Célula (\textit{Cell State Update}):}
+\begin{equation}
+  \mathbf{C}_t = \mathbf{f}_t \odot \mathbf{C}_{t-1} + \mathbf{i}_t \odot \tilde{\mathbf{C}}_t \in \mathbb{R}^H
+  \label{eq:cell_update}
+\end{equation}
+\textbf{5. Porta de Saída (\textit{Output Gate}):}
+\begin{equation}
+  \mathbf{o}_t = \sigma\left( \mathbf{W}_o \mathbf{x}_t + \mathbf{U}_o \mathbf{h}_{t-1} + \mathbf{b}_o \right) \in (0, 1)^H
+  \label{eq:output_gate}
+\end{equation}
+\textbf{6. Estado Oculto Resultante (\textit{Hidden State}):}
+\begin{equation}
+  \mathbf{h}_t = \mathbf{o}_t \odot \tanh(\mathbf{C}_t) \in (-1, 1)^H
+  \label{eq:hidden_state}
+\end{equation}
+onde:
+\begin{itemize}
+  \item $\mathbf{W}_f, \mathbf{W}_i, \mathbf{W}_c, \mathbf{W}_o \in \mathbb{R}^{H \times D}$ são as matrizes de pesos da entrada externa $\mathbf{x}_t$;
+  \item $\mathbf{U}_f, \mathbf{U}_i, \mathbf{U}_c, \mathbf{U}_o \in \mathbb{R}^{H \times H}$ são as matrizes de pesos recorrentes do estado anterior $\mathbf{h}_{t-1}$;
+  \item $\mathbf{b}_f, \mathbf{b}_i, \mathbf{b}_c, \mathbf{b}_o \in \mathbb{R}^H$ são os vetores de viés (\textit{biases});
+  \item $\odot$ denota o produto de Hadamard (multiplicação elemento a elemento entre vetores).
+\end{itemize}
+\end{mathBox}
+
+\subsection{Significado Físico de Cada Termo no Contexto de DGA}
+No monitoramento contínuo de transformadores de potência, cada componente da equação reflete fenômenos físico-químicos reais da decomposição de óleo mineral e papel isolante:
+\begin{itemize}
+  \item \textbf{Porta de Esquecimento ($\mathbf{f}_t$):} Determina a fração da concentração histórica acumulada $\mathbf{C}_{t-1}$ a ser preservada. Quando $\mathbf{f}_t \approx \mathbf{1}$, o histórico térmico e químico é preservado integralmente ao longo de semanas. Quando $\mathbf{f}_t \to \mathbf{0}$, a rede realiza o descarte de memória, simulando intervenções de manutenção física do equipamento, tais como a desumidificação, desgaseificação ou recirculação forçada do óleo isolante na subestação.
+  \item \textbf{Porta de Entrada ($\mathbf{i}_t$) e Candidato ($\tilde{\mathbf{C}}_t$):} O vetor $\tilde{\mathbf{C}}_t$ expressa a nova taxa instantânea de geração gasosa decorrente de um estresse elétrico ou térmico recente. A porta $\mathbf{i}_t$ atua como uma barreira seletiva: filtra variações ruidosas de baixa amplitude (flutuações circadianas de temperatura ambiente) e absorve prontamente degraus ou tendências aceleradas geradas por descargas elétricas incipientes.
+  \item \textbf{Atualização Aditiva ($\mathbf{C}_t$):} A equação~(\ref{eq:cell_update}) modela a \textbf{conservação de massa e solubilidade} dos gases no óleo mineral. Como a derivada parcial:
+  \begin{equation}
+    \frac{\partial \mathbf{C}_t}{\partial \mathbf{C}_{t-1}} = \operatorname{diag}(\mathbf{f}_t)
+  \end{equation}
+  não envolve multiplicações diretas por matrizes de pesos saturadas, o gradiente propaga-se no carrossel de erro constante (\textit{Constant Error Carousel} -- CEC) sem atenuar exponencialmente quando $\mathbf{f}_t \approx 1$.
+  \item \textbf{Porta de Saída ($\mathbf{o}_t$) e Estado Oculto ($\mathbf{h}_t$):} O estado da célula $\mathbf{C}_t$ retém a concentração física latente acumulada, enquanto $\mathbf{h}_t$ projeta apenas a fração necessária para prever a concentração superficial observável pelos sensores no passo imediatamente seguinte.
+\end{itemize}
+
+\subsection{Topologia Empilhada e Camada de Saída Linear}
+A arquitetura implementada no TCC (\texttt{src/lstm/model.py}) emprega duas camadas LSTM empilhadas (\textit{stacked}):
+\begin{enumerate}
+  \item \textbf{Camada Recorrente 1:} Recebe a sequência temporal tridimensional $\mathbf{X} \in \mathbb{R}^{B \times w \times D}$ e opera com \texttt{return\_sequences=True}:
+  \begin{equation}
+    \mathbf{H}^{(1)} = \left[ \mathbf{h}_1^{(1)}, \mathbf{h}_2^{(1)}, \dots, \mathbf{h}_w^{(1)} \right] \in \mathbb{R}^{B \times w \times 64}
+  \end{equation}
+  \item \textbf{Camada de Regularização Dropout 1:} Zera aleatoriamente $20\%$ das conexões durante o treino com taxa $p=0{,}20$.
+  \item \textbf{Camada Recorrente 2:} Processa a sequência $\mathbf{H}^{(1)}$ e opera com \texttt{return\_sequences=False}, descartando as etapas intermediárias e emitindo apenas o último estado oculto:
+  \begin{equation}
+    \mathbf{h}_w^{(2)} \in \mathbb{R}^{B \times 64}
+  \end{equation}
+  \item \textbf{Camada de Regularização Dropout 2:} Taxa de abandono $p=0{,}20$.
+  \item \textbf{Camada Densa de Projeção Linear (One-Step Forecast):}
+  \begin{equation}
+    \hat{\mathbf{x}}_{t+1} = \mathbf{W}_{\text{out}} \mathbf{h}_w^{(2)} + \mathbf{b}_{\text{out}} \in \mathbb{R}^{B \times 4}
+  \end{equation}
+  onde $\mathbf{W}_{\text{out}} \in \mathbb{R}^{4 \times 64}$ e $\mathbf{b}_{\text{out}} \in \mathbb{R}^4$. Como se trata de regressão contínua em concentração física, \textbf{nenhuma função de ativação não-linear é aplicada na saída} (função de ativação linear/identidade).
+\end{enumerate}
+
+\subsection{Formulação Matemática do Janelamento e Inferência Recursiva}
+\begin{mathBox}{Matemática do Janelamento e Projeção Multi-Passo}
+Seja uma série temporal de $T = 420$ leituras horárias (período de amostragem de 12 horas, totalizando 210 dias de monitoramento).
+
+\textbf{1. Janelamento Deslizante ($w=50, h=1$):}\\
+Para cada série individual, constrói-se o conjunto de pares entrada-alvo:
+\begin{equation}
+  \mathcal{D}_{\text{janelas}} = \left\{ \left( \mathbf{W}_k, \; \mathbf{y}_k \right) \right\}_{k=1}^{T - w - h + 1}
+\end{equation}
+onde o número de amostras geradas por série é:
+\begin{equation}
+  N_{\text{amostras}} = 420 - 50 - 1 + 1 = 370 \text{ pares por transformador}
+\end{equation}
+A janela de entrada $\mathbf{W}_k$ e o alvo $\mathbf{y}_k$ são dados por:
+\begin{equation}
+  \mathbf{W}_k = \begin{bmatrix} \mathbf{x}_k^\top \\ \mathbf{x}_{k+1}^\top \\ \vdots \\ \mathbf{x}_{k+w-1}^\top \end{bmatrix} \in \mathbb{R}^{50 \times 4}, \quad \mathbf{y}_k = \mathbf{x}_{k+w} \in \mathbb{R}^4
+\end{equation}
+
+\textbf{2. Função de Perda (MSE):}
+\begin{equation}
+  \mathcal{L}_{\text{MSE}}(\Theta) = \frac{1}{B} \sum_{b=1}^B \frac{1}{D} \sum_{d=1}^4 \left( y_{b, d} - \hat{y}_{b, d} \right)^2
+\end{equation}
+
+\textbf{3. Inferência Recursiva Multi-Horizonte (Auto-Regressão Roll-Out):}\\
+Para projetar concentrações a horizontes $h \in \{14, 28\}$ passos à frente (7 e 14 dias), o modelo é executado recursivamente $h$ vezes:
+\begin{align}
+  \hat{\mathbf{x}}_{T+1} &= f_\Theta\left( \left[ \mathbf{x}_{T-w+1}, \mathbf{x}_{T-w+2}, \dots, \mathbf{x}_T \right] \right) \\
+  \hat{\mathbf{x}}_{T+2} &= f_\Theta\left( \left[ \mathbf{x}_{T-w+2}, \dots, \mathbf{x}_T, \hat{\mathbf{x}}_{T+1} \right] \right) \\
+  &\;\;\vdots \notag\\
+  \hat{\mathbf{x}}_{T+h} &= f_\Theta\left( \left[ \mathbf{x}_{T-w+h}, \dots, \hat{\mathbf{x}}_{T+h-1} \right] \right)
+\end{align}
+A cada iteração, a janela temporal descarta a observação mais antiga na posição 0 e anexa a estimativa prevista mais recente no final da fila (buffer circular / \textit{rolling window}).
+\end{mathBox}
+
+\vspace{0.4cm}
+% =========================================================================
+% PILAR 2: RASTREAMENTO NO CÓDIGO (LINHA A LINHA)
+% =========================================================================
+\section{Pilar 2: Rastreamento no Código (Linha a Linha)}
+
+\subsection{Mapeamento dos Arquivos do Módulo LSTM}
+Os arquivos que implementam a Fase 3 e o Estágio 1 do Track A estão localizados na pasta \texttt{src/lstm/} e \texttt{src/preprocessing/}:
+\begin{itemize}
+  \item \textbf{\texttt{src/preprocessing/windowing.py}:} Funções \texttt{criar\_janelas()} e \texttt{criar\_dataset\_janelado()}.
+  \item \textbf{\texttt{src/lstm/data\_loader.py}:} Classe \texttt{ScalerPerGas} e função \texttt{preparar\_datasets()}.
+  \item \textbf{\texttt{src/lstm/model.py}:} Funções \texttt{construir\_modelo()} e \texttt{fixar\_seeds()}.
+  \item \textbf{\texttt{src/lstm/trainer.py}:} Funções \texttt{treinar\_modelo()} e \texttt{buscar\_melhor\_janela()}.
+  \item \textbf{\texttt{src/lstm/multi\_horizon\_eval.py}:} Função \texttt{previsao\_recursiva()} e avaliação multi-horizonte.
+  \item \textbf{\texttt{src/feature\_engineering/build\_katser\_features.py}:} Função \texttt{prever\_gases\_futuros()} para extração das variáveis $h=14$ e $h=28$ do XGBoost.
+\end{itemize}
+
+\subsection{Rastreamento da Construção do Modelo (\texttt{src/lstm/model.py})}
+O código em Python que implementa a arquitetura de 2 camadas empilhadas com Dropout e saída Dense:
+
+\begin{lstlisting}
+def construir_modelo(w: int, n_features: int = 4):
+    inputs = tf.keras.Input(shape=(w, n_features), name="gas_window")
+
+    # Camada 1: return_sequences=True emite shape (batch, 50, 64)
+    x = tf.keras.layers.LSTM(64, return_sequences=True, name="lstm_1")(inputs)
+    x = tf.keras.layers.Dropout(0.2, name="dropout_1")(x)
+
+    # Camada 2: return_sequences=False emite apenas o ultimo estado (batch, 64)
+    x = tf.keras.layers.LSTM(64, return_sequences=False, name="lstm_2")(x)
+    x = tf.keras.layers.Dropout(0.2, name="dropout_2")(x)
+
+    # Saida: projecao linear sem ativacao para os 4 gases (batch, 4)
+    outputs = tf.keras.layers.Dense(n_features, name="gas_forecast")(x)
+
+    model = tf.keras.Model(inputs=inputs, outputs=outputs, name="lstm_dga_forecast")
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+        loss="mse",
+        metrics=["mae"]
+    )
+    return model
+\end{lstlisting}
+
+\subsection{Cálculo Analítico do Número de Parâmetros Treináveis}
+Um questionamento frequente em bancas de Engenharia é exigir a demonstração exata de quantos pesos existem na rede:
+
+\begin{mathBox}{Dedução Formal dos Pesos Treináveis da Rede LSTM}
+Uma camada LSTM com dimensão de entrada $D$ e dimensão oculta $H$ possui 4 blocos de transformação afim ($\mathbf{f}_t, \mathbf{i}_t, \tilde{\mathbf{C}}_t, \mathbf{o}_t$). O número de parâmetros por camada é:
+\begin{equation}
+  P_{\text{LSTM}} = 4 \times \left( H \times D + H \times H + H \right) = 4 \times H \times (D + H + 1)
+\end{equation}
+
+\textbf{1. Camada \texttt{lstm\_1} ($D=4, H=64$):}
+\begin{equation}
+  P_1 = 4 \times \left( 64 \times 4 + 64 \times 64 + 64 \right) = 4 \times (256 + 4096 + 64) = 4 \times 4416 = \mathbf{17.664} \text{ parâmetros}
+\end{equation}
+\textbf{2. Camada \texttt{lstm\_2} ($D=64, H=64$):}
+\begin{equation}
+  P_2 = 4 \times \left( 64 \times 64 + 64 \times 64 + 64 \right) = 4 \times (4096 + 4096 + 64) = 4 \times 8256 = \mathbf{33.024} \text{ parâmetros}
+\end{equation}
+\textbf{3. Camada \texttt{gas\_forecast} (Densa com entrada 64 e saída 4):}
+\begin{equation}
+  P_3 = (64 \times 4) + 4 = 256 + 4 = \mathbf{260} \text{ parâmetros}
+\end{equation}
+\textbf{Total Treinável da Rede:}
+\begin{equation}
+  P_{\text{total}} = 17.664 + 33.024 + 260 = \mathbf{50.948} \text{ parâmetros treináveis}
+\end{equation}
+As camadas de \texttt{Dropout} não possuem nenhum parâmetro treinável ($P=0$).
+\end{mathBox}
+
+\subsection{Rastreamento da Normalização \texttt{ScalerPerGas} (\texttt{src/lstm/data\_loader.py})}
+A normalização independente por gás equaliza as amplitudes discrepantes:
+
+\begin{lstlisting}
+class ScalerPerGas:
+    def fit(self, series_treino: np.ndarray) -> "ScalerPerGas":
+        # Achatamento (n_series * T, n_gases) mantendo integridade temporal
+        flat = series_treino.reshape(-1, series_treino.shape[-1])  # (1785*420, 4)
+        self.min_ = flat.min(axis=0)                               # Shape: (4,)
+        self.scale_ = flat.max(axis=0) - flat.min(axis=0)          # Shape: (4,)
+        self.scale_ = np.where(self.scale_ == 0, 1.0, self.scale_)
+        return self
+
+    def transform(self, series: np.ndarray) -> np.ndarray:
+        return (series - self.min_) / self.scale_  # Normaliza estritamente em [0, 1]
+
+    def inverse_transform(self, series: np.ndarray) -> np.ndarray:
+        return series * self.scale_ + self.min_    # Reverte para ppm ou escala original
+\end{lstlisting}
+
+\subsection{Rastreamento da Inferência Recursiva (\texttt{build\_katser\_features.py})}
+O laço auto-regressivo que projeta as variáveis $h=14$ e $h=28$ consumidas pelo XGBoost:
+
+\begin{lstlisting}
+def prever_gases_futuros(modelo, janela_norm: np.ndarray, h: int) -> np.ndarray:
+    janela_atual = janela_norm.copy()  # Shape: (50, 4)
+
+    for _ in range(h):
+        # Cria dimensao de batch para inferencia no Keras: (1, 50, 4)
+        x_input = janela_atual[np.newaxis, :, :]
+        proximo = modelo.predict(x_input, verbose=0)[0]  # Shape: (4,)
+        # Desloca a janela: elimina o passo mais antigo e anexa a predicao no fim
+        janela_atual = np.vstack([janela_atual[1:], proximo])
+
+    return proximo  # Retorna exclusivamente o vetor no horizonte h: shape (4,)
+\end{lstlisting}
+
+\subsection{Tabela de Evolução Dimensional dos Tensores}
+A Tabela~\ref{tab:shapes_lstm} sumariza as transformações de dimensões desde as séries brutas até a saída das features tabulares.
+
+\begin{table}[htbp]
+  \centering\small
+  \caption{Evolução Dimensional dos Tensores no Pipeline da LSTM.}
+  \label{tab:shapes_lstm}
+  \begin{tabularx}{\textwidth}{l p{4.5cm} l X}
+    \toprule
+    \textbf{Etapa / Tensor} & \textbf{Operação no Código} & \textbf{Shape do Tensor} & \textbf{Descrição Física} \\
+    \midrule
+    \texttt{s\_treino} & \texttt{carregar\_splits()} & $(1785, 420, 4)$ & 1.785 séries de treino, 420 horas, 4 gases \\
+    \texttt{s\_teste} & \texttt{carregar\_splits()} & $(900, 420, 4)$ & 900 séries oficiais de teste independente \\
+    \texttt{X\_train} & \texttt{criar\_dataset\_janelado()} & $(660450, 50, 4)$ & Janelas de 50 passos deslizantes \\
+    \texttt{y\_train} & \texttt{criar\_dataset\_janelado()} & $(660450, 4)$ & Próximo passo observável ($h=1$) \\
+    \texttt{X\_test} & \texttt{criar\_dataset\_janelado()} & $(333000, 50, 4)$ & Janelas de teste para validação \\
+    \texttt{lstm\_1} & Saída da $1^{\text{a}}$ camada LSTM & $(B, 50, 64)$ & Sequência temporal de estados ocultos \\
+    \texttt{lstm\_2} & Saída da $2^{\text{a}}$ camada LSTM & $(B, 64)$ & Vetor final de estado latente \\
+    \texttt{outputs} & Saída da camada Densa & $(B, 4)$ & Previsão pontual dos 4 gases ($h=1$) \\
+    \texttt{previsao\_raw} & \texttt{prever\_gases\_futuros()} & $(4,)$ & Predição recursiva desnormalizada em $h$ \\
+    \texttt{grupo3} & Concatenação $h=14$ e $h=28$ & $(8,)$ & 8 atributos temporais para o XGBoost \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\vspace{0.4cm}
+% =========================================================================
+% PILAR 3: DECISÕES DE PROJETO E NUANCES DO TRABALHO
+% =========================================================================
+\section{Pilar 3: Decisões de Projeto e Nuances do Meu Trabalho}
+
+\subsection{Justificativa Arquitetural: Por que LSTM e não RNN, GRU ou Transformer?}
+\begin{decisionBox}{Por que a LSTM foi a arquitetura escolhida para a previsão temporal?}
+\begin{enumerate}[leftmargin=0.8cm]
+  \item \textbf{Frente à RNN Simples:} Conforme demonstrado matematicamente na Seção 1.1, a RNN convencional sofre com o desaparecimento do gradiente para sequências de 50 passos, falhando em modelar a inércia térmica que dura semanas.
+  \item \textbf{Frente à GRU (\textit{Gated Recurrent Unit}):} A GRU funde o estado da célula $\mathbf{C}_t$ com o estado oculto $\mathbf{h}_t$, utilizando apenas duas portas (Update e Reset). Embora a GRU tenha menos parâmetros ($\approx 38.000$ contra $50.948$), o desacoplamento explícito da LSTM entre memória de longo prazo ($\mathbf{C}_t$, estoque acumulado de óleo) e ativação de curto prazo ($\mathbf{h}_t$, leitura imediata de superfície) oferece uma representação mais aderente à física de difusão de gases em fluidos térmicos.
+  \item \textbf{Frente a Transformers (como Informer / Autoformer):} Redes baseadas em mecanismos de atenção (\textit{Self-Attention}) exigem dezenas de milhares de amostras heterogêneas para calibrar matrizes de projeção de Query, Key e Value sem sobreajuste. Na literatura de DGA aberta, a base Katser possui $2.100$ transformadores em condições padronizadas; o custo computacional de um Transformer não se justifica para séries que possuem dinâmica linear de alta inércia, como demonstrado na Tabela 2 do TCC.
+\end{enumerate}
+\end{decisionBox}
+
+\subsection{Seleção da Janela Ótima \texorpdfstring{($w^* = 50$)}{(w* = 50)} e Horizontes de Previsão \texorpdfstring{($h=14, 28$)}{(h=14, 28)}}
+\begin{decisionBox}{Critérios de Projeto da Janela Temporal e Horizontes}
+\begin{itemize}
+  \item \textbf{Seleção da Janela Histórica ($w=50$):} Na Fase 3, testaram-se quatro tamanhos candidatos na partição de validação: $w \in \{10, 20, 30, 50\}$. Janelas curtas ($w=10$, 5 dias) mostraram-se sensíveis a ruídos passageiros de sensores online. A janela de $w^* = 50$ (correspondente a 25 dias de operação contínua) obteve o menor MAE médio de validação, capturando com precisão a taxa contínua de decomposição molecular sem introduzir atraso dinâmico indesejado.
+  \item \textbf{Definição dos Horizontes ($h=14$ e $h=28$):} Como cada passo temporal equivale a 12 horas:
+  \begin{itemize}
+    \item $h = 14$ passos $\implies 14 \times 12\text{h} = 168\text{ horas} = \mathbf{7\text{ dias (1 semana)}}$, que corresponde à rotina operacional de inspeção semanal em subestações.
+    \item $h = 28$ passos $\implies 28 \times 12\text{h} = 336\text{ horas} = \mathbf{14\text{ dias (2 semanas)}}$, prazo suficiente para agendamento de manutenção preditiva sem parada intempestiva da linha.
+  \end{itemize}
+\end{itemize}
+\end{decisionBox}
+
+\subsection{A Descoberta Crucial: LSTM vs. Baseline de Persistência}
+A Tabela~\ref{tab:lstm_vs_persist} compara a acurácia preditiva da LSTM com a persistência ingênua ($\hat{\mathbf{x}}_{t+h} = \mathbf{x}_t$), demonstrando por que a hipótese de ganho preditivo no diagnóstico foi rejeitada no Track A.
+
+\begin{table}[htbp]
+  \centering\small
+  \caption{Comparação entre a LSTM Recursiva e o Baseline de Persistência Ingênua.}
+  \label{tab:lstm_vs_persist}
+  \begin{tabularx}{\textwidth}{l c c c c X}
+    \toprule
+    \textbf{Horizonte ($h$)} & \textbf{Tempo Real} & \textbf{$R^2$ Persistência} & \textbf{$R^2$ LSTM} & \textbf{MAE\% LSTM} & \textbf{Diagnóstico Técnico} \\
+    \midrule
+    $h = 1$ & 12 horas & 1,0000 & 0,9996 & 0,90\% & Estacionariedade quase perfeita \\
+    $h = 7$ & 3,5 dias & 0,9992 & 0,9991 & 1,31\% & Empate técnico \\
+    $h = 14$ & 7 dias & 0,9970 & 0,9979 & 2,05\% & Ganho marginal da LSTM ($\Delta R^2 = +0,0009$) \\
+    $h = 28$ & 14 dias & 0,9886 & 0,9928 & 3,76\% & Ganho de $\Delta R^2 = +0,0042$ \\
+    $h = 98$ & 7 semanas & 0,8940 & 0,8846 & 14,96\% & Limite de confiabilidade ($R^2_{\text{H}_2} = 0,8483 \ge 0,80$) \\
+    $h = 112$ & 8 semanas & 0,8696 & 0,8380 & 17,68\% & Rompimento do critério ($R^2_{\text{H}_2} = 0,7877 < 0,80$) \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\textbf{Conclusão de Engenharia:}\\
+A dinâmica dos transformadores na base Katser apresenta uma inércia temporal tão elevada que a repetição pura e simples da leitura de hoje já garante $R^2 = 0{,}9970$ após 7 dias de operação. Essa constatação explica matematicamente por que o classificador XGBoost atinge praticamente o mesmo $F_1$-score com ou sem as variáveis da LSTM ($0{,}7604$ vs $0{,}7602$).
+
+\subsection{Nuance Metodológica: O Risco de Viés no Treino do XGBoost}
+\begin{decisionBox}{Ponto Crítico: Previsões In-Sample no Treino vs. Out-of-Sample no Teste}
+\textbf{A Nuance Técnica Identificada:}\\
+No pipeline do Track A, para construir o arquivo \texttt{katser\_features\_train.csv}, a LSTM treinada gerou as variáveis \texttt{lstm\_h14\_*} e \texttt{lstm\_h28\_*} para as 1.785 séries que a própria LSTM observou durante o seu treinamento (previsões \textit{in-sample}). Por outro lado, para o arquivo \texttt{katser\_features\_test.csv}, as previsões foram geradas sobre as 900 séries de teste que a LSTM nunca viu (\textit{out-of-sample}).
+
+\textbf{Impacto e Mitigação:}\\
+Isso poderia gerar um viés favorável ao treino, onde as previsões seriam mais precisas no treino do que no teste. Contudo, como o erro da LSTM no teste permaneceu minúsculo ($R^2 = 0{,}9979$ em $h=14$), essa discrepância foi praticamente nula na prática. O TCC declara essa limitação de forma transparente nas Seções 3.6.1 e 5.3, reconhecendo que o treinamento híbrido não utilizou um esquema estrito de validação cruzada \textit{out-of-fold} para a geração de features na base de desenvolvimento.
+\end{decisionBox}
+
+\vspace{0.4cm}
+% =========================================================================
+% PILAR 4: SABATINA DA BANCA (3 PERGUNTAS DIFÍCEIS E GABARITOS)
+% =========================================================================
+\section{Pilar 4: Sabatina da Banca (3 Perguntas Difíceis e Gabaritos)}
+
+\begin{boardQuestion}{1. Dedução de Pesos e Operações Matriciais da LSTM}
+\textit{“O seu trabalho utiliza uma rede LSTM com duas camadas empilhadas de 64 unidades cada, afirmando que o modelo totaliza 50.948 parâmetros treináveis. Como esses parâmetros são alocados exatamente entre as matrizes de entrada, matrizes recorrentes e vetores de bias de cada porta lógica? Mostre analiticamente a dedução desse número e explique como bibliotecas otimizadas como TensorFlow/cuDNN empacotam essas operações para execução eficiente na GPU.”}
+\end{boardQuestion}
+
+\begin{boardAnswer}
+\textbf{Estratégia de Resposta:}\\
+Demonstre domínio analítico irrefutável deduzindo as equações de parâmetros no quadro ou com firmeza verbal:
+
+\begin{enumerate}[leftmargin=0.8cm]
+  \item \textbf{Fórmula Geral de Parâmetros por Célula LSTM:} ``Uma camada LSTM possui 4 portas funcionais: porta de esquecimento ($\mathbf{f}$), porta de entrada ($\mathbf{i}$), vetor candidato ($\tilde{\mathbf{C}}$) e porta de saída ($\mathbf{o}$). Cada porta possui sua própria matriz de pesos para a entrada externa ($\mathbf{W} \in \mathbb{R}^{H \times D}$), sua matriz de pesos para a realimentação do estado oculto ($\mathbf{U} \in \mathbb{R}^{H \times H}$) e seu vetor de viés ($\mathbf{b} \in \mathbb{R}^H$). Portanto, a equação geral é:
+  \begin{equation}
+    P_{\text{LSTM}} = 4 \times \left( H \cdot D + H^2 + H \right) = 4 \cdot H \cdot (D + H + 1)
+  \end{equation}
+  \item \textbf{Cálculo da Primeira Camada (\texttt{lstm\_1}, $D=4, H=64$):}
+  \begin{equation}
+    P_1 = 4 \times 64 \times (4 + 64 + 1) = 256 \times 69 = \mathbf{17.664} \text{ parâmetros}
+  \end{equation}
+  \item \textbf{Cálculo da Segunda Camada (\texttt{lstm\_2}, $D=64, H=64$):}
+  \begin{equation}
+    P_2 = 4 \times 64 \times (64 + 64 + 1) = 256 \times 129 = \mathbf{33.024} \text{ parâmetros}
+  \end{equation}
+  \item \textbf{Cálculo da Camada Densa Final (Entrada 64, Saída 4):}
+  \begin{equation}
+    P_3 = (64 \times 4) + 4 = 256 + 4 = \mathbf{260} \text{ parâmetros}
+  \end{equation}
+  Somando os blocos: $17.664 + 33.024 + 260 = \mathbf{50.948}$ parâmetros treináveis exatos.''
+  \item \textbf{Empacotamento Computacional no TensorFlow / cuDNN:} ``Para maximizar a vazão em hardware paralelo (GPU), o TensorFlow não executa 4 multiplicações de matrizes isoladas. Ele empacota as matrizes de entrada em uma única matriz combinada $\mathbf{W} \in \mathbb{R}^{4H \times D}$ e as matrizes recorrentes em $\mathbf{U} \in \mathbb{R}^{4H \times H}$. Uma única instrução GEMM (General Matrix Multiply) computa $\mathbf{Z}_t = \mathbf{W}\mathbf{x}_t + \mathbf{U}\mathbf{h}_{t-1} + \mathbf{b}$, e o vetor resultante de dimensão $4H = 256$ é fatiado (\textit{sliced}) em 4 vetores de dimensão 64 para aplicação simultânea das funções sigmoide e tangente hiperbólica.''
+\end{enumerate}
+\end{boardAnswer}
+
+\begin{boardQuestion}{2. A Crítica da Persistência: A LSTM é Desnecessária?}
+\textit{“Na Tabela 2 do seu TCC, os dados mostram que a persistência ingênua ($\hat{y}_{t+h} = y_t$) atinge um coeficiente de determinação $R^2 = 0{,}9970$ no horizonte de 7 dias ($h=14$), enquanto a sua LSTM complexa de 50 mil parâmetros atinge $R^2 = 0{,}9979$. A diferença é de menos de 0,1\%! E em 7 semanas ($h=98$), a persistência chega a ser superior à LSTM ($0{,}8940$ vs $0{,}8846$). Diante desses números, a sua rede neural não é um modelo desnecessariamente complexo para dados que quase não variam no tempo?”}
+\end{boardQuestion}
+
+\begin{boardAnswer}
+\textbf{Estratégia de Resposta:}\\
+Transforme o que parece ser uma fragilidade em uma demonstração de excelência científica, honestidade metodológica e domínio do processo físico.
+
+\begin{enumerate}[leftmargin=0.8cm]
+  \item \textbf{Reconhecimento da Inércia Física do Processo:} ``O examinador toca no ponto nevrálgico do Track A. A persistência ingênua atinge $R^2 = 0{,}9970$ porque a dissolução de gases no óleo mineral sob regime estável é governada por processos de difusão molecular lentos, descritos pelas leis de Fick e termodinâmica de fluidos, onde a taxa diária de acúmulo em ppm é pequena em relação ao volume de centenas de litros de óleo do transformador.''
+  \item \textbf{Onde a LSTM Agrega Valor:} ``Embora na média global a persistência seja competitiva em razão da inércia, a persistência possui \textbf{viés estrutural zero de antecipação}: ela é matematicamente incapaz de prever acelerações de tendência, inflexões na taxa de geração de gás ou dinâmicas causadas pelo ciclo de aquecimento térmico do transformador. A LSTM captura derivadas de segunda ordem da concentração que um baseline constante não consegue antecipar.''
+  \item \textbf{O Rigor Metodológico do Trabalho:} ``O maior valor científico do nosso TCC foi justamente ter implementado o baseline de persistência e exposto esse confronto com total transparência. Grande parte dos artigos da literatura recente de Deep Learning aplicado a DGA publica modelos LSTM anunciando acurácias de 99\% sem nunca compará-los contra a persistência ingênua. Nosso trabalho desmascarou essa ilusão: provamos que o $R^2 = 0{,}99$ da literatura decorre da estacionariedade das bases disponíveis, e não necessariamente da mágica do modelo recorrente. Ao demonstrar via teste de ablação que o acoplamento temporal não altera o diagnóstico final ($F_1 \approx 0{,}76$ em ambos os casos), entregamos uma contribuição metodológica genuína para a engenharia.''
+\end{enumerate}
+\end{boardAnswer}
+
+\begin{boardQuestion}{3. Acúmulo de Erro Recursivo vs. Arquiteturas Diretas ou Seq2Seq}
+\textit{“Você utilizou uma estratégia auto-regressiva recursiva (alimentando a previsão do passo $t+1$ como entrada para o passo $t+2$ até $h=112$), em vez de utilizar uma abordagem Direta (treinando um modelo independente para cada horizonte $h$) ou uma arquitetura Sequence-to-Sequence (Seq2Seq / Encoder-Decoder). Quais são as desvantagens teóricas do acúmulo de erros recursivos e por que você adotou essa estratégia no TCC?”}
+\end{boardQuestion}
+
+\begin{boardAnswer}
+\textbf{Estratégia de Resposta:}\\
+Apresente a fundamentação teórica de séries temporais sobre as três abordagens de multi-step forecasting e justifique a escolha com base no custo de treinamento e consistência dinâmica.
+
+\begin{enumerate}[leftmargin=0.8cm]
+  \item \textbf{A Patologia Teórica da Abordagem Recursiva:} ``A abordagem recursiva sofre de \textbf{propagação e acumulação de erros estocásticos}:
+  \begin{equation}
+    \hat{\mathbf{x}}_{t+k} = f_\Theta\left( \hat{\mathbf{x}}_{t+k-1} \right) + \boldsymbol{\epsilon}_k
+  \end{equation}
+  Como o modelo foi treinado exclusivamente com pares $(X, y)$ de dados reais limpos ($h=1$), ao ser realimentado com suas próprias predições imperfeitas durante a inferência, ele opera sobre uma distribuição fora do domínio de treinamento (\textit{exposure bias} / covariância de deslocamento). Isso explica exatamente por que, na Tabela 2, o $R^2$ do hidrogênio decai progressivamente de $0{,}9995$ em $h=1$ para $0{,}7877$ em $h=112$.''
+  \item \textbf{Por que a Abordagem Direta Foi Rejeitada:} ``A estratégia direta exigiria treinar $K$ modelos neurais completamente independentes para cada horizonte de interesse ($f_{\Theta_1}, f_{\Theta_2}, \dots, f_{\Theta_{112}}$). Para 12 horizontes, isso aumentaria o custo computacional de treinamento em 12 vezes ($12 \times 50.948 \approx 611.000$ parâmetros), além de quebrar a consistência física temporal entre passos adjacentes (o modelo $h=15$ poderia prever um valor fisicamente incompatível com o modelo $h=14$).''
+  \item \textbf{Por que a Abordagem Recursiva é a Mais Adequada para o Problema:} ``Na operação de subestações de energia, o operador precisa de um modelo compacto e flexível que possa ser consultado para qualquer horizonte arbitrário (7 dias, 10 dias, 14 dias ou 30 dias) sem necessidade de re-treinamento de novos modelos. Além disso, a auto-regressão garante que a trajetória respeite a dinâmica contínua do sistema termodinâmico. O trabalho comprovou que a acumulação de erro permanece dentro dos limites operacionais de confiabilidade ($R^2 \ge 0{,}80$) até 7 semanas contínuas ($h=98$), validando empiricamente a viabilidade da técnica para planejamento de manutenção preditiva.''
+\end{enumerate}
+\end{boardAnswer}
+
+\vspace{0.6cm}
+\begin{center}
+  \rule{0.6\textwidth}{0.8pt}\\[0.2cm]
+  \small\textbf{\textsf{Fim do Módulo 2 -- Domínio Pleno da Rede LSTM para a Defesa de TCC!}}
+\end{center}
+
+\end{document}
