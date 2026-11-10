@@ -10,7 +10,7 @@ Trabalho de Conclusão de Curso (TCC II) apresentado ao Curso de Engenharia da C
 
 ---
 
-## 📌 Visão Geral do Repositório
+## Visão Geral do Repositório
 
 Este repositório unifica a documentação acadêmica e o pipeline computacional completo de experimentos para diagnóstico e predição de falhas incipientes em transformadores de potência imersos em óleo mineral via Análise de Gases Dissolvidos (DGA).
 
@@ -30,7 +30,7 @@ Devido à assimetria das bases industriais públicas disponíveis, a pesquisa fo
 
 ---
 
-## 📁 Estrutura de Diretórios
+## Estrutura de Diretórios
 
 ```text
 TCC_Final/
@@ -63,7 +63,7 @@ TCC_Final/
 
 ---
 
-## ⚙️ Instruções de Uso e Reprodução
+## Instruções de Uso e Reprodução
 
 ### 1. Compilação da Monografia (LaTeX)
 
@@ -97,6 +97,6 @@ pytest tests/
 
 ---
 
-## 📜 Licença e Citação
+## Licença e Citação
 
 Este material foi desenvolvido para fins acadêmicos e científicos no âmbito do curso de Engenharia da Computação da Universidade do Vale do Rio dos Sinos (UNISINOS).
