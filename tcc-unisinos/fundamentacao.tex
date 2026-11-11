@@ -174,7 +174,7 @@ Transformer & Zhou et al. (2021) & Mecanismos de atenção em horizontes longos 
 \hline
 AG padrão & Ali et al. (2023) & Busca estocástica global sem necessidade de derivadas & Risco de estagnar cedo em ótimos locais \\
 
-\textbf{IGA} $\checkmark$ & Wu et al. (2021) & Cruzamento adaptativo, operadores mistos e elitismo & Custo computacional elevado pela validação cruzada iterativa \\
+\textbf{IGA} $\checkmark$ & Wu et al. (2021) & Operadores mistos (binário e contínuo) e elitismo & Custo computacional elevado pela validação cruzada iterativa \\
 
 Otimização Bayesiana & -- & Amostragem baseada em processos gaussianos & Menor flexibilidade para otimizar conjuntamente variáveis binárias e contínuas \\
 
@@ -286,7 +286,7 @@ Em matrizes de dados de DGA, o algoritmo genético clássico pode sofrer com con
 \fonte{Elaborado pelo autor, com base em \citeonline{wu2021}.}
 \end{figure}
 
-No IGA, cada indivíduo é estruturado por um cromossomo bipartido composto por uma máscara binária (que define quais variáveis são utilizadas) e por um vetor de números reais (correspondente aos hiperparâmetros contínuos do XGBoost). Na etapa de recombinação, aplica-se cruzamento uniforme sobre a máscara binária e cruzamento linear adaptativo (\textit{Blend Crossover}, BLX-$\alpha$) sobre os genes contínuos, associados a perturbações gaussianas para mutação contínua e inversão probabilística de bits para a parte discreta. A preservação por elitismo garante que as melhores soluções encontradas sejam repassadas diretamente para a geração seguinte, guiando a busca para configurações de alta precisão e menor complexidade.
+No IGA, cada indivíduo é estruturado por um cromossomo bipartido composto por uma máscara binária (que define quais variáveis são utilizadas) e por um vetor de números reais (correspondente aos hiperparâmetros contínuos do XGBoost). Na etapa de recombinação e mutação, o cromossomo é operado de forma separada: a máscara binária utiliza cruzamento uniforme e mutação por inversão de bits com probabilidade fixa de 10\% ($P_m = 0,10$), enquanto o vetor de hiperparâmetros contínuos utiliza cruzamento BLX-$\alpha$ ($\alpha = 0,50$) e mutação gaussiana com desvio padrão de 0,10. A preservação por elitismo garante que as melhores soluções encontradas sejam repassadas diretamente para a geração seguinte, guiando a busca para configurações de alta precisão e menor complexidade.
 
 Embora a combinação entre ensembles de árvores e otimização evolutiva proporcione elevado poder discriminativo, sua adoção segura em diagnósticos industriais requer transparência sobre os critérios internos de decisão, tema abordado na próxima seção por meio das técnicas de interpretabilidade em aprendizado de máquina.
 
